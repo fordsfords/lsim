@@ -25,11 +25,12 @@ extern "C" {
 #define LSIM_ERR_NOMEM 3
 
 struct lsim_s {
-  hmap_t *node_map;
+  cfg_t *cfg;
+  hmap_t *devs;
 };
 typedef struct lsim_s lsim_t;
 
-ERR_F lsim_create(lsim_t **rtn_lsim);
+ERR_F lsim_create(lsim_t **rtn_lsim, char *config_filename);
 ERR_F lsim_delete(lsim_t *lsim);
 
 #ifdef __cplusplus

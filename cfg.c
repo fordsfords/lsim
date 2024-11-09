@@ -66,26 +66,26 @@ ERR_F cfg_create(cfg_t **rtn_cfg) {
 
 
 ERR_F cfg_delete(cfg_t *cfg) {
-  hmap_node_t *node;
+  hmap_entry_t *entry;
 
-  node = NULL;  /* Start at beginning. */
+  entry = NULL;  /* Start at beginning. */
   do {
-    ERR(hmap_next(cfg->option_vals, &node));
-    if (node) {
-        ERR_ASSRT(node->value != NULL, CFG_ERR_INTERNAL);
-        free(node->value);
+    ERR(hmap_next(cfg->option_vals, &entry));
+    if (entry) {
+        ERR_ASSRT(entry->value != NULL, CFG_ERR_INTERNAL);
+        free(entry->value);
     }
-  } while (node);
+  } while (entry);
   ERR(hmap_delete(cfg->option_vals));
 
-  node = NULL;  /* Start at beginning. */
+  entry = NULL;  /* Start at beginning. */
   do {
-    ERR(hmap_next(cfg->option_locations, &node));
-    if (node) {
-        ERR_ASSRT(node->value != NULL, CFG_ERR_INTERNAL);
-        free(node->value);
+    ERR(hmap_next(cfg->option_locations, &entry));
+    if (entry) {
+        ERR_ASSRT(entry->value != NULL, CFG_ERR_INTERNAL);
+        free(entry->value);
     }
-  } while (node);
+  } while (entry);
   ERR(hmap_delete(cfg->option_locations));
 
   return ERR_OK;
@@ -124,9 +124,8 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
   ERR_ASSRT(key_len > 0, CFG_ERR_NOKEY);
   /* See if key already exists. */
   err = hmap_lookup(cfg->option_vals, key, key_len, NULL);
-  if (err && err->code != HMAP_ERR_NOTFOUND) {
-    /* An unexpected error. */
-    free(local_iline);
+  if (err && err->code != HMAP_ERR_NOTFOUND) { /* An unexpected error. */
+    free(local_iline);  /* Clean up local copy. */
     ERR_RETHROW(err, err->code);
   }
   int key_exists = (err == NULL);  /* Key exists if no error. */
@@ -134,16 +133,14 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
 
   switch (mode) {
   case CFG_MODE_UPDATE:
-    if (! key_exists) {
-      /* Key not exist is an error for UPDATE mode. */
-      free(local_iline);
+    if (! key_exists) { /* Key not exist is an error for UPDATE mode. */
+      free(local_iline);  /* Clean up local copy. */
       ERR_THROW(CFG_ERR_UPDATE_KEY_NOT_FOUND, "");
     }
     break;
   case CFG_MODE_ADD:
-    if (key_exists) {
-      /* Key exist is an error for ADD mode. */
-      free(local_iline);
+    if (key_exists) { /* Key exist is an error for ADD mode. */
+      free(local_iline);  /* Clean up local copy. */
       ERR_THROW(CFG_ERR_ADD_KEY_ALREADY_EXIST, "");
     }
     break;
@@ -163,7 +160,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
   ERR_ASSRT(location = err_asprintf("%s:%d", filename, line_num), CFG_ERR_NOMEM);
   ERR(hmap_write(cfg->option_locations, key, key_len, location));
 
-  free(local_iline);
+  free(local_iline);  /* Clean up local copy. */
   return ERR_OK;
 }  /* cfg_parse_line */
 
@@ -232,13 +229,31 @@ ERR_F cfg_get_str_val(cfg_t *cfg, const char *key, char **rtn_value) {
 }  /* cfg_get_str_val */
 
 
+void cfg_remove_spaces(char *in_str) {
+  char *dst = in_str;
+  char *src = in_str;
+  while (*src != '\0') {
+    if (*src != ' ') {
+      *dst = *src;
+      dst++;
+    }
+    src ++;
+  }
+  *dst = '\0';
+}  /* cfg_remove_spaces */
+
+
 ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
   char *val_str;
+  char *local_val_str;
   long value;
   int base = 10;
   err_t *err;
 
   ERR(hmap_lookup(cfg->option_vals, key, strlen(key), (void **)&val_str));
+  ERR_ASSRT(local_val_str = strdup(val_str), CFG_ERR_NOMEM);  /* Local copy to remove spaces. */
+  val_str = local_val_str;
+  cfg_remove_spaces(val_str);
   if (val_str[0] == '0' && (val_str[1] == 'x' || val_str[1] == 'X')) {
     base = 16;
     val_str += 2;
@@ -246,7 +261,10 @@ ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
   errno = 0;  /* Good practice when using strtol. */
   char *p = NULL;
   value = strtol(val_str, &p, base);
-  if (errno != 0 || p == val_str || p == NULL || *p != '\0') {
+  int strtol_errno = errno;
+  /* Check for conversation errors. */
+  if (strtol_errno != 0 || p == val_str || p == NULL || *p != '\0') {
+    free(local_val_str);  /* Clean up local copy. */
     char *location;
     err = hmap_lookup(cfg->option_locations, key, strlen(key), (void **)&location);
     if (err) {
@@ -254,6 +272,8 @@ ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
       err_dispose(err);
     }
     ERR_THROW(CFG_ERR_BAD_NUMBER, location);
+  } else {
+    free(local_val_str);  /* Clean up local copy. */
   }
 
   *rtn_value = value;

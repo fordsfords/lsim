@@ -13,18 +13,24 @@
 #define LSIM_H
 
 #include <stdint.h>
+#include "err.h"
 #include "hmap.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define LSIM_ERR_INTERNAL 1
+#define LSIM_ERR_PARAM 2
+#define LSIM_ERR_NOMEM 3
+
 struct lsim_s {
   hmap_t *node_map;
 };
 typedef struct lsim_s lsim_t;
 
-int lsim_create(lsim_t **rtn_lsim, size_t table_size);
+ERR_F lsim_create(lsim_t **rtn_lsim);
+ERR_F lsim_delete(lsim_t *lsim);
 
 #ifdef __cplusplus
 }

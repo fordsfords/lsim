@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include "err.h"
 #include "hmap.h"
-#include "hmape.h"
+#include "cfg.h"
 #include "lsim.h"
 
 
@@ -33,5 +33,19 @@
 } while (0)
 
 
-int lsim_create(lsim_t **rtn_lsim, hmap_t *config, err_t *err) {
+ERR_F lsim_create(lsim_t **rtn_lsim) {
+  err_t *err;
+
+  lsim_t *lsim;
+  ERR_ASSRT(lsim = calloc(1, sizeof(lsim_t)), LSIM_ERR_NOMEM);
+
+  *rtn_lsim = lsim;
+  return ERR_OK;
 }  /* lsim_create */
+
+
+ERR_F lsim_delete(lsim_t *lsim) {
+  free(lsim);
+
+  return ERR_OK;
+}  /* lsim_delete */

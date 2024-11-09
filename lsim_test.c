@@ -1,4 +1,4 @@
-/* lsim_test.c - self-test.
+/* lsim_tst.c - self-test.
  *
  * This code and its documentation is Copyright 2019, 2019 Steven Ford,
  * http://geeky-boy.com and licensed "public domain" style under Creative
@@ -19,6 +19,7 @@
 #endif
 #include "err.h"
 #include "hmap.h"
+#include "cfg.h"
 #include "lsim.h"
 
 #if defined(_WIN32)
@@ -29,7 +30,7 @@
 
 #define E(e_test) do { \
   if ((e_test) != ERR_OK) { \
-    fprintf(stderr, "ERROR [%s:%d]: '%s' returned -1\n", __FILE__, __LINE__, #e_test); \
+    fprintf(stderr, "ERROR [%s:%d]: '%s' returned error\n", __FILE__, __LINE__, #e_test); \
     exit(1); \
   } \
 } while (0)
@@ -46,7 +47,7 @@
 int o_testnum;
 
 
-char usage_str[] = "Usage: lsim_test [-h] [-t testnum]";
+char usage_str[] = "Usage: err_test [-h] [-t testnum]";
 void usage(char *msg) {
   if (msg) fprintf(stderr, "\n%s\n\n", msg);
   fprintf(stderr, "%s\n", usage_str);
@@ -58,7 +59,7 @@ void help() {
     "where:\n"
     "  -h - print help\n"
     "  -t testnum - Specify which test to run [1].\n"
-    "For details, see https://github.com/fordsfords/lsim\n",
+    "For details, see https://github.com/fordsfords/err\n",
     usage_str);
   exit(0);
 }  /* help */
@@ -83,11 +84,12 @@ void parse_cmdline(int argc, char **argv) {
 }  /* parse_cmdline */
 
 
-int test1() {
-  err_t local_err;
-  int status;
+void test1() {
+  lsim_t *lsim;
 
-  return ERR_OK;
+  E(lsim_create(&lsim));
+
+  E(lsim_delete(lsim));
 }  /* test1 */
 
 

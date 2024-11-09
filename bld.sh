@@ -14,6 +14,6 @@ echo "Building code"
 
 rm -f lsim
 
-gcc -Wall -pthread -g -o lsim -pthread lsim.c err.c hmape.c hmap.c; if [ $? -ne 0 ]; then exit 1; fi
+gcc -Wall -pthread -g -o lsim -pthread lsim_test.c lsim.c err.c hmap.c cfg.c; if [ $? -ne 0 ]; then exit 1; fi
 
 echo "Build successful"

@@ -1,3 +1,23 @@
+# Scratch files
+x
+x.*
+*.x
+*.tmp
+*.tmp[0-9]
+tmp.*
+~*
+*~
+*.bak
+*.log
+*.out
+*.pcap
+.DS_Store
+
+# Executable
+a.out
+lsim
+lsim_test
+
 # Prerequisites
 *.d
 

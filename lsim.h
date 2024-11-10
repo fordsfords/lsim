@@ -24,6 +24,36 @@ extern "C" {
 #define LSIM_ERR_PARAM 2
 #define LSIM_ERR_NOMEM 3
 
+typedef struct wire_s wire_t;
+
+typedef struct dev_s dev_t;  /* Generic device. */
+typedef struct dev_vcc_s dev_vcc_t;
+typedef struct dev_gnd_s dev_gnd_t;
+typedef struct dev_clk1_s dev_clk1_t;
+typedef struct dev_nand_s dev_nand_t;
+
+struct dev_s {
+  int type;  /* DEV_TYPE_... */
+  union {
+    dev_vcc_t vcc;
+    dev_gnd_t gnd;
+    dev_clk1_t clk1;
+    dev_nand_t nand;
+  };
+  dev_t *next_out_changed;
+  def_t *next_in_changed;
+};
+
+struct dev_vcc_s {
+  int out_state;
+  wire_t out_conn;
+};
+
+struct dev_gnd_s {
+  int out_state;
+  wire_t out_conn;
+};
+
 typedef struct lsim_s lsim_t;
 struct lsim_s {
   cfg_t *cfg;

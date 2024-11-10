@@ -24,11 +24,11 @@ extern "C" {
 #define LSIM_ERR_PARAM 2
 #define LSIM_ERR_NOMEM 3
 
+typedef struct lsim_s lsim_t;
 struct lsim_s {
   cfg_t *cfg;
   hmap_t *devs;
 };
-typedef struct lsim_s lsim_t;
 
 ERR_F lsim_create(lsim_t **rtn_lsim, char *config_filename);
 ERR_F lsim_delete(lsim_t *lsim);

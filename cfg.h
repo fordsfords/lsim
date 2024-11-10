@@ -19,11 +19,11 @@
 extern "C" {
 #endif
 
+typedef struct cfg_s cfg_t;
 struct cfg_s {
   hmap_t *option_vals;
   hmap_t *option_locations;
 };
-typedef struct cfg_s cfg_t;
 
 #define CFG_MODE_ADD 1
 #define CFG_MODE_UPDATE 2

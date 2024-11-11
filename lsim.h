@@ -23,13 +23,26 @@ extern "C" {
 #define LSIM_ERR_INTERNAL 1
 #define LSIM_ERR_PARAM 2
 #define LSIM_ERR_NOMEM 3
+#define LSIM_ERR_COMMAND 4
+#define LSIM_ERR_NAME 5
+#define LSIM_ERR_EXIST 6
 
 #define LSIM_DEV_TYPE_VCC 1
 #define LSIM_DEV_TYPE_GND 2
 #define LSIM_DEV_TYPE_CLK1 3
 #define LSIM_DEV_TYPE_NAND 4
+#define LSIM_DEV_TYPE_MEM 5
 
+typedef struct wire_s wire_t;
 typedef struct wire_segment_s wire_segment_t;
+typedef struct device_s device_t;  /* Generic device. */
+typedef struct device_vcc_s device_vcc_t;
+typedef struct device_gnd_s device_gnd_t;
+typedef struct device_clk1_s device_clk1_t;
+typedef struct device_nand_s device_nand_t;
+typedef struct device_mem_s device_mem_t;
+
+/* Full definitions. */
 struct wire_segment_s {
   device_t *sink_device;
   char *input_name;
@@ -37,17 +50,10 @@ struct wire_segment_s {
   wire_segment_t *next_segment;
 };
 
-typedef struct wire_s wire_t;
 struct wire_s {
   device_t *source_device;
   wire_segment_t *sink;
 };
-
-typedef struct device_s device_t;  /* Generic device. */
-typedef struct device_vcc_s device_vcc_t;
-typedef struct device_gnd_s device_gnd_t;
-typedef struct device_clk1_s device_clk1_t;
-typedef struct device_nand_s device_nand_t;
 
 struct device_vcc_s {
   int out_state;
@@ -67,8 +73,16 @@ struct device_clk1_s {
 struct device_nand_s {
   int out_state;
   wire_t out_wire;
+  long num_inputs;
+  int *in_states;  /* Array of num_inputs. */
+};
+
+struct device_mem {
+  int num_output;
+  int *out_states;
+  wire_t *out_wires;
   int num_inputs;
-  int *in_state;  /* Array of num_inputs. */
+  int *in_states;  /* Array of num_inputs. */
 };
 
 struct device_s {
@@ -81,6 +95,7 @@ struct device_s {
     device_gnd_t gnd;
     device_clk1_t clk1;
     device_nand_t nand;
+    device_nand_t mem;
   };
 };
 

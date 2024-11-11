@@ -16,6 +16,7 @@
 #include "hmap.h"
 #include "cfg.h"
 #include "lsim.h"
+#include "lsim_cmd.h"
 
 
 char *lsim_cfg_defaults[] = {
@@ -24,24 +25,7 @@ char *lsim_cfg_defaults[] = {
 };
 
 
-#define E(e_test) do { \
-  if ((e_test) == -1) { \
-    fprintf(stderr, "ERROR [%s:%d]: '%s' returned -1\n", __FILE__, __LINE__, #e_test); \
-    exit(1); \
-  } \
-} while (0)
-
-#define ASSRT(assrt_cond) do { \
-  if (! (assrt_cond)) { \
-    fprintf(stderr, "ERROR [%s:%d]: assert '%s' failed\n", __FILE__, __LINE__, #assrt_cond); \
-    exit(1); \
-  } \
-} while (0)
-
-
 ERR_F lsim_create(lsim_t **rtn_lsim, char *config_filename) {
-  err_t *err;
-
   lsim_t *lsim;
   ERR_ASSRT(lsim = calloc(1, sizeof(lsim_t)), LSIM_ERR_NOMEM);
 
@@ -58,20 +42,6 @@ ERR_F lsim_create(lsim_t **rtn_lsim, char *config_filename) {
   *rtn_lsim = lsim;
   return ERR_OK;
 }  /* lsim_create */
-
-
-ERR_F lsim_device_nand_create(lsim_t *lsim, char *name, int num_inputs) {
-  device_t *dev;
-  ERR_ASSRT(dev = calloc(1, sizeof(device_t)), LSIM_ERR_NOMEM);
-  ERR_ASSRT(dev->name = strdup(name));
-  dev->type = LSIM_DEV_TYPE_NAND;
-  dev->nand.num_inputs = num_inputs;
-  ERR_ASSRT(dev->nand.in_state = calloc(num_inputs, sizeof(int));
-
-  ERR(hmap_write(lsim->devs, name, strlen(name), dev));
-
-  return ERR_OK;
-}  /* lsim_device_nand_create */
 
 
 ERR_F lsim_delete(lsim_t *lsim) {

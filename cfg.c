@@ -243,39 +243,45 @@ void cfg_remove_spaces(char *in_str) {
 }  /* cfg_remove_spaces */
 
 
-ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
-  char *val_str;
-  char *local_val_str;
-  long value;
+ERR_F cfg_atol(const char *in_str, long *rtn_value) {
   int base = 10;
+
+  if (in_str[0] == '0' && (in_str[1] == 'x' || in_str[1] == 'X')) {
+    base = 16;
+    in_str += 2;  /* Step past the "0x". */
+  }
+
+  errno = 0;  /* Best practice when using strtol. */
+  char *p = NULL;
+  long value = strtol(in_str, &p, base);
+  /* Check for error. */
+  if (errno != 0 || p == in_str || p == NULL || *p != '\0') {
+    ERR_THROW(CFG_ERR_BAD_NUMBER, in_str);
+  }
+
+  *rtn_value = value;
+  return ERR_OK;
+}  /* cfg_atol */
+
+
+ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
+  long value;
   err_t *err;
 
+  char *val_str;
   ERR(hmap_lookup(cfg->option_vals, key, strlen(key), (void **)&val_str));
-  ERR_ASSRT(local_val_str = strdup(val_str), CFG_ERR_NOMEM);  /* Local copy to remove spaces. */
-  val_str = local_val_str;
-  cfg_remove_spaces(val_str);
-  if (val_str[0] == '0' && (val_str[1] == 'x' || val_str[1] == 'X')) {
-    base = 16;
-    val_str += 2;
-  }
-  errno = 0;  /* Good practice when using strtol. */
-  char *p = NULL;
-  value = strtol(val_str, &p, base);
-  int strtol_errno = errno;
-  /* Check for conversation errors. */
-  if (strtol_errno != 0 || p == val_str || p == NULL || *p != '\0') {
-    free(local_val_str);  /* Clean up local copy. */
-    char *location;
-    err = hmap_lookup(cfg->option_locations, key, strlen(key), (void **)&location);
-    if (err) {
-      location = NULL;
-      err_dispose(err);
-    }
-    ERR_THROW(CFG_ERR_BAD_NUMBER, location);
-  } else {
-    free(local_val_str);  /* Clean up local copy. */
+
+  char *local_val_str;  /* Local copy to remove spaces. */
+  ERR_ASSRT(local_val_str = strdup(val_str), CFG_ERR_NOMEM);
+
+  cfg_remove_spaces(local_val_str);
+  err = cfg_atol(local_val_str, &value);
+  if (err) {
+    free(local_val_str);
+    ERR_RETHROW(err, err->code);
   }
 
+  free(local_val_str);  /* Clean up local copy. */
   *rtn_value = value;
   return ERR_OK;
 }  /* cfg_get_int_val */

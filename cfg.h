@@ -45,6 +45,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
 ERR_F cfg_parse_file(cfg_t *cfg, int mode, const char *filename);
 ERR_F cfg_parse_string_list(cfg_t *cfg, int mode, char **string_list);
 ERR_F cfg_get_str_val(cfg_t *cfg, const char *key, char **rtn_value);
+ERR_F cfg_atol(const char *in_str, long *rtn_value);
 ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value);
 
 #ifdef __cplusplus

@@ -21,6 +21,7 @@
 #include "hmap.h"
 #include "cfg.h"
 #include "lsim.h"
+#include "lsim_cmd.h"
 
 #if defined(_WIN32)
 #define MY_SLEEP_MS(msleep_msecs) Sleep(msleep_msecs)
@@ -88,8 +89,25 @@ void parse_cmdline(int argc, char **argv) {
 
 void test1() {
   lsim_t *lsim;
+  err_t *err;
 
   E(lsim_create(&lsim, NULL));
+
+  E(lsim_interp_cmd_line(lsim, "d;vcc;MyVcc;"));
+  E(lsim_interp_cmd_line(lsim, "d;vcc;-My_Vcc2;"));
+
+  err = lsim_interp_cmd_line(lsim, "d;vcc;MyVcc;");  /* Duplicate. */
+  ASSRT(err);
+  ASSRT(err->code == LSIM_ERR_EXIST);
+  err = lsim_interp_cmd_line(lsim, "d;vcc; MyVcc;");
+  ASSRT(err);
+  ASSRT(err->code == LSIM_ERR_NAME);
+  err = lsim_interp_cmd_line(lsim, "d;vcc;9MyVcc;");
+  ASSRT(err);
+  ASSRT(err->code == LSIM_ERR_NAME);
+  err = lsim_interp_cmd_line(lsim, "d;vcc;.MyVcc;");
+  ASSRT(err);
+  ASSRT(err->code == LSIM_ERR_NAME);
 
   E(lsim_delete(lsim));
 }  /* test1 */

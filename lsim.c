@@ -19,7 +19,7 @@
 
 
 char *lsim_cfg_defaults[] = {
-  "dev_hash_buckets=10007",
+  "device_hash_buckets=10007",
   NULL
 };
 
@@ -51,13 +51,27 @@ ERR_F lsim_create(lsim_t **rtn_lsim, char *config_filename) {
     ERR(cfg_parse_file(lsim->cfg, CFG_MODE_UPDATE, config_filename));
   }
 
-  long dev_hash_buckets;
-  ERR(cfg_get_long_val(lsim->cfg, "dev_hash_buckets", &dev_hash_buckets));
-  ERR(hmap_create(&(lsim->devs), dev_hash_buckets));
+  long device_hash_buckets;
+  ERR(cfg_get_long_val(lsim->cfg, "device_hash_buckets", &device_hash_buckets));
+  ERR(hmap_create(&(lsim->devs), device_hash_buckets));
 
   *rtn_lsim = lsim;
   return ERR_OK;
 }  /* lsim_create */
+
+
+ERR_F lsim_device_nand_create(lsim_t *lsim, char *name, int num_inputs) {
+  device_t *dev;
+  ERR_ASSRT(dev = calloc(1, sizeof(device_t)), LSIM_ERR_NOMEM);
+  ERR_ASSRT(dev->name = strdup(name));
+  dev->type = LSIM_DEV_TYPE_NAND;
+  dev->nand.num_inputs = num_inputs;
+  ERR_ASSRT(dev->nand.in_state = calloc(num_inputs, sizeof(int));
+
+  ERR(hmap_write(lsim->devs, name, strlen(name), dev));
+
+  return ERR_OK;
+}  /* lsim_device_nand_create */
 
 
 ERR_F lsim_delete(lsim_t *lsim) {

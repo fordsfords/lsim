@@ -17,6 +17,7 @@ tmp.*
 a.out
 lsim
 lsim_test
+lsim_main
 
 # Prerequisites
 *.d

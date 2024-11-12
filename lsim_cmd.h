@@ -29,6 +29,7 @@ ERR_F lsim_interp_d_vcc(lsim_t *lsim, const char *cmd_line);
 ERR_F lsim_interp_d_nand(lsim_t *lsim, const char *cmd_line);
 ERR_F lsim_interp_d(lsim_t *lsim, const char *cmd_line);
 ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line);
+ERR_F lsim_interp_cmd_file(lsim_t *lsim, const char *cmd_file_name);
 
 #ifdef __cplusplus
 }

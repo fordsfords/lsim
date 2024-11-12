@@ -26,6 +26,8 @@ extern "C" {
 #define LSIM_ERR_COMMAND 4
 #define LSIM_ERR_NAME 5
 #define LSIM_ERR_EXIST 6
+#define LSIM_ERR_BADFILE 7
+#define LSIM_ERR_LINETOOLONG 7
 
 #define LSIM_DEV_TYPE_VCC 1
 #define LSIM_DEV_TYPE_GND 2
@@ -107,7 +109,7 @@ struct lsim_s {
   device_t *in_changed_list;
 };
 
-ERR_F lsim_create(lsim_t **rtn_lsim, char *config_filename);
+ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name);
 ERR_F lsim_delete(lsim_t *lsim);
 
 #ifdef __cplusplus

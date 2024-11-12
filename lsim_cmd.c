@@ -175,6 +175,7 @@ ERR_F lsim_interp_d(lsim_t *lsim, const char *cmd_line) {
   return ERR_OK;
 }  /* lsim_interp_d */
 
+
 ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line) {
   /* Ignore "empty" lines. */
   if (strchr("#\r\n\0", cmd_line[0])) { return ERR_OK; }
@@ -208,3 +209,38 @@ ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line) {
 
   return ERR_OK;
 }  /* lsim_interp_cmd_line */
+
+
+ERR_F lsim_interp_cmd_file(lsim_t *lsim, const char *cmd_file_name) {
+  FILE *cmd_file_fp;
+  char iline[1024];
+
+  ERR_ASSRT(lsim, LSIM_ERR_PARAM);
+  ERR_ASSRT(cmd_file_name, LSIM_ERR_PARAM);
+  if (strcmp(cmd_file_name, "-") == 0) {
+    cmd_file_fp = stdin;
+  } else {
+    cmd_file_fp = fopen(cmd_file_name, "r");
+  }
+  ERR_ASSRT(cmd_file_fp, LSIM_ERR_BADFILE);
+
+  err_t *err = ERR_OK;
+  while (fgets(iline, sizeof(iline), cmd_file_fp)) {
+    size_t len = strlen(iline);
+    ERR_ASSRT(len < sizeof(iline) - 1, LSIM_ERR_LINETOOLONG);  /* Line too long. */
+
+    err = lsim_interp_cmd_line(lsim, iline);
+    if (err) { break; }
+  }  /* while */
+
+  if (strcmp(cmd_file_name, "-") == 0) {
+    /* Don't close stdin. */
+  } else {
+    fclose(cmd_file_fp);
+  }
+
+  if (err) {
+    ERR_RETHROW(err, err->code);
+  }
+  return ERR_OK;
+}  /* lsim_interp_cmd_file */

@@ -86,6 +86,9 @@ ERR_F parse_cmdline(int argc, char **argv) {
     p_cmd_file = strdup(argv[opt]);
     opt++;
   }
+  else {
+    p_cmd_file = strdup("-");
+  }
 
   if (opt < argc) {
     ERR_THROW(LSIM_ERR_PARAM, "Unexpected command-line parameter");
@@ -95,11 +98,26 @@ ERR_F parse_cmdline(int argc, char **argv) {
 }  /* parse_cmdline */
 
 
+ERR_F lsim_main(int argc, char **argv) {
+  lsim_t *lsim;
+
+  ERR(parse_cmdline(argc, argv));
+
+  ERR(lsim_create(&lsim, o_config_file));
+
+  ERR(lsim_interp_cmd_file(lsim, p_cmd_file));
+
+  ERR(lsim_delete(lsim));
+
+  return ERR_OK;
+}  /* lsim_main */
+
+
 int main(int argc, char **argv) {
   err_t *err;
-  err = parse_cmdline(argc, argv);  if (err) { ERR_ABRT(err, stderr); }
 
-  printf("o_config_file='%s', p_cmd_file='%s'\n", o_config_file, p_cmd_file);
+  err = lsim_main(argc, argv);
+  if (err) { ERR_ABRT(err, stderr); }
 
   return 0;
 }  /* main */

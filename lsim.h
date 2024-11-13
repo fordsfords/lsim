@@ -20,14 +20,21 @@
 extern "C" {
 #endif
 
-#define LSIM_ERR_INTERNAL 1
-#define LSIM_ERR_PARAM 2
-#define LSIM_ERR_NOMEM 3
-#define LSIM_ERR_COMMAND 4
-#define LSIM_ERR_NAME 5
-#define LSIM_ERR_EXIST 6
-#define LSIM_ERR_BADFILE 7
-#define LSIM_ERR_LINETOOLONG 7
+#ifdef LSIM_C
+#  define ERR_CODE(err__code) ERR_API char *err__code = #err__code
+#else
+#  define ERR_CODE(err__code) ERR_API extern char *err__code
+#endif
+
+ERR_CODE(LSIM_ERR_INTERNAL);
+ERR_CODE(LSIM_ERR_PARAM);
+ERR_CODE(LSIM_ERR_NOMEM);
+ERR_CODE(LSIM_ERR_COMMAND);
+ERR_CODE(LSIM_ERR_NAME);
+ERR_CODE(LSIM_ERR_EXIST);
+ERR_CODE(LSIM_ERR_BADFILE);
+ERR_CODE(LSIM_ERR_LINETOOLONG);
+#undef ERR_CODE
 
 #define LSIM_DEV_TYPE_VCC 1
 #define LSIM_DEV_TYPE_GND 2

@@ -15,6 +15,7 @@
 #include "err.h"
 #include "hmap.h"
 #include "cfg.h"
+#define LSIM_C
 #include "lsim.h"
 #include "lsim_cmd.h"
 

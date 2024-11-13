@@ -17,6 +17,7 @@
 #include <ctype.h>
 #include "err.h"
 #include "hmap.h"
+#define CFG_C
 #include "cfg.h"
 
 

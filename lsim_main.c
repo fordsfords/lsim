@@ -114,10 +114,7 @@ ERR_F lsim_main(int argc, char **argv) {
 
 
 int main(int argc, char **argv) {
-  err_t *err;
-
-  err = lsim_main(argc, argv);
-  if (err) { ERR_ABRT(err, stderr); }
+  ERR_ABRT_ON_ERR(lsim_main(argc, argv), stderr);
 
   return 0;
 }  /* main */

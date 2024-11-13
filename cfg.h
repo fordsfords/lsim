@@ -28,16 +28,23 @@ struct cfg_s {
 #define CFG_MODE_ADD 1
 #define CFG_MODE_UPDATE 2
 
-#define CFG_ERR_INTERNAL 1
-#define CFG_ERR_PARAM 2
-#define CFG_ERR_NOMEM 3
-#define CFG_ERR_BADFILE 4
-#define CFG_ERR_LINETOOLONG 5
-#define CFG_ERR_NOEQUALS 6
-#define CFG_ERR_NOKEY 7
-#define CFG_ERR_UPDATE_KEY_NOT_FOUND 8
-#define CFG_ERR_ADD_KEY_ALREADY_EXIST 9
-#define CFG_ERR_BAD_NUMBER 10
+#ifdef CFG_C
+#  define ERR_CODE(err__code) ERR_API char *err__code = #err__code
+#else
+#  define ERR_CODE(err__code) ERR_API extern char *err__code
+#endif
+
+ERR_CODE(CFG_ERR_INTERNAL);
+ERR_CODE(CFG_ERR_PARAM);
+ERR_CODE(CFG_ERR_NOMEM);
+ERR_CODE(CFG_ERR_BADFILE);
+ERR_CODE(CFG_ERR_LINETOOLONG);
+ERR_CODE(CFG_ERR_NOEQUALS);
+ERR_CODE(CFG_ERR_NOKEY);
+ERR_CODE(CFG_ERR_UPDATE_KEY_NOT_FOUND);
+ERR_CODE(CFG_ERR_ADD_KEY_ALREADY_EXIST);
+ERR_CODE(CFG_ERR_BAD_NUMBER);
+#undef ERR_CODE
 
 ERR_F cfg_create(cfg_t **rtn_cfg);
 ERR_F cfg_delete(cfg_t *cfg);

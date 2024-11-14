@@ -54,6 +54,8 @@ r;
 
 # Step.
 s;num_steps;
+# Trace (for debugging) - lots of output.
+t;num_steps;
 
 # Print single output.
 p;devicename;output_spec;

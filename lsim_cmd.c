@@ -176,16 +176,47 @@ ERR_F lsim_interp_d(lsim_t *lsim, const char *cmd_line) {
 }  /* lsim_interp_d */
 
 
+ERR_F lsim_interp_w(lsim_t *lsim, const char *cmd_line) {
+  char *semi_colon;
+  ERR_ASSRT(semi_colon = strchr(cmd_line, ';'), LSIM_ERR_COMMAND);
+
+  char *next_field = semi_colon + 1;
+  if (strstr(cmd_line, "vcc;") == cmd_line) {
+    ERR(lsim_interp_d_vcc(lsim, next_field));
+  }
+/*???
+ *else if (strstr(cmd_line, "gnd;") == cmd_line) {
+ *  ERR(lsim_interp_d_gnd(lsim, next_field));
+ *}
+ *else if (strstr(cmd_line, "clk1;") == cmd_line) {
+ *   ERR(lsim_interp_d_clk1(lsim, next_field));
+ * }
+ */
+  else if (strstr(cmd_line, "nand;") == cmd_line) {
+    ERR(lsim_interp_d_nand(lsim, next_field));
+  }
+/*???
+ *else if (strstr(cmd_line, "mem;") == cmd_line) {
+ *  ERR(lsim_interp_d_mem(lsim, next_field));
+ *}
+ */
+  else { ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized device type"); }
+
+  return ERR_OK;
+}  /* lsim_interp_w */
+
+
 ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line) {
   /* Ignore "empty" lines. */
   if (strchr("#\r\n\0", cmd_line[0])) { return ERR_OK; }
 
   if (strstr(cmd_line, "d;") == cmd_line) {
-    ERR(lsim_interp_d(lsim, &cmd_line[2])); }
-/*???
- *else if (strstr(cmd_line, "w;") == cmd_line) {
+    ERR(lsim_interp_d(lsim, &cmd_line[2]));
+  }
+  else if (strstr(cmd_line, "w;") == cmd_line) {
     ERR(lsim_interp_w(lsim, &cmd_line[2]));
   }
+/*???
  *else if (strstr(cmd_line, "i;") == cmd_line) {
     ERR(lsim_interp_i(lsim, &cmd_line[2]));
   }
@@ -194,6 +225,9 @@ ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line) {
   }
  *else if (strstr(cmd_line, "s;") == cmd_line) {
     ERR(lsim_interp_s(lsim, &cmd_line[2]));
+  }
+ *else if (strstr(cmd_line, "t;") == cmd_line) {
+    ERR(lsim_interp_t(lsim, &cmd_line[2]));
   }
  *else if (strstr(cmd_line, "p;") == cmd_line) {
     ERR(lsim_interp_p(lsim, &cmd_line[2]));

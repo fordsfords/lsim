@@ -37,14 +37,14 @@ friendly (GUI?) that produces this as output.
 
 ````
 # Device definitions.
-d;vcc;devicename;
-d;gnd;devicename;
-d;clk1;devicename;
-d;nand;devicename;num_inputs;
-d;mem;devicename;num_addr;num_data;
+d;vcc;device_name;
+d;gnd;device_name;
+d;clk1;device_name;
+d;nand;device_name;num_inputs;
+d;mem;device_name;num_addr;num_data;
 
 # Wire definitions.
-w;devicename;output_spec;devicename;input_spec;
+w;src_device_name;src_output_id;dst_device_name;dst_input_id;
 
 # Include.
 i;filename;

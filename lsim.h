@@ -42,78 +42,80 @@ ERR_CODE(LSIM_ERR_LINETOOLONG);
 #define LSIM_DEV_TYPE_NAND 4
 #define LSIM_DEV_TYPE_MEM 5
 
-typedef struct wire_s wire_t;
-typedef struct wire_segment_s wire_segment_t;
-typedef struct device_s device_t;  /* Generic device. */
-typedef struct device_vcc_s device_vcc_t;
-typedef struct device_gnd_s device_gnd_t;
-typedef struct device_clk1_s device_clk1_t;
-typedef struct device_nand_s device_nand_t;
-typedef struct device_mem_s device_mem_t;
+typedef struct lsim_s lsim_t;
+typedef struct lsim_wire_s lsim_wire_t;
+typedef struct lsim_wire_segment_s lsim_wire_segment_t;
+typedef struct lsim_device_s lsim_device_t;  /* Generic device. */
+typedef struct lsim_device_vcc_s lsim_device_vcc_t;
+typedef struct lsim_device_gnd_s lsim_device_gnd_t;
+typedef struct lsim_device_clk1_s lsim_device_clk1_t;
+typedef struct lsim_device_nand_s lsim_device_nand_t;
+typedef struct lsim_device_mem_s lsim_device_mem_t;
 
 /* Full definitions. */
-struct wire_segment_s {
-  device_t *sink_device;
-  char *input_name;
+struct lsim_wire_segment_s {
+  lsim_device_t *src_device;
+  lsim_device_t *dst_device;
   int *input_state;
-  wire_segment_t *next_segment;
+  lsim_wire_segment_t *next_segment;
 };
 
-struct wire_s {
-  device_t *source_device;
-  wire_segment_t *sink;
+struct lsim_wire_s {
+  lsim_device_t *src_device;
+  lsim_wire_segment_t *dst_segment;
 };
 
-struct device_vcc_s {
+struct lsim_device_vcc_s {
   int out_state;
-  wire_t out_wire;
+  lsim_wire_t out_wire;
 };
 
-struct device_gnd_s {
+struct lsim_device_gnd_s {
   int out_state;
-  wire_t out_wire;
+  lsim_wire_t out_wire;
 };
 
-struct device_clk1_s {
+struct lsim_device_clk1_s {
   int out_state;
-  wire_t out_wire;
+  lsim_wire_t out_wire;
 };
 
-struct device_nand_s {
+struct lsim_device_nand_s {
   int out_state;
-  wire_t out_wire;
+  lsim_wire_t out_wire;
   long num_inputs;
   int *in_states;  /* Array of num_inputs. */
 };
 
-struct device_mem {
+struct lsim_device_mem {
   int num_output;
   int *out_states;
-  wire_t *out_wires;
+  lsim_wire_t *out_wires;
   int num_inputs;
   int *in_states;  /* Array of num_inputs. */
 };
 
-struct device_s {
+struct lsim_device_s {
   char *name;
-  device_t *next_out_changed;
-  device_t *next_in_changed;
+  lsim_device_t *next_out_changed;
+  lsim_device_t *next_in_changed;
+  ERR_F (*get_output_wire_p)(lsim_t *lsim, lsim_device_t *dev, const char *output_id, lsim_wire_t **wire_p);
+  ERR_F (*get_input_state_p)(lsim_t *lsim, lsim_device_t *dev, const char *input_id, int **state_p);
   int type;  /* DEV_TYPE_... */
   union {
-    device_vcc_t vcc;
-    device_gnd_t gnd;
-    device_clk1_t clk1;
-    device_nand_t nand;
-    device_nand_t mem;
+    lsim_device_vcc_t vcc;
+    lsim_device_gnd_t gnd;
+    lsim_device_clk1_t clk1;
+    lsim_device_nand_t nand;
+    lsim_device_nand_t mem;
   };
 };
 
-typedef struct lsim_s lsim_t;
 struct lsim_s {
   cfg_t *cfg;
   hmap_t *devs;
-  device_t *out_changed_list;
-  device_t *in_changed_list;
+  lsim_device_t *out_changed_list;
+  lsim_device_t *in_changed_list;
 };
 
 ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name);

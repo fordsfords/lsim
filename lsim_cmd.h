@@ -22,9 +22,9 @@ extern "C" {
 #endif
 
 ERR_F lsim_device_vcc_create(lsim_t *lsim, char *name);
-ERR_F lsim_device_vcc_reset(lsim_t *lsim, device_t *dev);
+ERR_F lsim_device_vcc_reset(lsim_t *lsim, lsim_device_t *dev);
 ERR_F lsim_device_nand_create(lsim_t *lsim, char *name, long num_inputs);
-ERR_F lsim_device_nand_reset(lsim_t *lsim, device_t *dev);
+ERR_F lsim_device_nand_reset(lsim_t *lsim, lsim_device_t *dev);
 ERR_F lsim_interp_d_vcc(lsim_t *lsim, const char *cmd_line);
 ERR_F lsim_interp_d_nand(lsim_t *lsim, const char *cmd_line);
 ERR_F lsim_interp_d(lsim_t *lsim, const char *cmd_line);

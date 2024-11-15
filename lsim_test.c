@@ -101,13 +101,13 @@ void test1() {
   ASSRT(err->code == LSIM_ERR_EXIST);
   err = lsim_interp_cmd_line(lsim, "d;vcc; MyVcc;");
   ASSRT(err);
-  ASSRT(err->code == LSIM_ERR_NAME);
+  ASSRT(err->code == LSIM_ERR_COMMAND);
   err = lsim_interp_cmd_line(lsim, "d;vcc;9MyVcc;");
   ASSRT(err);
-  ASSRT(err->code == LSIM_ERR_NAME);
+  ASSRT(err->code == LSIM_ERR_COMMAND);
   err = lsim_interp_cmd_line(lsim, "d;vcc;.MyVcc;");
   ASSRT(err);
-  ASSRT(err->code == LSIM_ERR_NAME);
+  ASSRT(err->code == LSIM_ERR_COMMAND);
 
   E(lsim_delete(lsim));
 }  /* test1 */

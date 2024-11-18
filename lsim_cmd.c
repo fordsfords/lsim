@@ -17,6 +17,8 @@
 #include "hmap.h"
 #include "cfg.h"
 #include "lsim.h"
+#include "lsim_dev.h"
+#include "lsim_cmd.h"
 
 
 ERR_F lsim_valid_name(const char *name) {
@@ -38,134 +40,7 @@ ERR_F lsim_valid_name(const char *name) {
 }  /* lsim_valid_name */
 
 
-ERR_F lsim_device_vcc_get_input_state(lsim_t *lsim, lsim_device_t *dev, const char *input_id, int **rtn_state_p) {
-  ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input state for vcc, which has no inputs");
-
-  return ERR_OK;
-}  /* lsim_device_vcc_get_input_state */
-
-
-ERR_F lsim_device_vcc_get_output_wire(lsim_t *lsim, lsim_device_t *dev, const char *output_id, lsim_wire_t **rtn_wire_p) {
-  /* There's only one output; ignore output_id. */
-  *rtn_wire_p = &dev->vcc.out_wire;
-
-  return ERR_OK;
-}  /* lsim_device_vcc_get_output_wire */
-
-
-ERR_F lsim_device_vcc_create(lsim_t *lsim, char *name) {
-  /* Make sure name doesn't already exist. */
-  err_t *err;
-  err = hmap_lookup(lsim->devs, name, strlen(name), NULL);
-  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
-
-  lsim_device_t *dev;
-  ERR_ASSRT(dev = calloc(1, sizeof(lsim_device_t)), LSIM_ERR_NOMEM);
-  ERR_ASSRT(dev->name = strdup(name), LSIM_ERR_NOMEM);
-  dev->type = LSIM_DEV_TYPE_VCC;
-  dev->get_input_state_p = lsim_device_vcc_get_input_state;
-  dev->get_output_wire_p = lsim_device_vcc_get_output_wire;
-
-  ERR(hmap_write(lsim->devs, name, strlen(name), dev));
-
-  return ERR_OK;
-}  /* lsim_device_vcc_create */
-
-
-ERR_F lsim_device_vcc_reset(lsim_t *lsim, lsim_device_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_PARAM);
-
-  dev->vcc.out_state = 1;
-  dev->next_out_changed = lsim->out_changed_list;
-  lsim->out_changed_list = dev;
-
-  return ERR_OK;
-}  /* lsim_device_vcc_reset */
-
-
-ERR_F lsim_device_nand_get_input_state(lsim_t *lsim, lsim_device_t *dev, const char *input_id, int **rtn_state_p) {
-  long input_num;
-  ERR(cfg_atol(input_id, &input_num));
-  if (input_num > dev->nand.num_inputs) {
-    ERR_THROW(LSIM_ERR_COMMAND, "input number %d larger than number of inputs %d", (int)input_num, dev->nand.num_inputs);
-  }
-
-  *rtn_state_p = &dev->nand.in_states[input_num];
-
-  return ERR_OK;
-}  /* lsim_device_nand_get_input_state */
-
-
-ERR_F lsim_device_nand_get_output_wire(lsim_t *lsim, lsim_device_t *dev, const char *output_id, lsim_wire_t **rtn_wire_p) {
-  /* There's only one output; ignore output_id. */
-  *rtn_wire_p = &dev->nand.out_wire;
-
-  return ERR_OK;
-}  /* lsim_device_nand_get_output_wire */
-
-
-ERR_F lsim_device_nand_create(lsim_t *lsim, char *name, long num_inputs) {
-  ERR_ASSRT(num_inputs >= 1, LSIM_ERR_PARAM);
-
-  /* Make sure name doesn't already exist. */
-  err_t *err;
-  err = hmap_lookup(lsim->devs, name, strlen(name), NULL);
-  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
-
-  lsim_device_t *dev;
-  ERR_ASSRT(dev = calloc(1, sizeof(lsim_device_t)), LSIM_ERR_NOMEM);
-  ERR_ASSRT(dev->name = strdup(name), LSIM_ERR_NOMEM);
-  dev->type = LSIM_DEV_TYPE_NAND;
-  dev->nand.num_inputs = num_inputs;
-  ERR_ASSRT(dev->nand.in_states = calloc(num_inputs, sizeof(int)), LSIM_ERR_NOMEM);
-  dev->get_input_state_p = lsim_device_nand_get_input_state;
-  dev->get_output_wire_p = lsim_device_nand_get_output_wire;
-
-  ERR(hmap_write(lsim->devs, name, strlen(name), dev));
-
-  return ERR_OK;
-}  /* lsim_device_nand_create */
-
-
-ERR_F lsim_device_nand_reset(lsim_t *lsim, lsim_device_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_COMMAND);
-
-  int input_index;
-  dev->nand.out_state = 0;
-  for (input_index = 0; input_index < dev->nand.num_inputs; input_index++) {
-    dev->nand.in_states[input_index] = 0;
-  }
-  dev->next_in_changed = lsim->in_changed_list;
-  lsim->in_changed_list = dev;
-  dev->next_out_changed = lsim->out_changed_list;
-  lsim->out_changed_list = dev;
-
-  return ERR_OK;
-}  /* lsim_device_nand_reset */
-
-
-ERR_F lsim_wire_create(lsim_t *lsim, const char *src_device_name, const char *src_output_id, const char *dst_device_name, const char *dst_input_id) {
-  lsim_device_t *src_device, *dst_device;
-
-  /* Find the two devices. */
-  ERR(hmap_lookup(lsim->devs, src_device_name, strlen(src_device_name), (void **)&src_device));
-  ERR(hmap_lookup(lsim->devs, dst_device_name, strlen(dst_device_name), (void **)&dst_device));
-
-  lsim_wire_t *src_wire;
-  ERR(src_device->get_output_wire_p(lsim, src_device, src_output_id, &src_wire));
-  int *input_state;
-  ERR(dst_device->get_input_state_p(lsim, dst_device, dst_input_id, &input_state));
-
-  lsim_wire_segment_t *src_wire_segment;
-  ERR_ASSRT(src_wire_segment = calloc(1, sizeof(lsim_wire_segment_t)), LSIM_ERR_NOMEM);
-  src_wire_segment->src_device = src_device;
-  src_wire_segment->dst_device = dst_device;
-  src_wire_segment->input_state = input_state;
-  src_wire_segment->next_segment = src_wire->dst_segment;
-  src_wire->dst_segment = src_wire_segment;
-
-  return ERR_OK;
-}  /* lsim_wire_create */
+/*******************************************************************************/
 
 
 /* Define device "vcc":
@@ -290,6 +165,23 @@ ERR_F lsim_interp_w(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_interp_w */
 
 
+/* Reset:
+ * r;
+ * cmd_line points past semi-colon. */
+ERR_F lsim_interp_r(lsim_t *lsim, char *cmd_line) {
+  /* Make sure we're at end of line. */
+  char *end_field = cmd_line;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_reset(lsim));
+
+  return ERR_OK;
+}  /* lsim_interp_r */
+
+
+/*******************************************************************************/
+
+
 ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line) {
 
   /* Find index of last character that isn't a line ending. */
@@ -315,12 +207,12 @@ ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "w;") == local_cmd_line) {
     err = lsim_interp_w(lsim, &local_cmd_line[2]);
   }
+  else if (strstr(local_cmd_line, "r;") == local_cmd_line) {
+    err = lsim_interp_r(lsim, &local_cmd_line[2]);
+  }
 /*???
  *else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
     err = lsim_interp_i(lsim, &local_cmd_line[2]);
-  }
- *else if (strstr(local_cmd_line, "r;") == local_cmd_line) {
-    err = lsim_interp_r(lsim, &local_cmd_line[2]);
   }
  *else if (strstr(local_cmd_line, "s;") == local_cmd_line) {
     err = lsim_interp_s(lsim, &local_cmd_line[2]);

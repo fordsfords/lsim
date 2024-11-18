@@ -21,6 +21,7 @@
 #include "hmap.h"
 #include "cfg.h"
 #include "lsim.h"
+#include "lsim_dev.h"
 #include "lsim_cmd.h"
 
 #if defined(_WIN32)
@@ -108,6 +109,58 @@ void test1() {
   err = lsim_interp_cmd_line(lsim, "d;vcc;.MyVcc;");
   ASSRT(err);
   ASSRT(err->code == LSIM_ERR_COMMAND);
+  /* Can't route an output to a vcc. */
+  err = lsim_interp_cmd_line(lsim, "w;MyVcc;;-My_Vcc2;;");
+  ASSRT(err);
+  ASSRT(err->code == LSIM_ERR_COMMAND);
+
+  E(lsim_interp_cmd_line(lsim, "d;nand;MyNand;2;"));
+
+  lsim_dev_t *nand_device;
+  E(hmap_lookup(lsim->devs, "MyNand", strlen("MyNand"), (void **)&nand_device));
+  ASSRT(nand_device);
+  ASSRT(nand_device->type == LSIM_DEV_TYPE_NAND);
+  ASSRT(nand_device->nand.num_inputs == 2);
+  ASSRT(nand_device->nand.out_state == 0);
+  ASSRT(nand_device->nand.in_states[0] == 0);
+  ASSRT(nand_device->nand.in_states[1] == 0);
+  ASSRT(nand_device->nand.out_wire.dst_segment == NULL);
+
+  lsim_dev_t *vcc_device;
+  E(hmap_lookup(lsim->devs, "MyVcc", strlen("MyVcc"), (void **)&vcc_device));
+  ASSRT(vcc_device);
+  ASSRT(vcc_device->type == LSIM_DEV_TYPE_VCC);
+  ASSRT(vcc_device->vcc.out_state == 0);
+  ASSRT(vcc_device->vcc.out_wire.dst_segment == NULL);
+
+  lsim_dev_t *vcc2_device;
+  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&vcc2_device));
+  ASSRT(vcc2_device);
+  ASSRT(vcc2_device->type == LSIM_DEV_TYPE_VCC);
+  ASSRT(vcc2_device->vcc.out_state == 0);
+  ASSRT(vcc2_device->vcc.out_wire.dst_segment == NULL);
+
+  E(lsim_interp_cmd_line(lsim, "w;-My_Vcc2;;MyNand;0;"));
+  E(lsim_interp_cmd_line(lsim, "w;MyNand;;MyNand;2;"));
+
+  lsim_dev_t *tmp_device;
+  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&tmp_device));
+  ASSRT(tmp_device == vcc2_device);
+  ASSRT(tmp_device->type == LSIM_DEV_TYPE_VCC);
+  ASSRT(tmp_device->vcc.out_state == 0);
+  ASSRT(tmp_device->vcc.out_wire.dst_segment);
+  ASSRT(tmp_device->vcc.out_wire.dst_segment->src_device == tmp_device);
+  ASSRT(tmp_device->vcc.out_wire.dst_segment->next_segment == NULL);
+
+  E(lsim_interp_cmd_line(lsim, "r;"));
+  /* Three devices with output. */
+  ASSRT(lsim->out_changed_list);
+  ASSRT(lsim->out_changed_list->next_out_changed);
+  ASSRT(lsim->out_changed_list->next_out_changed->next_out_changed);
+  ASSRT(lsim->out_changed_list->next_out_changed->next_out_changed->next_out_changed == NULL);
+  /* One device with input. */
+  ASSRT(lsim->in_changed_list);
+  ASSRT(lsim->in_changed_list->next_in_changed == NULL);
 
   E(lsim_delete(lsim));
 }  /* test1 */

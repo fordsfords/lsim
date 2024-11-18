@@ -1,4 +1,5 @@
-/* lsim_main.c
+/* lsim.c */
+/*
  *
  * This code and its documentation is Copyright 2019, 2019 Steven Ford,
  * http://geeky-boy.com and licensed "public domain" style under Creative

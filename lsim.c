@@ -20,6 +20,7 @@
 #include "lsim_cmd.h"
 
 
+/* Config file definition and defaults. */
 char *lsim_cfg_defaults[] = {
   "device_hash_buckets=10007",
   NULL

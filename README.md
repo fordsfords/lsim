@@ -43,8 +43,8 @@ d;clk1;device_name;
 d;nand;device_name;num_inputs;
 d;mem;device_name;num_addr;num_data;
 
-# Wire definitions.
-w;src_device_name;src_output_id;dst_device_name;dst_input_id;
+# Connect devices.
+c;src_device_name;src_output_id;dst_device_name;dst_input_id;
 
 # Include.
 i;filename;

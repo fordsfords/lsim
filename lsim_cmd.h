@@ -21,8 +21,8 @@
 extern "C" {
 #endif
 
-ERR_F lsim_interp_cmd_line(lsim_t *lsim, const char *cmd_line);
-ERR_F lsim_interp_cmd_file(lsim_t *lsim, const char *cmd_file_name);
+ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line);
+ERR_F lsim_cmd_file(lsim_t *lsim, const char *cmd_file_name);
 
 #ifdef __cplusplus
 }

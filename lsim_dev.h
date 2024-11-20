@@ -15,11 +15,17 @@
 #include <stdint.h>
 #include "err.h"
 #include "hmap.h"
-#include "lsim.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define LSIM_DEV_TYPE_GND 1
+#define LSIM_DEV_TYPE_VCC 2
+#define LSIM_DEV_TYPE_LED 3
+#define LSIM_DEV_TYPE_CLK1 4
+#define LSIM_DEV_TYPE_NAND 5
+#define LSIM_DEV_TYPE_MEM 6
 
 
 /* Forward declarations. */
@@ -35,8 +41,6 @@ typedef struct lsim_dev_s lsim_dev_t;
 
 
 /* Full definitions. */
-
-
 struct lsim_dev_out_terminal_s {
   lsim_dev_t *dev;
   lsim_dev_in_terminal_t *in_terminal_list;
@@ -74,7 +78,7 @@ struct lsim_dev_clk1_s {
 struct lsim_dev_nand_s {
   lsim_dev_out_terminal_t *out_terminal;   /* Allocated output terminal (one). */
   long num_inputs;
-  lsim_dev_out_terminal_t *in_terminals;  /* Allocated array of input terminals. */
+  lsim_dev_in_terminal_t *in_terminals;  /* Allocated array of input terminals. */
 };
 
 struct lsim_dev_mem_s {
@@ -92,7 +96,7 @@ struct lsim_dev_s {
   int type;  /* DEV_TYPE_... */
   union {
     lsim_dev_vcc_t vcc;
-    lsim_dev_vcc_t led;
+    lsim_dev_led_t led;
     lsim_dev_gnd_t gnd;
     lsim_dev_clk1_t clk1;
     lsim_dev_nand_t nand;
@@ -102,7 +106,7 @@ struct lsim_dev_s {
   ERR_F (*get_out_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal);
   ERR_F (*get_in_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal);
   ERR_F (*reset)(lsim_t *lsim, lsim_dev_t *dev);
-  ERR_F (*run_logic)(lsim_t *lsim, lsim_dev_t *dev, int *outputs_changed);
+  ERR_F (*run_logic)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*propogate_outputs)(lsim_t *lsim, lsim_dev_t *dev);
 };
 

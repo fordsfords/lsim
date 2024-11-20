@@ -20,18 +20,43 @@
 #include "lsim_dev.h"
 
 
-ERR_F lsim_dev_gnd_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
+ERR_F lsim_dev_out_changed(lsim_t *lsim, lsim_dev_t *dev) {
+  /* If not already on the output changed list, add it. */
+  if (dev->next_out_changed == NULL) {
+    dev->next_out_changed = lsim->out_changed_list;
+    lsim->out_changed_list = dev;
+  }
 
-  ERR_ASSRT(strcmp(out_id, "o0") == 0);  /* Only one output. */
-  *out_terminal = &dev->gnd.out_terminal;
+  return ERR_OK;
+}  /* lsim_dev_out_changed */
+
+
+ERR_F lsim_dev_in_changed(lsim_t *lsim, lsim_dev_t *dev) {
+  /* If not already on the input changed list, add it. */
+  if (dev->next_in_changed == NULL) {
+    dev->next_in_changed = lsim->in_changed_list;
+    lsim->in_changed_list = dev;
+  }
+
+  return ERR_OK;
+}  /* lsim_dev_in_changed */
+
+
+/*******************************************************************************/
+
+
+ERR_F lsim_dev_gnd_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
+
+  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
+  *out_terminal = dev->gnd.out_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_gnd_get_out_terminal */
 
 
-ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_out_terminal_t **out_terminal) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
+ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
   ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input state for gnd, which has no inputs");
 
@@ -40,27 +65,43 @@ ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 
 
 ERR_F lsim_dev_gnd_reset(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-  dev->gnd.out_state = 0;  /* Starts out 0, "run_logic" sets it to 1. */
+  dev->gnd.out_terminal->state = 0;
+  ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
 }  /* lsim_dev_gnd_reset */
 
 
 ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_gnd_run_logic: TBD\n");
+  if (dev->gnd.out_terminal->state == 1) {
+    dev->gnd.out_terminal->state = 0;
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
 
   return ERR_OK;
 }  /* lsim_dev_gnd_run_logic */
 
 
 ERR_F lsim_dev_gnd_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_gnd_propogate_outputs: TBD\n");
+  int out_state = dev->gnd.out_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->gnd.out_terminal->in_terminal_list;
+
+  while (dst_in_terminal) {
+    if (dst_in_terminal->state != out_state) {
+      dst_in_terminal->state = out_state;
+      lsim_dev_t *dst_dev = dst_in_terminal->dev;
+      ERR(lsim_dev_in_changed(lsim, dst_dev));
+    }
+
+    /* Propagate output to next connected device. */
+    dst_in_terminal = dst_in_terminal->next_in_terminal;
+  }
 
   return ERR_OK;
 }  /* lsim_dev_gnd_propogate_outputs */
@@ -75,9 +116,9 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   lsim_dev_t *dev;
   ERR_ASSRT(dev = calloc(1, sizeof(lsim_dev_t)), LSIM_ERR_NOMEM);
   ERR_ASSRT(dev->name = strdup(dev_name), LSIM_ERR_NOMEM);
-  dev->type = LSIM_DEV_TYPE_VCC;
+  dev->type = LSIM_DEV_TYPE_GND;
   ERR_ASSRT(dev->gnd.out_terminal = calloc(1, sizeof(lsim_dev_out_terminal_t)), LSIM_ERR_NOMEM);
-  dev->gnd.out_terminal->dev = dev
+  dev->gnd.out_terminal->dev = dev;
 
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_gnd_get_out_terminal;
@@ -98,14 +139,14 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
 ERR_F lsim_dev_vcc_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(strcmp(out_id, "o0") == 0);  /* Only one output. */
-  *out_terminal = &dev->vcc.out_terminal;
+  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
+  *out_terminal = dev->vcc.out_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_vcc_get_out_terminal */
 
 
-ERR_F lsim_dev_vcc_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_out_terminal_t **out_terminal) {
+ERR_F lsim_dev_vcc_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
   ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input state for vcc, which has no inputs");
@@ -117,7 +158,8 @@ ERR_F lsim_dev_vcc_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 ERR_F lsim_dev_vcc_reset(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
-  dev->vcc.out_state = 0;  /* Starts out 0, "run_logic" sets it to 1. */
+  dev->vcc.out_terminal->state = 0;  /* Starts out 0, "run_logic" sets it to 1. */
+  ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
 }  /* lsim_dev_vcc_reset */
@@ -126,7 +168,10 @@ ERR_F lsim_dev_vcc_reset(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_vcc_run_logic: TBD\n");
+  if (dev->vcc.out_terminal->state == 0) {
+    dev->vcc.out_terminal->state = 1;
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
 
   return ERR_OK;
 }  /* lsim_dev_vcc_run_logic */
@@ -135,7 +180,19 @@ printf("???lsim_dev_vcc_run_logic: TBD\n");
 ERR_F lsim_dev_vcc_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_vcc_propogate_outputs: TBD\n");
+  int out_state = dev->vcc.out_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->vcc.out_terminal->in_terminal_list;
+
+  while (dst_in_terminal) {
+    if (dst_in_terminal->state != out_state) {
+      dst_in_terminal->state = out_state;
+      lsim_dev_t *dst_dev = dst_in_terminal->dev;
+      ERR(lsim_dev_in_changed(lsim, dst_dev));
+    }
+
+    /* Propagate output to next connected device. */
+    dst_in_terminal = dst_in_terminal->next_in_terminal;
+  }
 
   return ERR_OK;
 }  /* lsim_dev_vcc_propogate_outputs */
@@ -152,7 +209,7 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   ERR_ASSRT(dev->name = strdup(dev_name), LSIM_ERR_NOMEM);
   dev->type = LSIM_DEV_TYPE_VCC;
   ERR_ASSRT(dev->vcc.out_terminal = calloc(1, sizeof(lsim_dev_out_terminal_t)), LSIM_ERR_NOMEM);
-  dev->vcc.out_terminal->dev = dev
+  dev->vcc.out_terminal->dev = dev;
 
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_vcc_get_out_terminal;
@@ -179,11 +236,11 @@ ERR_F lsim_dev_led_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
 }  /* lsim_dev_led_get_out_terminal */
 
 
-ERR_F lsim_dev_led_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_out_terminal_t **in_terminal) {
+ERR_F lsim_dev_led_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(strcmp(in_id, "i0") == 0);  /* Only one input. */
-  *in_terminal = &dev->led.in_terminal;
+  ERR_ASSRT(strcmp(in_id, "i0") == 0, LSIM_ERR_COMMAND);  /* Only one input. */
+  *in_terminal = dev->led.in_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_led_get_in_terminal */
@@ -193,6 +250,7 @@ ERR_F lsim_dev_led_reset(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
   dev->led.in_terminal->state = 0;
+  ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
 }  /* lsim_dev_led_reset */
@@ -201,7 +259,7 @@ ERR_F lsim_dev_led_reset(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_led_run_logic: TBD\n");
+  /* No logic, no output, nothing to do. */
 
   return ERR_OK;
 }  /* lsim_dev_led_run_logic */
@@ -210,7 +268,7 @@ printf("???lsim_dev_led_run_logic: TBD\n");
 ERR_F lsim_dev_led_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_led_propogate_outputs: TBD\n");
+  /* No output to propogate. */
 
   return ERR_OK;
 }  /* lsim_dev_led_propogate_outputs */
@@ -227,7 +285,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   ERR_ASSRT(dev->name = strdup(dev_name), LSIM_ERR_NOMEM);
   dev->type = LSIM_DEV_TYPE_LED;
   ERR_ASSRT(dev->led.in_terminal = calloc(1, sizeof(lsim_dev_in_terminal_t)), LSIM_ERR_NOMEM);
-  dev->led.in_terminal->dev = dev
+  dev->led.in_terminal->dev = dev;
 
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_led_get_out_terminal;
@@ -248,8 +306,8 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
 ERR_F lsim_dev_nand_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(strcmp(out_id, "o0") == 0);  /* Only one output. */
-  *out_terminal = &dev->nand.out_terminal;
+  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
+  *out_terminal = dev->nand.out_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_nand_get_out_terminal */
@@ -258,7 +316,7 @@ ERR_F lsim_dev_nand_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
 ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(in_id[0] == 'i');
+  ERR_ASSRT(in_id[0] == 'i', LSIM_ERR_COMMAND);
   long input_num;
   ERR(cfg_atol(in_id+1, &input_num));
   if (input_num > dev->nand.num_inputs) {  /* Use throw instead of assert for more useful error message. */
@@ -274,12 +332,13 @@ ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *i
 ERR_F lsim_dev_nand_reset(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  dev->nand.out_terminal.state = 0;
+  dev->nand.out_terminal->state = 0;
 
-  int input_index;
-  for (input_index = 0; input_index < dev->nand.num_inputs; input_index++) {
-    dev->nand.in_terminals[input_index] = 0;
+  int in_index;
+  for (in_index = 0; in_index < dev->nand.num_inputs; in_index++) {
+    dev->nand.in_terminals[in_index].state = 0;
   }
+  ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
 }  /* lsim_dev_nand_reset */
@@ -288,7 +347,21 @@ ERR_F lsim_dev_nand_reset(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_nand_run_logic: TBD\n");
+  int new_output = 0;  /* Assume all inputs are 1. */
+  int input_index;
+  for (input_index = 0; input_index < dev->nand.num_inputs; input_index++) {
+    if (dev->nand.in_terminals[input_index].state == 0) {
+      /* At least one input is 0; output is 1. */
+      new_output = 1;
+      break;
+    }
+  }
+
+  /* See if output changed. */
+  if (dev->nand.out_terminal->state != new_output) {
+    dev->nand.out_terminal->state = new_output;
+    ERR(lsim_dev_out_changed(lsim, dev));  /* Trigger to run the logic. */
+  }
 
   return ERR_OK;
 }  /* lsim_dev_nand_run_logic */
@@ -297,7 +370,19 @@ printf("???lsim_dev_nand_run_logic: TBD\n");
 ERR_F lsim_dev_nand_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-printf("???lsim_dev_nand_propogate_outputs: TBD\n");
+  int out_state = dev->nand.out_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->nand.out_terminal->in_terminal_list;
+
+  while (dst_in_terminal) {
+    if (dst_in_terminal->state != out_state) {
+      dst_in_terminal->state = out_state;
+      lsim_dev_t *dst_dev = dst_in_terminal->dev;
+      ERR(lsim_dev_in_changed(lsim, dst_dev));
+    }
+
+    /* Propagate output to next connected device. */
+    dst_in_terminal = dst_in_terminal->next_in_terminal;
+  }
 
   return ERR_OK;
 }  /* lsim_dev_nand_propogate_outputs */
@@ -315,10 +400,16 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
   ERR_ASSRT(dev = calloc(1, sizeof(lsim_dev_t)), LSIM_ERR_NOMEM);
   ERR_ASSRT(dev->name = strdup(dev_name), LSIM_ERR_NOMEM);
   dev->type = LSIM_DEV_TYPE_NAND;
-  dev->nand.out_wire.src_device = dev;
+
   ERR_ASSRT(dev->nand.out_terminal = calloc(1, sizeof(lsim_dev_out_terminal_t)), LSIM_ERR_NOMEM);
+  dev->nand.out_terminal->dev = dev;
   dev->nand.num_inputs = num_inputs;
   ERR_ASSRT(dev->nand.in_terminals = calloc(num_inputs, sizeof(lsim_dev_in_terminal_t)), LSIM_ERR_NOMEM);
+
+  int in_index;
+  for (in_index = 0; in_index < dev->nand.num_inputs; in_index++) {
+    dev->nand.in_terminals[in_index].dev = dev;
+  }
 
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_nand_get_out_terminal;
@@ -337,12 +428,15 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
 
 
 ERR_F lsim_dev_reset(lsim_t *lsim) {
+  /* Step through entire hash map, starting with first entry. */
   hmap_entry_t *dev_entry = NULL;
   do {
     ERR(hmap_next(lsim->devs, &dev_entry));
     if (dev_entry) {
-      lsim_dev_t *cur_device = dev_entry->value;
-      ERR(cur_device->reset(lsim, cur_device));
+      lsim_dev_t *cur_dev = dev_entry->value;
+      ERR_ASSRT(cur_dev->next_out_changed == NULL, LSIM_ERR_INTERNAL);
+      ERR_ASSRT(cur_dev->next_in_changed == NULL, LSIM_ERR_INTERNAL);
+      ERR(cur_dev->reset(lsim, cur_dev));
     }
   } while (dev_entry);
 
@@ -351,20 +445,19 @@ ERR_F lsim_dev_reset(lsim_t *lsim) {
 
 
 ERR_F lsim_dev_run_logic(lsim_t *lsim) {
+  /* When starting to run the logic, output changed list should be empty. */
   ERR_ASSRT(lsim->out_changed_list == NULL, LSIM_ERR_INTERNAL);
 
+  /* Loop all devices that had an input changed. */
   while (lsim->in_changed_list) {
-    lsim_device_t *cur_device = lsim->in_changed_list;
-    lsim->in_changed_list = cur_device->next_in_changed;
-    cur_device->next_in_changed = NULL;
+    lsim_dev_t *dev = lsim->in_changed_list;
+    ERR_ASSRT(dev->next_out_changed == NULL, LSIM_ERR_INTERNAL);
+    /* Remove from input changed list. */
+    lsim_dev_t *cur_dev = lsim->in_changed_list;
+    lsim->in_changed_list = cur_dev->next_in_changed;
+    cur_dev->next_in_changed = NULL;
 
-    int outputs_changed;
-    ERR(cur_device->run_logic(lsim, cur_device, &outputs_changed));
-
-    if (outputs_changed) {
-      cur_device->next_out_changed = lsim->out_changed_list;
-      lsim->out_changed_list = cur_device;
-    }
+    ERR(cur_dev->run_logic(lsim, cur_dev));
   }  /* while in_changed_list */
 
   return ERR_OK;
@@ -375,30 +468,51 @@ ERR_F lsim_dev_propogate_outputs(lsim_t *lsim) {
   ERR_ASSRT(lsim->in_changed_list == NULL, LSIM_ERR_INTERNAL);
 
   while (lsim->out_changed_list) {
-    lsim_device_t *cur_device = lsim->out_changed_list;
-    lsim->out_changed_list = cur_device->next_out_changed;
-    cur_device->next_out_changed = NULL;
+    lsim_dev_t *dev = lsim->out_changed_list;
+    ERR_ASSRT(dev->next_in_changed == NULL, LSIM_ERR_INTERNAL);
+    /* Remove from output changed list. */
+    lsim_dev_t *cur_dev = lsim->out_changed_list;
+    lsim->out_changed_list = cur_dev->next_out_changed;
+    cur_dev->next_out_changed = NULL;
 
-    ERR(cur_device->propogate_outputs(lsim, cur_device));
-printf("???How do I follow each output's wire?\n");
+    ERR(cur_dev->propogate_outputs(lsim, cur_dev));
   }  /* while out_changed_list */
 
   return ERR_OK;
 }  /* lsim_dev_propogate_outputs */
 
 
+ERR_F lsim_dev_step_simulation(lsim_t *lsim) {
+  long max_propagate_cycles;
+  ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
+
+  long cur_cycle = 0;
+  /* Loop while the logic states are still stabilizing. */
+  while (lsim->in_changed_list) {
+    cur_cycle++;
+    /* Prevent infinite loops. */
+    ERR_ASSRT(cur_cycle <= max_propagate_cycles, LSIM_ERR_MAXLOOPS);
+
+    ERR(lsim_dev_run_logic(lsim));
+    ERR(lsim_dev_propogate_outputs(lsim));
+  }
+
+  return ERR_OK;
+}  /* lsim_dev_step_simulation */
+
+
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id) {
   lsim_dev_t *src_dev;
-  ERR(hmap_lookup(lsim->devs, src_dev_name, strlen(src_dev_name), &src_dev);
+  ERR(hmap_lookup(lsim->devs, src_dev_name, strlen(src_dev_name), (void**)&src_dev));
   lsim_dev_t *dst_dev;
-  ERR(hmap_lookup(lsim->devs, dst_dev_name, strlen(dst_dev_name), &dst_dev);
+  ERR(hmap_lookup(lsim->devs, dst_dev_name, strlen(dst_dev_name), (void**)&dst_dev));
 
   lsim_dev_out_terminal_t *src_out_terminal;
-  ERR(src_dev->get_out_terminal(lsim, dev, src_out_id, &src_out_terminal));
+  ERR(src_dev->get_out_terminal(lsim, src_dev, src_out_id, &src_out_terminal));
   lsim_dev_in_terminal_t *dst_in_terminal;
-  ERR(dst_dev->get_in_terminal(lsim, dev, dst_in_id, &dst_in_terminal));
+  ERR(dst_dev->get_in_terminal(lsim, dst_dev, dst_in_id, &dst_in_terminal));
 
-  ERR_ASSRT(dst_in_terminal->driving_out_terminal == NULL);  /* Can't drive it twice. */
+  ERR_ASSRT(dst_in_terminal->driving_out_terminal == NULL, LSIM_ERR_COMMAND);  /* Can't drive it twice. */
 
   dst_in_terminal->driving_out_terminal = src_out_terminal;
   dst_in_terminal->next_in_terminal = src_out_terminal->in_terminal_list;

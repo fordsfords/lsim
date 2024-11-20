@@ -23,6 +23,7 @@
 /* Config file definition and defaults. */
 char *lsim_cfg_defaults[] = {
   "device_hash_buckets=10007",
+  "max_propagate_cycles=5000",  /* For loop detection. */
   NULL
 };
 

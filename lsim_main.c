@@ -106,7 +106,7 @@ ERR_F lsim_main(int argc, char **argv) {
 
   ERR(lsim_create(&lsim, o_config_file));
 
-  ERR(lsim_interp_cmd_file(lsim, p_cmd_file));
+  ERR(lsim_cmd_file(lsim, p_cmd_file));
 
   ERR(lsim_delete(lsim));
 

@@ -25,7 +25,6 @@ extern "C" {
 #else
 #  define ERR_CODE(err__code) ERR_API extern char *err__code
 #endif
-
 ERR_CODE(LSIM_ERR_INTERNAL);
 ERR_CODE(LSIM_ERR_PARAM);
 ERR_CODE(LSIM_ERR_NOMEM);
@@ -34,13 +33,9 @@ ERR_CODE(LSIM_ERR_NAME);
 ERR_CODE(LSIM_ERR_EXIST);
 ERR_CODE(LSIM_ERR_BADFILE);
 ERR_CODE(LSIM_ERR_LINETOOLONG);
+ERR_CODE(LSIM_ERR_MAXLOOPS);
 #undef ERR_CODE
 
-#define LSIM_DEV_TYPE_VCC 1
-#define LSIM_DEV_TYPE_GND 2
-#define LSIM_DEV_TYPE_CLK1 3
-#define LSIM_DEV_TYPE_NAND 4
-#define LSIM_DEV_TYPE_MEM 5
 
 typedef struct lsim_s lsim_t;
 typedef struct lsim_dev_s lsim_dev_t;  /* Generic device. */

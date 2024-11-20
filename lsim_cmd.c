@@ -43,6 +43,27 @@ ERR_F lsim_valid_name(const char *name) {
 /*******************************************************************************/
 
 
+/* Define device "gnd":
+ * d;gnd;dev_name;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_d_gnd(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  /* Make sure we're at the end of the line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_gnd_create(lsim, dev_name));
+
+  return ERR_OK;
+}  /* lsim_cmd_d_gnd */
+
+
 /* Define device "vcc":
  * d;vcc;dev_name;
  * cmd_line points at dev_name. */
@@ -229,7 +250,7 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
     err = lsim_cmd_d(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "c;") == local_cmd_line) {
-    err = lsim_cmd_w(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_c(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "r;") == local_cmd_line) {
     err = lsim_cmd_r(lsim, &local_cmd_line[2]);

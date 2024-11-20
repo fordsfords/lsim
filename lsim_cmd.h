@@ -15,7 +15,6 @@
 #include <stdint.h>
 #include "err.h"
 #include "hmap.h"
-#include "lsim.h"
 
 #ifdef __cplusplus
 extern "C" {

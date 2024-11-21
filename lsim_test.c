@@ -164,9 +164,20 @@ void test1() {
   ASSRT(lsim->in_changed_list->next_in_changed->next_in_changed->next_in_changed == NULL);
   /* No output changes yet. */
   ASSRT(lsim->out_changed_list == NULL);
+  dump_nand(nand_device);
+
+  /* Calculate new outputs. */
+  E(lsim_dev_run_logic(lsim));
 
   E(lsim_delete(lsim));
 }  /* test1 */
+
+
+void dump_nand(lsim_dev_t *dev) {
+  printf("nand %s: %d, next_out=%s, next_in=%s, out=%s:%s
+      dev->name, dev->type, dev->next_out_changed ? dev->next_out_changed->name : "(none)", dev->next_in_changed ? dev->next_in_changed->name : "(none)",
+      dev->nand.out_terminal->dev->name
+}  /* dump_nand */
 
 
 int main(int argc, char **argv) {

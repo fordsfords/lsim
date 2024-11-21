@@ -164,20 +164,67 @@ void test1() {
   ASSRT(lsim->in_changed_list->next_in_changed->next_in_changed->next_in_changed == NULL);
   /* No output changes yet. */
   ASSRT(lsim->out_changed_list == NULL);
-  dump_nand(nand_device);
+  ASSRT(vcc_device->vcc.out_terminal->state == 0);
+  ASSRT(vcc2_device->vcc.out_terminal->state == 0);
+  ASSRT(nand_device->nand.out_terminal->state == 0);
+
+  /* First calculate new outputs. */
+  E(lsim_dev_run_logic(lsim));
+
+  /* Three devices with changed output. */
+  ASSRT(lsim->out_changed_list);
+  ASSRT(lsim->out_changed_list->next_out_changed);
+  ASSRT(lsim->out_changed_list->next_out_changed->next_out_changed);
+  ASSRT(lsim->out_changed_list->next_out_changed->next_out_changed->next_out_changed == NULL);
+  ASSRT(vcc_device->vcc.out_terminal->state == 1);
+  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
+  ASSRT(nand_device->nand.out_terminal->state == 1);
+  /* No inputs changes yet. */
+  ASSRT(lsim->in_changed_list == NULL);
+  ASSRT(nand_device->nand.in_terminals[0].state == 0);
+  ASSRT(nand_device->nand.in_terminals[1].state == 0);
+
+  /* Propogate outputs to inputs. */
+  E(lsim_dev_propagate_outputs(lsim));
+
+  /* One device with changed input. */
+  ASSRT(lsim->in_changed_list);
+  ASSRT(lsim->in_changed_list->next_in_changed == NULL);
+  ASSRT(nand_device->nand.in_terminals[0].state == 1);
+  ASSRT(nand_device->nand.in_terminals[1].state == 1);
+  /* No outputs changes yet. */
+  ASSRT(lsim->out_changed_list == NULL);
+  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
+  ASSRT(nand_device->nand.out_terminal->state == 1);
 
   /* Calculate new outputs. */
   E(lsim_dev_run_logic(lsim));
 
+  /* One device with changed output. */
+  ASSRT(lsim->out_changed_list);
+  ASSRT(lsim->out_changed_list->next_out_changed == NULL);
+  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
+  ASSRT(nand_device->nand.out_terminal->state == 0);
+  /* No inputs changes yet. */
+  ASSRT(lsim->in_changed_list == NULL);
+  ASSRT(nand_device->nand.in_terminals[0].state == 1);
+  ASSRT(nand_device->nand.in_terminals[1].state == 1);
+
+  /* Propogate outputs to inputs. */
+  E(lsim_dev_propagate_outputs(lsim));
+
+  /* One device with changed input. */
+  ASSRT(lsim->in_changed_list);
+  ASSRT(lsim->in_changed_list->next_in_changed == NULL);
+  ASSRT(nand_device->nand.in_terminals[0].state == 1);
+  ASSRT(nand_device->nand.in_terminals[1].state == 0);
+  /* No outputs changes yet. */
+  ASSRT(lsim->out_changed_list == NULL);
+  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
+  ASSRT(nand_device->nand.out_terminal->state == 0);
+
   E(lsim_delete(lsim));
 }  /* test1 */
-
-
-void dump_nand(lsim_dev_t *dev) {
-  printf("nand %s: %d, next_out=%s, next_in=%s, out=%s:%s
-      dev->name, dev->type, dev->next_out_changed ? dev->next_out_changed->name : "(none)", dev->next_in_changed ? dev->next_in_changed->name : "(none)",
-      dev->nand.out_terminal->dev->name
-}  /* dump_nand */
 
 
 int main(int argc, char **argv) {

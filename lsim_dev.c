@@ -22,7 +22,8 @@
 
 ERR_F lsim_dev_out_changed(lsim_t *lsim, lsim_dev_t *dev) {
   /* If not already on the output changed list, add it. */
-  if (dev->next_out_changed == NULL) {
+  if (! dev->out_changed) {
+    dev->out_changed = 1;
     dev->next_out_changed = lsim->out_changed_list;
     lsim->out_changed_list = dev;
   }
@@ -33,7 +34,8 @@ ERR_F lsim_dev_out_changed(lsim_t *lsim, lsim_dev_t *dev) {
 
 ERR_F lsim_dev_in_changed(lsim_t *lsim, lsim_dev_t *dev) {
   /* If not already on the input changed list, add it. */
-  if (dev->next_in_changed == NULL) {
+  if (! dev->in_changed) {
+    dev->in_changed = 1;
     dev->next_in_changed = lsim->in_changed_list;
     lsim->in_changed_list = dev;
   }
@@ -479,6 +481,7 @@ ERR_F lsim_dev_run_logic(lsim_t *lsim) {
     lsim_dev_t *cur_dev = lsim->in_changed_list;
     lsim->in_changed_list = cur_dev->next_in_changed;
     cur_dev->next_in_changed = NULL;
+    cur_dev->in_changed = 0;
 
     ERR(cur_dev->run_logic(lsim, cur_dev));
   }  /* while in_changed_list */
@@ -500,6 +503,7 @@ ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
     lsim_dev_t *cur_dev = lsim->out_changed_list;
     lsim->out_changed_list = cur_dev->next_out_changed;
     cur_dev->next_out_changed = NULL;
+    cur_dev->out_changed = 0;
 
     ERR(cur_dev->propagate_outputs(lsim, cur_dev));
   }  /* while out_changed_list */

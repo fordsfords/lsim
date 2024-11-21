@@ -86,7 +86,7 @@ ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_gnd_run_logic */
 
 
-ERR_F lsim_dev_gnd_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_gnd_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
   int out_state = dev->gnd.out_terminal->state;
@@ -104,7 +104,7 @@ ERR_F lsim_dev_gnd_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_gnd_propogate_outputs */
+}  /* lsim_dev_gnd_propagate_outputs */
 
 
 ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
@@ -125,7 +125,7 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   dev->get_in_terminal = lsim_dev_gnd_get_in_terminal;
   dev->reset = lsim_dev_gnd_reset;
   dev->run_logic = lsim_dev_gnd_run_logic;
-  dev->propogate_outputs = lsim_dev_gnd_propogate_outputs;
+  dev->propagate_outputs = lsim_dev_gnd_propagate_outputs;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -177,7 +177,7 @@ ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_vcc_run_logic */
 
 
-ERR_F lsim_dev_vcc_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_vcc_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
   int out_state = dev->vcc.out_terminal->state;
@@ -195,7 +195,7 @@ ERR_F lsim_dev_vcc_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_vcc_propogate_outputs */
+}  /* lsim_dev_vcc_propagate_outputs */
 
 
 ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
@@ -216,7 +216,7 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   dev->get_in_terminal = lsim_dev_vcc_get_in_terminal;
   dev->reset = lsim_dev_vcc_reset;
   dev->run_logic = lsim_dev_vcc_run_logic;
-  dev->propogate_outputs = lsim_dev_vcc_propogate_outputs;
+  dev->propagate_outputs = lsim_dev_vcc_propagate_outputs;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -265,13 +265,13 @@ ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_led_run_logic */
 
 
-ERR_F lsim_dev_led_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_led_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
-  /* No output to propogate. */
+  /* No output to propagate. */
 
   return ERR_OK;
-}  /* lsim_dev_led_propogate_outputs */
+}  /* lsim_dev_led_propagate_outputs */
 
 
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
@@ -292,7 +292,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   dev->get_in_terminal = lsim_dev_led_get_in_terminal;
   dev->reset = lsim_dev_led_reset;
   dev->run_logic = lsim_dev_led_run_logic;
-  dev->propogate_outputs = lsim_dev_led_propogate_outputs;
+  dev->propagate_outputs = lsim_dev_led_propagate_outputs;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -367,7 +367,7 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_nand_run_logic */
 
 
-ERR_F lsim_dev_nand_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_nand_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
   int out_state = dev->nand.out_terminal->state;
@@ -385,7 +385,7 @@ ERR_F lsim_dev_nand_propogate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_nand_propogate_outputs */
+}  /* lsim_dev_nand_propagate_outputs */
 
 
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
@@ -416,7 +416,7 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
   dev->get_in_terminal = lsim_dev_nand_get_in_terminal;
   dev->reset = lsim_dev_nand_reset;
   dev->run_logic = lsim_dev_nand_run_logic;
-  dev->propogate_outputs = lsim_dev_nand_propogate_outputs;
+  dev->propagate_outputs = lsim_dev_nand_propagate_outputs;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -464,7 +464,7 @@ ERR_F lsim_dev_run_logic(lsim_t *lsim) {
 }  /* lsim_dev_run_logic */
 
 
-ERR_F lsim_dev_propogate_outputs(lsim_t *lsim) {
+ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
   ERR_ASSRT(lsim->in_changed_list == NULL, LSIM_ERR_INTERNAL);
 
   while (lsim->out_changed_list) {
@@ -475,11 +475,11 @@ ERR_F lsim_dev_propogate_outputs(lsim_t *lsim) {
     lsim->out_changed_list = cur_dev->next_out_changed;
     cur_dev->next_out_changed = NULL;
 
-    ERR(cur_dev->propogate_outputs(lsim, cur_dev));
+    ERR(cur_dev->propagate_outputs(lsim, cur_dev));
   }  /* while out_changed_list */
 
   return ERR_OK;
-}  /* lsim_dev_propogate_outputs */
+}  /* lsim_dev_propagate_outputs */
 
 
 ERR_F lsim_dev_step_simulation(lsim_t *lsim) {
@@ -494,7 +494,7 @@ ERR_F lsim_dev_step_simulation(lsim_t *lsim) {
     ERR_ASSRT(cur_cycle <= max_propagate_cycles, LSIM_ERR_MAXLOOPS);
 
     ERR(lsim_dev_run_logic(lsim));
-    ERR(lsim_dev_propogate_outputs(lsim));
+    ERR(lsim_dev_propagate_outputs(lsim));
   }
 
   return ERR_OK;

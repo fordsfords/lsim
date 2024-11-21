@@ -107,7 +107,7 @@ struct lsim_dev_s {
   ERR_F (*get_in_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal);
   ERR_F (*reset)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*run_logic)(lsim_t *lsim, lsim_dev_t *dev);
-  ERR_F (*propogate_outputs)(lsim_t *lsim, lsim_dev_t *dev);
+  ERR_F (*propagate_outputs)(lsim_t *lsim, lsim_dev_t *dev);
 };
 
 

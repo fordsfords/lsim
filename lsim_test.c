@@ -1,4 +1,4 @@
-/* lsim_tst.c - self-test.
+/* lsim_test.c - self-test.
  *
  * This code and its documentation is Copyright 2019, 2019 Steven Ford,
  * http://geeky-boy.com and licensed "public domain" style under Creative

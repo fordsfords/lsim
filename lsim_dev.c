@@ -427,6 +427,27 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
 /*******************************************************************************/
 
 
+ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id) {
+  lsim_dev_t *src_dev;
+  ERR(hmap_lookup(lsim->devs, src_dev_name, strlen(src_dev_name), (void**)&src_dev));
+  lsim_dev_t *dst_dev;
+  ERR(hmap_lookup(lsim->devs, dst_dev_name, strlen(dst_dev_name), (void**)&dst_dev));
+
+  lsim_dev_out_terminal_t *src_out_terminal;
+  ERR(src_dev->get_out_terminal(lsim, src_dev, src_out_id, &src_out_terminal));
+  lsim_dev_in_terminal_t *dst_in_terminal;
+  ERR(dst_dev->get_in_terminal(lsim, dst_dev, dst_in_id, &dst_in_terminal));
+
+  ERR_ASSRT(dst_in_terminal->driving_out_terminal == NULL, LSIM_ERR_COMMAND);  /* Can't drive it twice. */
+
+  dst_in_terminal->driving_out_terminal = src_out_terminal;
+  dst_in_terminal->next_in_terminal = src_out_terminal->in_terminal_list;
+  src_out_terminal->in_terminal_list = dst_in_terminal;
+
+  return ERR_OK;
+}  /* lsim_dev_connect */
+
+
 ERR_F lsim_dev_reset(lsim_t *lsim) {
   /* Step through entire hash map, starting with first entry. */
   hmap_entry_t *dev_entry = NULL;
@@ -448,7 +469,9 @@ ERR_F lsim_dev_run_logic(lsim_t *lsim) {
   /* When starting to run the logic, output changed list should be empty. */
   ERR_ASSRT(lsim->out_changed_list == NULL, LSIM_ERR_INTERNAL);
 
-  /* Loop all devices that had an input changed. */
+  /* This loop visits every device on the "in_changed_list". Note that the
+   * "run_logic" function does not add devices to that list (it adds
+   * them to "out_changed_list"). So this can't loop infinitely. */
   while (lsim->in_changed_list) {
     lsim_dev_t *dev = lsim->in_changed_list;
     ERR_ASSRT(dev->next_out_changed == NULL, LSIM_ERR_INTERNAL);
@@ -467,6 +490,9 @@ ERR_F lsim_dev_run_logic(lsim_t *lsim) {
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
   ERR_ASSRT(lsim->in_changed_list == NULL, LSIM_ERR_INTERNAL);
 
+  /* This loop visits every device on the "out_changed_list". Note that the
+   * "propogate_outputs" function does not add devices to that list (it adds
+   * them to "in_changed_list"). So this can't loop infinitely. */
   while (lsim->out_changed_list) {
     lsim_dev_t *dev = lsim->out_changed_list;
     ERR_ASSRT(dev->next_in_changed == NULL, LSIM_ERR_INTERNAL);
@@ -487,7 +513,9 @@ ERR_F lsim_dev_step_simulation(lsim_t *lsim) {
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
 
   long cur_cycle = 0;
-  /* Loop while the logic states are still stabilizing. */
+  /* Loop while the logic states are still stabilizing. Note that this can
+   * loop infinitely (e.g. a NAND oscillator), so the "max_propagate_cycles"
+   * configuration parameter limits the loop count. */
   while (lsim->in_changed_list) {
     cur_cycle++;
     /* Prevent infinite loops. */
@@ -499,24 +527,3 @@ ERR_F lsim_dev_step_simulation(lsim_t *lsim) {
 
   return ERR_OK;
 }  /* lsim_dev_step_simulation */
-
-
-ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id) {
-  lsim_dev_t *src_dev;
-  ERR(hmap_lookup(lsim->devs, src_dev_name, strlen(src_dev_name), (void**)&src_dev));
-  lsim_dev_t *dst_dev;
-  ERR(hmap_lookup(lsim->devs, dst_dev_name, strlen(dst_dev_name), (void**)&dst_dev));
-
-  lsim_dev_out_terminal_t *src_out_terminal;
-  ERR(src_dev->get_out_terminal(lsim, src_dev, src_out_id, &src_out_terminal));
-  lsim_dev_in_terminal_t *dst_in_terminal;
-  ERR(dst_dev->get_in_terminal(lsim, dst_dev, dst_in_id, &dst_in_terminal));
-
-  ERR_ASSRT(dst_in_terminal->driving_out_terminal == NULL, LSIM_ERR_COMMAND);  /* Can't drive it twice. */
-
-  dst_in_terminal->driving_out_terminal = src_out_terminal;
-  dst_in_terminal->next_in_terminal = src_out_terminal->in_terminal_list;
-  src_out_terminal->in_terminal_list = dst_in_terminal;
-
-  return ERR_OK;
-}  /* lsim_dev_connect */

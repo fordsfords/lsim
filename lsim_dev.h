@@ -115,8 +115,11 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
-ERR_F lsim_dev_reset(lsim_t *lsim);
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);
+ERR_F lsim_dev_reset(lsim_t *lsim);
+ERR_F lsim_dev_run_logic(lsim_t *lsim);
+ERR_F lsim_dev_propogate_outputs(lsim_t *lsim);
+ERR_F lsim_dev_step_simulation(lsim_t *lsim);
 
 #ifdef __cplusplus
 }

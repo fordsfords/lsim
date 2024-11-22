@@ -131,7 +131,7 @@ ERR_F lsim_dev_reset(lsim_t *lsim);
 ERR_F lsim_dev_move(lsim_t *lsim, char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);
-ERR_F lsim_dev_step_simulation(lsim_t *lsim);
+ERR_F lsim_dev_step(lsim_t *lsim);
 
 #ifdef __cplusplus
 }

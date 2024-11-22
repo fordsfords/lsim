@@ -292,7 +292,7 @@ ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
 ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
-  char *num_steps_s = semi_colon + 1;
+  char *num_steps_s = cmd_line;
   ERR_ASSRT(semi_colon = strchr(num_steps_s, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';  /* Overwrite semicolon. */
 
@@ -304,10 +304,17 @@ ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
   ERR(cfg_atol(num_steps_s, &num_steps));
   ERR_ASSRT(num_steps > 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_step(lsim, num_steps));
+  err_t *err;
+  long step_num;
+  for (step_num = 0; step_num < num_steps; step_num++) {
+    err = lsim_dev_step(lsim);
+    if (err) {
+      ERR_RETHROW(err, "Step command '%s' had error %s in step %ld", cmd_line, err->code, step_num);
+    }
+  }
 
   return ERR_OK;
-}  /* lsim_cmd_m */
+}  /* lsim_cmd_s */
 
 
 /* Quit:

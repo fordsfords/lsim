@@ -563,12 +563,14 @@ ERR_F lsim_dev_move(lsim_t *lsim, char *name, long new_state) {
   lsim_dev_t *dev;
   ERR(hmap_lookup(lsim->devs, name, strlen(name), (void**)&dev));
 
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_COMMAND);
 
   if (dev->swtch.swtch_state != new_state) {
     dev->swtch.swtch_state = new_state;
     ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
   }
+
+  return ERR_OK;
 }  /* lsim_dev_move */
 
 
@@ -617,7 +619,7 @@ ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
 }  /* lsim_dev_propagate_outputs */
 
 
-ERR_F lsim_dev_step_simulation(lsim_t *lsim) {
+ERR_F lsim_dev_step(lsim_t *lsim) {
   long max_propagate_cycles;
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
 
@@ -635,4 +637,4 @@ ERR_F lsim_dev_step_simulation(lsim_t *lsim) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_step_simulation */
+}  /* lsim_dev_step */

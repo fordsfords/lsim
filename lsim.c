@@ -42,6 +42,9 @@ ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name) {
   ERR(cfg_get_long_val(lsim->cfg, "device_hash_buckets", &device_hash_buckets));
   ERR(hmap_create(&(lsim->devs), device_hash_buckets));
 
+  lsim->stable = 1;
+  lsim->quit = 0;
+
   *rtn_lsim = lsim;
   return ERR_OK;
 }  /* lsim_create */

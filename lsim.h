@@ -39,11 +39,6 @@ ERR_CODE(LSIM_ERR_MAXLOOPS);
 
 typedef struct lsim_s lsim_t;
 typedef struct lsim_dev_s lsim_dev_t;  /* Generic device. */
-typedef struct lsim_dev_vcc_s lsim_dev_vcc_t;
-typedef struct lsim_dev_gnd_s lsim_dev_gnd_t;
-typedef struct lsim_dev_clk1_s lsim_dev_clk1_t;
-typedef struct lsim_dev_nand_s lsim_dev_nand_t;
-typedef struct lsim_dev_mem_s lsim_dev_mem_t;
 
 /* Full definitions. */
 
@@ -52,6 +47,8 @@ struct lsim_s {
   hmap_t *devs;
   lsim_dev_t *out_changed_list;
   lsim_dev_t *in_changed_list;
+  int stable;
+  int quit;
 };
 
 ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name);

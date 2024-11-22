@@ -223,6 +223,10 @@ void test1() {
   ASSRT(vcc2_device->vcc.out_terminal->state == 1);
   ASSRT(nand_device->nand.out_terminal->state == 0);
 
+  ASSRT(lsim->quit == 0);
+  E(lsim_cmd_line(lsim, "q;"));
+  ASSRT(lsim->quit == 1);
+
   E(lsim_delete(lsim));
 }  /* test1 */
 

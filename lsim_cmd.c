@@ -85,6 +85,35 @@ ERR_F lsim_cmd_d_vcc(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_d_vcc */
 
 
+/* Define device "swtch":
+ * d;swtch;dev_name;init_state;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_d_swtch(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  char *init_state_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(init_state_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at the end of the line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long init_state;
+  ERR(cfg_atol(init_state_s, &init_state));
+  ERR_ASSRT(init_state == 0 || init_state == 1, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_swtch_create(lsim, dev_name, init_state));
+
+  return ERR_OK;
+}  /* lsim_cmd_d_swtch */
+
+
 /* Define device "led":
  * d;led;dev_name;
  * cmd_line points at dev_name. */
@@ -127,6 +156,7 @@ ERR_F lsim_cmd_d_nand(lsim_t *lsim, char *cmd_line) {
 
   long num_inputs;
   ERR(cfg_atol(num_inputs_s, &num_inputs));
+  ERR_ASSRT(num_inputs > 0, LSIM_ERR_COMMAND);
 
   ERR(lsim_dev_nand_create(lsim, dev_name, num_inputs));
 
@@ -151,6 +181,9 @@ ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
   }
   else if (strcmp(dev_type, "vcc") == 0) {
     ERR(lsim_cmd_d_vcc(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "swtch") == 0) {
+    ERR(lsim_cmd_d_swtch(lsim, next_field));
   }
   else if (strcmp(dev_type, "led") == 0) {
     ERR(lsim_cmd_d_led(lsim, next_field));
@@ -212,13 +245,80 @@ ERR_F lsim_cmd_c(lsim_t *lsim, char *cmd_line) {
 
 /* Reset:
  * r;
- * cmd_line points past semi-colon. */
+ * cmd_line points past first semi-colon. */
 ERR_F lsim_cmd_r(lsim_t *lsim, char *cmd_line) {
   /* Make sure we're at end of line. */
   char *end_field = cmd_line;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
   ERR(lsim_dev_reset(lsim));
+
+  return ERR_OK;
+}  /* lsim_cmd_r */
+
+
+/* Move:
+ * m;device_name;new_state;
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  char *new_state_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(new_state_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long new_state;
+  ERR(cfg_atol(new_state_s, &new_state));
+  ERR_ASSRT(new_state == 0 || new_state == 1, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_move(lsim, dev_name, new_state));
+
+  return ERR_OK;
+}  /* lsim_cmd_m */
+
+
+/* Step:
+ * s;num_steps;
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *num_steps_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(num_steps_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long num_steps;
+  ERR(cfg_atol(num_steps_s, &num_steps));
+  ERR_ASSRT(num_steps > 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_step(lsim, num_steps));
+
+  return ERR_OK;
+}  /* lsim_cmd_m */
+
+
+/* Quit:
+ * q;
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_q(lsim_t *lsim, char *cmd_line) {
+  /* Make sure we're at end of line. */
+  char *end_field = cmd_line;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  lsim->quit = 1;
 
   return ERR_OK;
 }  /* lsim_cmd_r */
@@ -255,12 +355,15 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "r;") == local_cmd_line) {
     err = lsim_cmd_r(lsim, &local_cmd_line[2]);
   }
+  else if (strstr(local_cmd_line, "m;") == local_cmd_line) {
+    err = lsim_cmd_m(lsim, &local_cmd_line[2]);
+  }
+  else if (strstr(local_cmd_line, "s;") == local_cmd_line) {
+    err = lsim_cmd_s(lsim, &local_cmd_line[2]);
+  }
 /*???
  *else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
     err = lsim_cmd_i(lsim, &local_cmd_line[2]);
-  }
- *else if (strstr(local_cmd_line, "s;") == local_cmd_line) {
-    err = lsim_cmd_s(lsim, &local_cmd_line[2]);
   }
  *else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
     err = lsim_cmd_t(lsim, &local_cmd_line[2]);
@@ -271,10 +374,10 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
  *else if (strstr(local_cmd_line, "D;") == local_cmd_line) {
     err = lsim_cmd_D(lsim, &local_cmd_line[2]);
   }
- *else if (strstr(local_cmd_line, "q;") == local_cmd_line) {
+ */
+  else if (strstr(local_cmd_line, "q;") == local_cmd_line) {
     err = lsim_cmd_q(lsim, &local_cmd_line[2]);
   }
- */
   else {
     free(local_cmd_line);
     ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized command '%s'", cmd_line);
@@ -297,6 +400,11 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *cmd_file_name) {
 
   ERR_ASSRT(lsim, LSIM_ERR_PARAM);
   ERR_ASSRT(cmd_file_name, LSIM_ERR_PARAM);
+
+  if (lsim->quit) {
+    return ERR_OK;
+  }
+
   if (strcmp(cmd_file_name, "-") == 0) {
     cmd_file_fp = stdin;
   } else {
@@ -310,7 +418,7 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *cmd_file_name) {
     ERR_ASSRT(len < sizeof(iline) - 1, LSIM_ERR_LINETOOLONG);  /* Line too long. */
 
     err = lsim_cmd_line(lsim, iline);
-    if (err) { break; }
+    if (err || lsim->quit) { break; }
   }  /* while */
 
   if (strcmp(cmd_file_name, "-") == 0) {

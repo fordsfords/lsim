@@ -37,8 +37,10 @@ friendly (GUI?) that produces this as output.
 
 ````
 # Device definitions.
-d;vcc;device_name;
 d;gnd;device_name;
+d;vcc;device_name;
+d;switch;device_name;init_state;
+d;led;device_name;
 d;clk1;device_name;
 d;nand;device_name;num_inputs;
 d;mem;device_name;num_addr;num_data;
@@ -51,6 +53,9 @@ i;filename;
 
 # Reset system state.
 r;
+
+# Move a switch
+m;device_name;new_state;
 
 # Step.
 s;num_steps;

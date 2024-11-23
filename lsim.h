@@ -47,6 +47,8 @@ struct lsim_s {
   hmap_t *devs;
   lsim_dev_t *out_changed_list;
   lsim_dev_t *in_changed_list;
+  long total_steps;
+  int trace_level;
   int stable;
   int quit;
 };

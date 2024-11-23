@@ -82,6 +82,12 @@ ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   if (dev->gnd.out_terminal->state == 1) {
     dev->gnd.out_terminal->state = 0;
     ERR(lsim_dev_out_changed(lsim, dev));
+    if (lsim->trace_level > 0 || dev->watch_level == 1) {
+      printf("  gnd %s: o0=%d\n", dev->name, dev->gnd.out_terminal->state);
+    }
+  }
+  if (dev->watch_level == 2) {
+    printf("  gnd %s: o0=%d\n", dev->name, dev->gnd.out_terminal->state);
   }
 
   return ERR_OK;
@@ -173,6 +179,12 @@ ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   if (dev->vcc.out_terminal->state == 0) {
     dev->vcc.out_terminal->state = 1;
     ERR(lsim_dev_out_changed(lsim, dev));
+    if (lsim->trace_level > 0 || dev->watch_level == 1) {
+      printf("  vcc %s: o0=%d\n", dev->name, dev->vcc.out_terminal->state);
+    }
+  }
+  if (dev->watch_level == 2) {
+    printf("  vcc %s: o0=%d\n", dev->name, dev->vcc.out_terminal->state);
   }
 
   return ERR_OK;
@@ -264,6 +276,12 @@ ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   if (dev->swtch.out_terminal->state != dev->swtch.swtch_state) {
     dev->swtch.out_terminal->state = dev->swtch.swtch_state;
     ERR(lsim_dev_out_changed(lsim, dev));
+    if (lsim->trace_level > 0 || dev->watch_level == 1) {
+      printf("  swtch %s: o0=%d\n", dev->name, dev->swtch.out_terminal->state);
+    }
+  }
+  if (dev->watch_level == 2) {
+    printf("  swtch %s: o0=%d\n", dev->name, dev->swtch.out_terminal->state);
   }
 
   return ERR_OK;
@@ -459,6 +477,12 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   if (dev->nand.out_terminal->state != new_output) {
     dev->nand.out_terminal->state = new_output;
     ERR(lsim_dev_out_changed(lsim, dev));  /* Trigger to run the logic. */
+    if (lsim->trace_level > 0 || dev->watch_level == 1) {
+      printf("  nand %s: o0=%d\n", dev->name, dev->nand.out_terminal->state);
+    }
+  }
+  if (dev->watch_level == 2) {
+    printf("  nand %s: o0=%d\n", dev->name, dev->nand.out_terminal->state);
   }
 
   return ERR_OK;
@@ -617,6 +641,16 @@ ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
 
   return ERR_OK;
 }  /* lsim_dev_propagate_outputs */
+
+
+ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level) {
+  lsim_dev_t *dev;
+  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
+
+  dev->watch_level = watch_level;
+
+  return ERR_OK;
+}  /* lsim_dev_watch */
 
 
 ERR_F lsim_dev_step(lsim_t *lsim) {

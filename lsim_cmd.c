@@ -307,6 +307,10 @@ ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
   err_t *err;
   long step_num;
   for (step_num = 0; step_num < num_steps; step_num++) {
+    lsim->total_steps ++;
+    if (lsim->trace_level > 0) {
+      printf(" Step %ld:\n", lsim->total_steps);
+    }
     err = lsim_dev_step(lsim);
     if (err) {
       ERR_RETHROW(err, "Step command '%s' had error %s in step %ld", cmd_line, err->code, step_num);
@@ -315,6 +319,29 @@ ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
 
   return ERR_OK;
 }  /* lsim_cmd_s */
+
+
+/* trace:
+ * t;trace_level;
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_t(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *trace_level_s = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(trace_level_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long trace_level;
+  ERR(cfg_atol(trace_level_s, &trace_level));
+  ERR_ASSRT(trace_level >= 0 && trace_level <= 2, LSIM_ERR_COMMAND);
+  lsim->trace_level = (int)trace_level;
+
+  return ERR_OK;
+}  /* lsim_cmd_t */
 
 
 /* include:
@@ -335,6 +362,35 @@ ERR_F lsim_cmd_i(lsim_t *lsim, char *cmd_line) {
 
   return ERR_OK;
 }  /* lsim_cmd_i */
+
+
+/* Watch:
+ * w;device_name;watch_level;
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_w(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  char *watch_level_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(watch_level_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long watch_level;
+  ERR(cfg_atol(watch_level_s, &watch_level));
+  ERR_ASSRT(watch_level >= 0 || watch_level <= 2, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_watch(lsim, dev_name, (int)watch_level));
+
+  return ERR_OK;
+}  /* lsim_cmd_w */
 
 
 /* Quit:
@@ -388,13 +444,16 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "s;") == local_cmd_line) {
     err = lsim_cmd_s(lsim, &local_cmd_line[2]);
   }
+  else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
+    err = lsim_cmd_t(lsim, &local_cmd_line[2]);
+  }
   else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
     err = lsim_cmd_i(lsim, &local_cmd_line[2]);
   }
-/*???
- *else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
-    err = lsim_cmd_t(lsim, &local_cmd_line[2]);
+  else if (strstr(local_cmd_line, "w;") == local_cmd_line) {
+    err = lsim_cmd_w(lsim, &local_cmd_line[2]);
   }
+/*???
  *else if (strstr(local_cmd_line, "p;") == local_cmd_line) {
     err = lsim_cmd_p(lsim, &local_cmd_line[2]);
   }
@@ -454,6 +513,9 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
       iline[len] = '\0';
     }
     if (len > 0) {
+      if (lsim->trace_level > 0) {
+        printf("Trace: %s:%d, '%s'\n", filename, line_num, iline);
+      }
       err = lsim_cmd_line(lsim, iline);
       if (err) {
         switch (error_level) {

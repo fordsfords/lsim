@@ -104,6 +104,7 @@ struct lsim_dev_s {
   lsim_dev_t *next_out_changed;
   lsim_dev_t *next_in_changed;
   int type;  /* DEV_TYPE_... */
+  int watch_level;  /* 0=none, 1=output change, 2=always print. */
   union {
     lsim_dev_gnd_t gnd;
     lsim_dev_vcc_t vcc;
@@ -132,6 +133,7 @@ ERR_F lsim_dev_reset(lsim_t *lsim);
 ERR_F lsim_dev_move(lsim_t *lsim, char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);
+ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level);
 ERR_F lsim_dev_step(lsim_t *lsim);
 
 #ifdef __cplusplus

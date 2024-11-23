@@ -37,16 +37,16 @@ friendly (GUI?) that produces this as output.
 
 ````
 # Device definitions.
-d;gnd;device_name;
-d;vcc;device_name;
-d;switch;device_name;init_state;
-d;led;device_name;
-d;clk1;device_name;
-d;nand;device_name;num_inputs;
-d;mem;device_name;num_addr;num_data;
+d;gnd;dev_name;
+d;vcc;dev_name;
+d;switch;dev_name;init_state;
+d;led;dev_name;
+d;clk1;dev_name;
+d;nand;dev_name;num_inputs;
+d;mem;dev_name;num_addr;num_data;
 
 # Connect devices.
-c;src_device_name;src_output_id;dst_device_name;dst_input_id;
+c;src_dev_name;src_output_id;dst_dev_name;dst_input_id;
 
 # Include.
 i;filename;
@@ -55,17 +55,20 @@ i;filename;
 r;
 
 # Move a switch
-m;device_name;new_state;
+m;dev_name;new_state;
+
+# Watch a device (watch_level: 0=none, 1=output change, 2=always print)
+w;dev_name;watch_level;
 
 # Step.
 s;num_steps;
-# Trace (for debugging) - lots of output.
-t;num_steps;
+# Trace. (trace_level: 0=none, 1=output change, 2=always print)
+t;trace_level;
 
 # Print single output.
-p;devicename;output_spec;
+p;dev_name;output_spec;
 # Print all inputs/outputs.
-P;devicename;
+P;dev_name;
 # Dump system state (BIG!).
 D;
 

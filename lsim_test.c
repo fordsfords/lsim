@@ -156,7 +156,7 @@ void test1() {
   E(lsim_cmd_line(lsim, "c;MyNand;o0;MyNand;i1;"));
   ASSRT(nand_device->nand.out_terminal->in_terminal_list == &nand_device->nand.in_terminals[1]);
 
-  E(lsim_cmd_line(lsim, "r;"));  /* Reset. */
+  E(lsim_cmd_line(lsim, "p;"));  /* Power. */
   /* Three devices with changed input. */
   ASSRT(lsim->in_changed_list);
   ASSRT(lsim->in_changed_list->next_in_changed);

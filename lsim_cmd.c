@@ -246,15 +246,15 @@ ERR_F lsim_cmd_c(lsim_t *lsim, char *cmd_line) {
 /* Reset:
  * r;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_r(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_p(lsim_t *lsim, char *cmd_line) {
   /* Make sure we're at end of line. */
   char *end_field = cmd_line;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_reset(lsim));
+  ERR(lsim_dev_power(lsim));
 
   return ERR_OK;
-}  /* lsim_cmd_r */
+}  /* lsim_cmd_p */
 
 
 /* Move:
@@ -435,8 +435,8 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "c;") == local_cmd_line) {
     err = lsim_cmd_c(lsim, &local_cmd_line[2]);
   }
-  else if (strstr(local_cmd_line, "r;") == local_cmd_line) {
-    err = lsim_cmd_r(lsim, &local_cmd_line[2]);
+  else if (strstr(local_cmd_line, "p;") == local_cmd_line) {
+    err = lsim_cmd_p(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "m;") == local_cmd_line) {
     err = lsim_cmd_m(lsim, &local_cmd_line[2]);
@@ -453,14 +453,6 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "w;") == local_cmd_line) {
     err = lsim_cmd_w(lsim, &local_cmd_line[2]);
   }
-/*???
- *else if (strstr(local_cmd_line, "p;") == local_cmd_line) {
-    err = lsim_cmd_p(lsim, &local_cmd_line[2]);
-  }
- *else if (strstr(local_cmd_line, "D;") == local_cmd_line) {
-    err = lsim_cmd_D(lsim, &local_cmd_line[2]);
-  }
- */
   else if (strstr(local_cmd_line, "q;") == local_cmd_line) {
     err = lsim_cmd_q(lsim, &local_cmd_line[2]);
   }

@@ -117,7 +117,7 @@ struct lsim_dev_s {
   /* Type-specific methods (inheritence). */
   ERR_F (*get_out_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal);
   ERR_F (*get_in_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal);
-  ERR_F (*reset)(lsim_t *lsim, lsim_dev_t *dev);
+  ERR_F (*power)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*run_logic)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*propagate_outputs)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*delete)(lsim_t *lsim, lsim_dev_t *dev);
@@ -130,7 +130,7 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *name, int init_state);
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);
-ERR_F lsim_dev_reset(lsim_t *lsim);
+ERR_F lsim_dev_power(lsim_t *lsim);
 ERR_F lsim_dev_move(lsim_t *lsim, char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);

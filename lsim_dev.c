@@ -66,14 +66,14 @@ ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 }  /* lsim_dev_gnd_get_in_terminal */
 
 
-ERR_F lsim_dev_gnd_reset(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_gnd_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
   dev->gnd.out_terminal->state = 0;
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
-}  /* lsim_dev_gnd_reset */
+}  /* lsim_dev_gnd_power */
 
 
 ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
@@ -140,7 +140,7 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_gnd_get_out_terminal;
   dev->get_in_terminal = lsim_dev_gnd_get_in_terminal;
-  dev->reset = lsim_dev_gnd_reset;
+  dev->power = lsim_dev_gnd_power;
   dev->run_logic = lsim_dev_gnd_run_logic;
   dev->propagate_outputs = lsim_dev_gnd_propagate_outputs;
   dev->delete = lsim_dev_gnd_delete;
@@ -173,14 +173,14 @@ ERR_F lsim_dev_vcc_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 }  /* lsim_dev_vcc_get_in_terminal */
 
 
-ERR_F lsim_dev_vcc_reset(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_vcc_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
   dev->vcc.out_terminal->state = 0;  /* Starts out 0, "run_logic" sets it to 1. */
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
-}  /* lsim_dev_vcc_reset */
+}  /* lsim_dev_vcc_power */
 
 
 ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
@@ -247,7 +247,7 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_vcc_get_out_terminal;
   dev->get_in_terminal = lsim_dev_vcc_get_in_terminal;
-  dev->reset = lsim_dev_vcc_reset;
+  dev->power = lsim_dev_vcc_power;
   dev->run_logic = lsim_dev_vcc_run_logic;
   dev->propagate_outputs = lsim_dev_vcc_propagate_outputs;
   dev->delete = lsim_dev_vcc_delete;
@@ -280,14 +280,14 @@ ERR_F lsim_dev_swtch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
 }  /* lsim_dev_swtch_get_in_terminal */
 
 
-ERR_F lsim_dev_swtch_reset(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_swtch_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
   dev->swtch.out_terminal->state = 0;
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
-}  /* lsim_dev_swtch_reset */
+}  /* lsim_dev_swtch_power */
 
 
 ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
@@ -355,7 +355,7 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_swtch_get_out_terminal;
   dev->get_in_terminal = lsim_dev_swtch_get_in_terminal;
-  dev->reset = lsim_dev_swtch_reset;
+  dev->power = lsim_dev_swtch_power;
   dev->run_logic = lsim_dev_swtch_run_logic;
   dev->propagate_outputs = lsim_dev_swtch_propagate_outputs;
   dev->delete = lsim_dev_swtch_delete;
@@ -388,7 +388,7 @@ ERR_F lsim_dev_led_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 }  /* lsim_dev_led_get_in_terminal */
 
 
-ERR_F lsim_dev_led_reset(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_led_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
   dev->led.illuminated = 0;
@@ -396,7 +396,7 @@ ERR_F lsim_dev_led_reset(lsim_t *lsim, lsim_dev_t *dev) {
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
-}  /* lsim_dev_led_reset */
+}  /* lsim_dev_led_power */
 
 
 ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
@@ -445,7 +445,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_led_get_out_terminal;
   dev->get_in_terminal = lsim_dev_led_get_in_terminal;
-  dev->reset = lsim_dev_led_reset;
+  dev->power = lsim_dev_led_power;
   dev->run_logic = lsim_dev_led_run_logic;
   dev->propagate_outputs = lsim_dev_led_propagate_outputs;
   dev->delete = lsim_dev_led_delete;
@@ -485,7 +485,7 @@ ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *i
 }  /* lsim_dev_nand_get_in_terminal */
 
 
-ERR_F lsim_dev_nand_reset(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_nand_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
   dev->nand.out_terminal->state = 0;
@@ -497,7 +497,7 @@ ERR_F lsim_dev_nand_reset(lsim_t *lsim, lsim_dev_t *dev) {
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
-}  /* lsim_dev_nand_reset */
+}  /* lsim_dev_nand_power */
 
 
 ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
@@ -586,7 +586,7 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
   /* Type-specific methods (inheritence). */
   dev->get_out_terminal = lsim_dev_nand_get_out_terminal;
   dev->get_in_terminal = lsim_dev_nand_get_in_terminal;
-  dev->reset = lsim_dev_nand_reset;
+  dev->power = lsim_dev_nand_power;
   dev->run_logic = lsim_dev_nand_run_logic;
   dev->propagate_outputs = lsim_dev_nand_propagate_outputs;
   dev->delete = lsim_dev_nand_delete;
@@ -621,7 +621,7 @@ ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_o
 }  /* lsim_dev_connect */
 
 
-ERR_F lsim_dev_reset(lsim_t *lsim) {
+ERR_F lsim_dev_power(lsim_t *lsim) {
   /* Step through entire hash map, starting with first entry. */
   hmap_entry_t *dev_entry = NULL;
   do {
@@ -630,12 +630,12 @@ ERR_F lsim_dev_reset(lsim_t *lsim) {
       lsim_dev_t *cur_dev = dev_entry->value;
       ERR_ASSRT(cur_dev->next_out_changed == NULL, LSIM_ERR_INTERNAL);
       ERR_ASSRT(cur_dev->next_in_changed == NULL, LSIM_ERR_INTERNAL);
-      ERR(cur_dev->reset(lsim, cur_dev));
+      ERR(cur_dev->power(lsim, cur_dev));
     }
   } while (dev_entry);
 
   return ERR_OK;
-}  /* lsim_dev_reset */
+}  /* lsim_dev_power */
 
 
 ERR_F lsim_dev_delete_all(lsim_t *lsim) {

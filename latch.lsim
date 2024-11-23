@@ -10,7 +10,7 @@ c;nand1;o0;nand2;i1;
 c;nand2;o0;nand1;i1;
 c;nand1;o0;led1;i0;
 c;nand2;o0;led2;i0;
-r;
+p;
 t;2;
 s;1;
 m;sw1;1;

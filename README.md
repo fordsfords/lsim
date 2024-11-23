@@ -51,8 +51,8 @@ c;src_dev_name;src_output_id;dst_dev_name;dst_input_id;
 # Include.
 i;filename;
 
-# Reset system state.
-r;
+# Power cycle.
+p;
 
 # Move a switch
 m;dev_name;new_state;
@@ -64,13 +64,6 @@ w;dev_name;watch_level;
 s;num_steps;
 # Trace. (trace_level: 0=none, 1=output change, 2=always print)
 t;trace_level;
-
-# Print single output.
-p;dev_name;output_spec;
-# Print all inputs/outputs.
-P;dev_name;
-# Dump system state (BIG!).
-D;
 
 # quit
 q;

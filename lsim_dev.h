@@ -120,6 +120,7 @@ struct lsim_dev_s {
   ERR_F (*reset)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*run_logic)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*propagate_outputs)(lsim_t *lsim, lsim_dev_t *dev);
+  ERR_F (*delete)(lsim_t *lsim, lsim_dev_t *dev);
 };
 
 
@@ -135,6 +136,7 @@ ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);
 ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level);
 ERR_F lsim_dev_step(lsim_t *lsim);
+ERR_F lsim_dev_delete_all(lsim_t *lsim);
 
 #ifdef __cplusplus
 }

@@ -115,6 +115,15 @@ ERR_F lsim_dev_gnd_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_gnd_propagate_outputs */
 
 
+ERR_F lsim_dev_gnd_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
+
+  free(dev->gnd.out_terminal);
+
+  return ERR_OK;
+}  /* lsim_dev_gnd_delete */
+
+
 ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
@@ -134,6 +143,7 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   dev->reset = lsim_dev_gnd_reset;
   dev->run_logic = lsim_dev_gnd_run_logic;
   dev->propagate_outputs = lsim_dev_gnd_propagate_outputs;
+  dev->delete = lsim_dev_gnd_delete;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -212,6 +222,15 @@ ERR_F lsim_dev_vcc_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_vcc_propagate_outputs */
 
 
+ERR_F lsim_dev_vcc_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
+
+  free(dev->vcc.out_terminal);
+
+  return ERR_OK;
+}  /* lsim_dev_vcc_delete */
+
+
 ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
@@ -231,6 +250,7 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   dev->reset = lsim_dev_vcc_reset;
   dev->run_logic = lsim_dev_vcc_run_logic;
   dev->propagate_outputs = lsim_dev_vcc_propagate_outputs;
+  dev->delete = lsim_dev_vcc_delete;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -309,6 +329,15 @@ ERR_F lsim_dev_swtch_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_swtch_propagate_outputs */
 
 
+ERR_F lsim_dev_swtch_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
+
+  free(dev->swtch.out_terminal);
+
+  return ERR_OK;
+}  /* lsim_dev_swtch_delete */
+
+
 ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
   /* Make sure name doesn't already exist. */
   err_t *err;
@@ -329,6 +358,7 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
   dev->reset = lsim_dev_swtch_reset;
   dev->run_logic = lsim_dev_swtch_run_logic;
   dev->propagate_outputs = lsim_dev_swtch_propagate_outputs;
+  dev->delete = lsim_dev_swtch_delete;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -390,6 +420,15 @@ ERR_F lsim_dev_led_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_led_propagate_outputs */
 
 
+ERR_F lsim_dev_led_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
+
+  free(dev->led.in_terminal);
+
+  return ERR_OK;
+}  /* lsim_dev_led_delete */
+
+
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
@@ -409,6 +448,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   dev->reset = lsim_dev_led_reset;
   dev->run_logic = lsim_dev_led_run_logic;
   dev->propagate_outputs = lsim_dev_led_propagate_outputs;
+  dev->delete = lsim_dev_led_delete;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -510,6 +550,16 @@ ERR_F lsim_dev_nand_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_nand_propagate_outputs */
 
 
+ERR_F lsim_dev_nand_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
+
+  free(dev->nand.out_terminal);
+  free(dev->nand.in_terminals);
+
+  return ERR_OK;
+}  /* lsim_dev_nand_delete */
+
+
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
   ERR_ASSRT(num_inputs >= 1, LSIM_ERR_PARAM);
 
@@ -539,6 +589,7 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
   dev->reset = lsim_dev_nand_reset;
   dev->run_logic = lsim_dev_nand_run_logic;
   dev->propagate_outputs = lsim_dev_nand_propagate_outputs;
+  dev->delete = lsim_dev_nand_delete;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
@@ -587,9 +638,25 @@ ERR_F lsim_dev_reset(lsim_t *lsim) {
 }  /* lsim_dev_reset */
 
 
-ERR_F lsim_dev_move(lsim_t *lsim, char *name, long new_state) {
+ERR_F lsim_dev_delete_all(lsim_t *lsim) {
+  /* Step through entire hash map, starting with first entry. */
+  hmap_entry_t *dev_entry = NULL;
+  do {
+    ERR(hmap_next(lsim->devs, &dev_entry));
+    if (dev_entry) {
+      lsim_dev_t *cur_dev = dev_entry->value;
+      ERR(cur_dev->delete(lsim, cur_dev));
+      free(cur_dev);
+    }
+  } while (dev_entry);
+
+  return ERR_OK;
+}  /* lsim_dev_delete_all */
+
+
+ERR_F lsim_dev_move(lsim_t *lsim, char *dev_name, long new_state) {
   lsim_dev_t *dev;
-  ERR(hmap_lookup(lsim->devs, name, strlen(name), (void**)&dev));
+  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
 
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_COMMAND);
 

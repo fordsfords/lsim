@@ -17,6 +17,7 @@
 #include "cfg.h"
 #define LSIM_C
 #include "lsim.h"
+#include "lsim_dev.h"
 #include "lsim_cmd.h"
 
 
@@ -52,7 +53,9 @@ ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name) {
 
 
 ERR_F lsim_delete(lsim_t *lsim) {
-printf("???delete cfg and devs\n");
+  ERR(lsim_dev_delete_all(lsim));
+  ERR(hmap_delete(lsim->devs));
+  ERR(cfg_delete(lsim->cfg));
   free(lsim);
 
   return ERR_OK;

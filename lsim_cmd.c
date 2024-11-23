@@ -108,7 +108,7 @@ ERR_F lsim_cmd_d_swtch(lsim_t *lsim, char *cmd_line) {
   ERR(cfg_atol(init_state_s, &init_state));
   ERR_ASSRT(init_state == 0 || init_state == 1, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_swtch_create(lsim, dev_name, init_state));
+  ERR(lsim_dev_swtch_create(lsim, dev_name, (int)init_state));
 
   return ERR_OK;
 }  /* lsim_cmd_d_swtch */
@@ -317,6 +317,26 @@ ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_s */
 
 
+/* include:
+ * i;filename;
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_i(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *filename = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(filename, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_cmd_file(lsim, filename));
+
+  return ERR_OK;
+}  /* lsim_cmd_i */
+
+
 /* Quit:
  * q;
  * cmd_line points past first semi-colon. */
@@ -328,7 +348,7 @@ ERR_F lsim_cmd_q(lsim_t *lsim, char *cmd_line) {
   lsim->quit = 1;
 
   return ERR_OK;
-}  /* lsim_cmd_r */
+}  /* lsim_cmd_q */
 
 
 /*******************************************************************************/
@@ -368,10 +388,10 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "s;") == local_cmd_line) {
     err = lsim_cmd_s(lsim, &local_cmd_line[2]);
   }
-/*???
- *else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
+  else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
     err = lsim_cmd_i(lsim, &local_cmd_line[2]);
   }
+/*???
  *else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
     err = lsim_cmd_t(lsim, &local_cmd_line[2]);
   }
@@ -401,41 +421,62 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
 }  /* lsim_cmd_line */
 
 
-ERR_F lsim_cmd_file(lsim_t *lsim, const char *cmd_file_name) {
+ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
   FILE *cmd_file_fp;
   char iline[1024];
 
   ERR_ASSRT(lsim, LSIM_ERR_PARAM);
-  ERR_ASSRT(cmd_file_name, LSIM_ERR_PARAM);
+  ERR_ASSRT(filename, LSIM_ERR_PARAM);
 
   if (lsim->quit) {
     return ERR_OK;
   }
 
-  if (strcmp(cmd_file_name, "-") == 0) {
+  if (strcmp(filename, "-") == 0) {
     cmd_file_fp = stdin;
   } else {
-    cmd_file_fp = fopen(cmd_file_name, "r");
+    cmd_file_fp = fopen(filename, "r");
   }
   ERR_ASSRT(cmd_file_fp, LSIM_ERR_BADFILE);
 
+  long error_level;
+  ERR(cfg_get_long_val(lsim->cfg, "error_level", &error_level));
+
+  int line_num = 0;
   err_t *err = ERR_OK;
   while (fgets(iline, sizeof(iline), cmd_file_fp)) {
+    line_num++;
     size_t len = strlen(iline);
     ERR_ASSRT(len < sizeof(iline) - 1, LSIM_ERR_LINETOOLONG);  /* Line too long. */
 
-    err = lsim_cmd_line(lsim, iline);
-    if (err || lsim->quit) { break; }
+    while (len > 0 && (iline[len-1] == '\n' || iline[len-1] == '\r')) {
+      len--;
+      iline[len] = '\0';
+    }
+    if (len > 0) {
+      err = lsim_cmd_line(lsim, iline);
+      if (err) {
+        switch (error_level) {
+        case 0: ERR_ABRT_ON_ERR(err, stderr); break;
+        case 1: ERR_EXIT_ON_ERR(err, stderr); break;
+        case 2:
+          fprintf(stderr, "Error %s:%d '%s':\n", filename, line_num, iline);
+          ERR_WARN_ON_ERR(err, stderr);
+          break;
+        }
+      }
+    }
+    if (lsim->quit) { break; }
   }  /* while */
 
-  if (strcmp(cmd_file_name, "-") == 0) {
+  if (strcmp(filename, "-") == 0) {
     /* Don't close stdin. */
   } else {
     fclose(cmd_file_fp);
   }
 
   if (err) {
-    ERR_RETHROW(err, err->code);
+    ERR_RETHROW(err, "file:line='%s:%d", filename, line_num);
   }
   return ERR_OK;
 }  /* lsim_cmd_file */

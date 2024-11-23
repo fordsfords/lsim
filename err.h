@@ -85,6 +85,34 @@ ERR_CODE(ERR_ERR_INTERNAL);
 
 
 /* Shortcut abort-on-error macro. Prints stack trace to stderr. */
+#define ERR_EXIT_ON_ERR(err__funct_call, err__stream) do { \
+  err_t *err__err = (err__funct_call); \
+  if (err__err) { \
+    /* include ERR_ABRT() caller in stack trace. */ \
+    err__err = err_rethrow_v(__FILE__, __LINE__, __func__, err__err, #err__funct_call); \
+    fprintf(err__stream, "ERR_ABRT\nStack trace:\n----------------\n"); \
+    err_print(err__err, err__stream); \
+    fflush(err__stream); \
+    exit(1); \
+  } \
+} while (0)
+
+
+/* Shortcut abort-on-error macro. Prints stack trace to stderr. */
+#define ERR_WARN_ON_ERR(err__funct_call, err__stream) do { \
+  err_t *err__err = (err__funct_call); \
+  if (err__err) { \
+    /* include ERR_ABRT() caller in stack trace. */ \
+    err__err = err_rethrow_v(__FILE__, __LINE__, __func__, err__err, #err__funct_call); \
+    fprintf(err__stream, "ERR_ABRT\nStack trace:\n----------------\n"); \
+    err_print(err__err, err__stream); \
+    fflush(err__stream); \
+    err_dispose(err__err); \
+  } \
+} while (0)
+
+
+/* Shortcut abort-on-error macro. Prints stack trace to stderr. */
 #define ERR_ABRT_ON_ERR(err__funct_call, err__stream) do { \
   err_t *err__err = (err__funct_call); \
   if (err__err) { \

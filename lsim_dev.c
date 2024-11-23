@@ -138,98 +138,6 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
 /*******************************************************************************/
 
 
-ERR_F lsim_dev_swtch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
-
-  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->swtch.out_terminal;
-
-  return ERR_OK;
-}  /* lsim_dev_swtch_get_out_terminal */
-
-
-ERR_F lsim_dev_swtch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
-
-  ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input state for swtch, which has no inputs");
-
-  return ERR_OK;
-}  /* lsim_dev_swtch_get_in_terminal */
-
-
-ERR_F lsim_dev_swtch_reset(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
-
-  dev->swtch.out_terminal->state = 0;
-  ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
-
-  return ERR_OK;
-}  /* lsim_dev_swtch_reset */
-
-
-ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
-
-  if (dev->swtch.out_terminal->state != dev->swtch.swtch_state) {
-    dev->swtch.out_terminal->state = dev->swtch.swtch_state;
-    ERR(lsim_dev_out_changed(lsim, dev));
-  }
-
-  return ERR_OK;
-}  /* lsim_dev_swtch_run_logic */
-
-
-ERR_F lsim_dev_swtch_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
-
-  int out_state = dev->swtch.out_terminal->state;
-  lsim_dev_in_terminal_t *dst_in_terminal = dev->swtch.out_terminal->in_terminal_list;
-
-  while (dst_in_terminal) {
-    if (dst_in_terminal->state != out_state) {
-      dst_in_terminal->state = out_state;
-      lsim_dev_t *dst_dev = dst_in_terminal->dev;
-      ERR(lsim_dev_in_changed(lsim, dst_dev));
-    }
-
-    /* Propagate output to next connected device. */
-    dst_in_terminal = dst_in_terminal->next_in_terminal;
-  }
-
-  return ERR_OK;
-}  /* lsim_dev_swtch_propagate_outputs */
-
-
-ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, long init_state) {
-  /* Make sure name doesn't already exist. */
-  err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
-  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
-
-  lsim_dev_t *dev;
-  ERR_ASSRT(dev = calloc(1, sizeof(lsim_dev_t)), LSIM_ERR_NOMEM);
-  ERR_ASSRT(dev->name = strdup(dev_name), LSIM_ERR_NOMEM);
-  dev->type = LSIM_DEV_TYPE_SWTCH;
-  ERR_ASSRT(dev->swtch.out_terminal = calloc(1, sizeof(lsim_dev_out_terminal_t)), LSIM_ERR_NOMEM);
-  dev->swtch.out_terminal->dev = dev;
-  dev->swtch.swtch_state = init_state;
-
-  /* Type-specific methods (inheritence). */
-  dev->get_out_terminal = lsim_dev_swtch_get_out_terminal;
-  dev->get_in_terminal = lsim_dev_swtch_get_in_terminal;
-  dev->reset = lsim_dev_swtch_reset;
-  dev->run_logic = lsim_dev_swtch_run_logic;
-  dev->propagate_outputs = lsim_dev_swtch_propagate_outputs;
-
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
-
-  return ERR_OK;
-}  /* lsim_dev_swtch_create */
-
-
-/*******************************************************************************/
-
-
 ERR_F lsim_dev_vcc_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
@@ -321,6 +229,98 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
 /*******************************************************************************/
 
 
+ERR_F lsim_dev_swtch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
+
+  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
+  *out_terminal = dev->swtch.out_terminal;
+
+  return ERR_OK;
+}  /* lsim_dev_swtch_get_out_terminal */
+
+
+ERR_F lsim_dev_swtch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
+
+  ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input state for swtch, which has no inputs");
+
+  return ERR_OK;
+}  /* lsim_dev_swtch_get_in_terminal */
+
+
+ERR_F lsim_dev_swtch_reset(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
+
+  dev->swtch.out_terminal->state = 0;
+  ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
+
+  return ERR_OK;
+}  /* lsim_dev_swtch_reset */
+
+
+ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
+
+  if (dev->swtch.out_terminal->state != dev->swtch.swtch_state) {
+    dev->swtch.out_terminal->state = dev->swtch.swtch_state;
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
+
+  return ERR_OK;
+}  /* lsim_dev_swtch_run_logic */
+
+
+ERR_F lsim_dev_swtch_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
+
+  int out_state = dev->swtch.out_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->swtch.out_terminal->in_terminal_list;
+
+  while (dst_in_terminal) {
+    if (dst_in_terminal->state != out_state) {
+      dst_in_terminal->state = out_state;
+      lsim_dev_t *dst_dev = dst_in_terminal->dev;
+      ERR(lsim_dev_in_changed(lsim, dst_dev));
+    }
+
+    /* Propagate output to next connected device. */
+    dst_in_terminal = dst_in_terminal->next_in_terminal;
+  }
+
+  return ERR_OK;
+}  /* lsim_dev_swtch_propagate_outputs */
+
+
+ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
+  /* Make sure name doesn't already exist. */
+  err_t *err;
+  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
+
+  lsim_dev_t *dev;
+  ERR_ASSRT(dev = calloc(1, sizeof(lsim_dev_t)), LSIM_ERR_NOMEM);
+  ERR_ASSRT(dev->name = strdup(dev_name), LSIM_ERR_NOMEM);
+  dev->type = LSIM_DEV_TYPE_SWTCH;
+  ERR_ASSRT(dev->swtch.out_terminal = calloc(1, sizeof(lsim_dev_out_terminal_t)), LSIM_ERR_NOMEM);
+  dev->swtch.out_terminal->dev = dev;
+  dev->swtch.swtch_state = init_state;
+
+  /* Type-specific methods (inheritence). */
+  dev->get_out_terminal = lsim_dev_swtch_get_out_terminal;
+  dev->get_in_terminal = lsim_dev_swtch_get_in_terminal;
+  dev->reset = lsim_dev_swtch_reset;
+  dev->run_logic = lsim_dev_swtch_run_logic;
+  dev->propagate_outputs = lsim_dev_swtch_propagate_outputs;
+
+  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+
+  return ERR_OK;
+}  /* lsim_dev_swtch_create */
+
+
+/*******************************************************************************/
+
+
 ERR_F lsim_dev_led_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
@@ -343,6 +343,7 @@ ERR_F lsim_dev_led_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 ERR_F lsim_dev_led_reset(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
+  dev->led.illuminated = 0;
   dev->led.in_terminal->state = 0;
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
@@ -353,7 +354,10 @@ ERR_F lsim_dev_led_reset(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
-  /* No logic, no output, nothing to do. */
+  if (dev->led.in_terminal->state != dev->led.illuminated) {
+    dev->led.illuminated = dev->led.in_terminal->state;
+    printf("Led %s: %s\n", dev->name, dev->led.illuminated ? "on" : "off");
+  }
 
   return ERR_OK;
 }  /* lsim_dev_led_run_logic */
@@ -582,8 +586,6 @@ ERR_F lsim_dev_run_logic(lsim_t *lsim) {
    * "run_logic" function does not add devices to that list (it adds
    * them to "out_changed_list"). So this can't loop infinitely. */
   while (lsim->in_changed_list) {
-    lsim_dev_t *dev = lsim->in_changed_list;
-    ERR_ASSRT(dev->next_out_changed == NULL, LSIM_ERR_INTERNAL);
     /* Remove from input changed list. */
     lsim_dev_t *cur_dev = lsim->in_changed_list;
     lsim->in_changed_list = cur_dev->next_in_changed;
@@ -604,8 +606,6 @@ ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
    * "propogate_outputs" function does not add devices to that list (it adds
    * them to "in_changed_list"). So this can't loop infinitely. */
   while (lsim->out_changed_list) {
-    lsim_dev_t *dev = lsim->out_changed_list;
-    ERR_ASSRT(dev->next_in_changed == NULL, LSIM_ERR_INTERNAL);
     /* Remove from output changed list. */
     lsim_dev_t *cur_dev = lsim->out_changed_list;
     lsim->out_changed_list = cur_dev->next_out_changed;

@@ -70,11 +70,12 @@ struct lsim_dev_vcc_s {
 };
 
 struct lsim_dev_swtch_s {
-  long swtch_state;
+  int swtch_state;
   lsim_dev_out_terminal_t *out_terminal;
 };
 
 struct lsim_dev_led_s {
+  int illuminated;
   lsim_dev_in_terminal_t *in_terminal;
 };
 
@@ -123,7 +124,7 @@ struct lsim_dev_s {
 
 ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *name);
-ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *name, long init_state);
+ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *name, int init_state);
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);

@@ -24,6 +24,7 @@
 char *lsim_cfg_defaults[] = {
   "device_hash_buckets=10007",
   "max_propagate_cycles=5000",  /* For loop detection. */
+  "error_level=0",  /* 0=abort, 1=exit(1), 2=warn and continue. */
   NULL
 };
 

@@ -29,6 +29,11 @@ at http://geeky-boy.com.  Can't see it?  Keep looking.
 
 tbd.
 
+## Design Notes
+
+* The "step" command is the performance-critical part that actually simulates
+the circuit.
+
 ## Circuit Entry Language
 
 Going for ease of parsing, not human friendliness.

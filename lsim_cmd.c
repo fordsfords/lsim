@@ -24,10 +24,12 @@
 ERR_F lsim_valid_name(const char *name) {
   ERR_ASSRT(name, LSIM_ERR_INTERNAL);
 
+  /* Validate first character (cannot be digit). */
   if (!(isalpha(*name) || *name == '_' || *name == '-')) {
     ERR_THROW(LSIM_ERR_COMMAND, "invalid name '%s'", name);
   }
 
+  /* Validate rest of characters. */
   name++;
   while (*name != '\0') {
     if (!(isalnum(*name) || *name == '_' || *name == '-')) {
@@ -227,7 +229,7 @@ ERR_F lsim_cmd_c(lsim_t *lsim, char *cmd_line) {
   char *dst_dev_name = semi_colon + 1;
   ERR_ASSRT(semi_colon = strchr(dst_dev_name, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';
-  ERR(lsim_valid_name(src_dev_name));
+  ERR(lsim_valid_name(dst_dev_name));
 
   char *dst_input_id = semi_colon + 1;
   ERR_ASSRT(semi_colon = strchr(dst_input_id, ';'), LSIM_ERR_COMMAND);

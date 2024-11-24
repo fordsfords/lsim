@@ -12,7 +12,6 @@ c;nand2;o0;nand1;i1;
 c;nand1;o0;led1;i0;
 c;nand2;o0;led2;i0;
 c;rst;o0;nand1;i2;
-t;2;
 p;
 s;1;
 m;rst;1;

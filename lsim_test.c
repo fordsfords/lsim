@@ -232,7 +232,25 @@ void test1() {
   ASSRT(lsim->quit == 1);
 
   E(lsim_delete(lsim));
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_file(lsim, "latch.lsim"));
+
+  E(lsim_delete(lsim));
 }  /* test1 */
+
+
+void test2() {
+  lsim_t *lsim;
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "i;latch.lsim;"));
+
+  E(lsim_delete(lsim));
+}  /* test2 */
 
 
 int main(int argc, char **argv) {
@@ -240,6 +258,11 @@ int main(int argc, char **argv) {
 
   if (o_testnum == 0 || o_testnum == 1) {
     test1();
+    printf("test1: success\n");
+  }
+
+  if (o_testnum == 0 || o_testnum == 2) {
+    test2();
     printf("test1: success\n");
   }
 

@@ -184,7 +184,7 @@ void test1() {
   ASSRT(nand_device->nand.in_terminals[0].state == 0);
   ASSRT(nand_device->nand.in_terminals[1].state == 0);
 
-  /* Propogate outputs to inputs. */
+  /* Propagate outputs to inputs. */
   E(lsim_dev_propagate_outputs(lsim));
 
   /* One device with changed input. */
@@ -210,7 +210,7 @@ void test1() {
   ASSRT(nand_device->nand.in_terminals[0].state == 1);
   ASSRT(nand_device->nand.in_terminals[1].state == 1);
 
-  /* Propogate outputs to inputs. */
+  /* Propagate outputs to inputs. */
   E(lsim_dev_propagate_outputs(lsim));
 
   /* One device with changed input. */

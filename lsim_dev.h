@@ -39,7 +39,7 @@ typedef struct lsim_dev_led_s lsim_dev_led_t;
 typedef struct lsim_dev_clk1_s lsim_dev_clk1_t;
 typedef struct lsim_dev_nand_s lsim_dev_nand_t;
 typedef struct lsim_dev_mem_s lsim_dev_mem_t;
-typedef struct lsim_dev_s lsim_dev_t;
+/* typedef struct lsim_dev_s lsim_dev_t; - is declared in "lsim.h". */
 
 
 /* Full definitions. */

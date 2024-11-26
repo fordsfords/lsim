@@ -69,7 +69,7 @@ ERR_F parse_cmdline(int argc, char **argv) {
       opt++;  /* Step past -c to get to teh config_file. */
       ERR_ASSRT(opt < argc, LSIM_ERR_PARAM);  /* Make there is a config_file. */
       if (o_config_file) { free(o_config_file); }  /* Free a previous setting. */
-      ERR_ASSRT(o_config_file = strdup(argv[opt]), LSIM_ERR_NOMEM);
+      ERR(err_strdup(&o_config_file, argv[opt]));
 
     } else if (strcmp(argv[opt], "--") == 0) {
       opt++;  /* Step past "--". */
@@ -84,11 +84,11 @@ ERR_F parse_cmdline(int argc, char **argv) {
   }  /* for opt */
 
   if (opt < argc) {  /* if have positional parameters. */
-    p_cmd_file = strdup(argv[opt]);
+    ERR(err_strdup(&p_cmd_file, argv[opt]));
     opt++;
   }
   else {
-    p_cmd_file = strdup("-");
+    ERR(err_strdup(&p_cmd_file, "-"));
   }
 
   if (opt < argc) {

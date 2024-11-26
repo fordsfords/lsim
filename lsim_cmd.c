@@ -426,7 +426,7 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
 
   /* Need local copy because we modify the string later. */
   char *local_cmd_line;
-  ERR_ASSRT(local_cmd_line = strdup(cmd_line), CFG_ERR_NOMEM);
+  ERR(err_strdup(&local_cmd_line, cmd_line));
   /* Strip line endings. */
   local_cmd_line[last_c + 1] = '\0';
 

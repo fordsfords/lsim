@@ -5,6 +5,7 @@ Logic simulator.
 &bull; [lsim](#lsim)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [License](#license)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Introduction](#introduction)  
+&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Design Notes](#design-notes)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Circuit Entry Language](#circuit-entry-language)  
 <!-- TOC created by '../mdtoc/mdtoc.pl README.md' (see https://github.com/fordsfords/mdtoc) -->
 <!-- mdtoc-end -->

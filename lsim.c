@@ -32,7 +32,7 @@ char *lsim_cfg_defaults[] = {
 
 ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name) {
   lsim_t *lsim;
-  ERR_ASSRT(lsim = calloc(1, sizeof(lsim_t)), LSIM_ERR_NOMEM);
+  ERR(err_calloc((void **)&lsim, 1, sizeof(lsim_t)));
 
   ERR(cfg_create(&(lsim->cfg)));
   ERR(cfg_parse_string_list(lsim->cfg, CFG_MODE_ADD, lsim_cfg_defaults));

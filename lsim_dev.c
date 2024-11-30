@@ -81,14 +81,20 @@ ERR_F lsim_dev_gnd_power(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
+  int out_changed = 0;
   if (dev->gnd.out_terminal->state == 1) {
     dev->gnd.out_terminal->state = 0;
-    ERR(lsim_dev_out_changed(lsim, dev));
-    if (lsim->trace_level > 0 || dev->watch_level == 1) {
-      printf("  gnd %s: o0=%d\n", dev->name, dev->gnd.out_terminal->state);
-    }
+    out_changed = 1;
   }
-  if (dev->watch_level == 2) {
+  if (out_changed) {
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
+
+  int this_trace_level = dev->watch_level;
+  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
+    this_trace_level = lsim->trace_level;
+  }
+  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
     printf("  gnd %s: o0=%d\n", dev->name, dev->gnd.out_terminal->state);
   }
 
@@ -140,7 +146,7 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   ERR(err_calloc((void **)&(dev->gnd.out_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
   dev->gnd.out_terminal->dev = dev;
 
-  /* Type-specific methods (inheritence). */
+  /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_gnd_get_out_terminal;
   dev->get_in_terminal = lsim_dev_gnd_get_in_terminal;
   dev->power = lsim_dev_gnd_power;
@@ -191,14 +197,20 @@ ERR_F lsim_dev_vcc_power(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
+  int out_changed = 0;
   if (dev->vcc.out_terminal->state == 0) {
     dev->vcc.out_terminal->state = 1;
-    ERR(lsim_dev_out_changed(lsim, dev));
-    if (lsim->trace_level > 0 || dev->watch_level == 1) {
-      printf("  vcc %s: o0=%d\n", dev->name, dev->vcc.out_terminal->state);
-    }
+    out_changed = 1;
   }
-  if (dev->watch_level == 2) {
+  if (out_changed) {
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
+
+  int this_trace_level = dev->watch_level;
+  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
+    this_trace_level = lsim->trace_level;
+  }
+  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
     printf("  vcc %s: o0=%d\n", dev->name, dev->vcc.out_terminal->state);
   }
 
@@ -250,7 +262,7 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   ERR(err_calloc((void **)&(dev->vcc.out_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
   dev->vcc.out_terminal->dev = dev;
 
-  /* Type-specific methods (inheritence). */
+  /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_vcc_get_out_terminal;
   dev->get_in_terminal = lsim_dev_vcc_get_in_terminal;
   dev->power = lsim_dev_vcc_power;
@@ -301,14 +313,20 @@ ERR_F lsim_dev_swtch_power(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
+  int out_changed = 0;
   if (dev->swtch.out_terminal->state != dev->swtch.swtch_state) {
     dev->swtch.out_terminal->state = dev->swtch.swtch_state;
-    ERR(lsim_dev_out_changed(lsim, dev));
-    if (lsim->trace_level > 0 || dev->watch_level == 1) {
-      printf("  swtch %s: o0=%d\n", dev->name, dev->swtch.out_terminal->state);
-    }
+    out_changed = 1;
   }
-  if (dev->watch_level == 2) {
+  if (out_changed) {
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
+
+  int this_trace_level = dev->watch_level;
+  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
+    this_trace_level = lsim->trace_level;
+  }
+  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
     printf("  swtch %s: o0=%d\n", dev->name, dev->swtch.out_terminal->state);
   }
 
@@ -361,7 +379,7 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
   dev->swtch.out_terminal->dev = dev;
   dev->swtch.swtch_state = init_state;
 
-  /* Type-specific methods (inheritence). */
+  /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_swtch_get_out_terminal;
   dev->get_in_terminal = lsim_dev_swtch_get_in_terminal;
   dev->power = lsim_dev_swtch_power;
@@ -373,6 +391,168 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
 
   return ERR_OK;
 }  /* lsim_dev_swtch_create */
+
+
+/*******************************************************************************/
+
+
+ERR_F lsim_dev_clk1_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+
+  if (strcmp(out_id, "q0") == 0) {
+    *out_terminal = dev->clk1.q_terminal;
+  }
+  else if (strcmp(out_id, "Q0") == 0) {
+    *out_terminal = dev->clk1.Q_terminal;
+  }
+  else { ERR_THROW(LSIM_ERR_COMMAND, "clk1 outputs are q0 and Q0, not '%s'", out_id); }
+
+  return ERR_OK;
+}  /* lsim_dev_clk1_get_out_terminal */
+
+
+ERR_F lsim_dev_clk1_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+
+  ERR_ASSRT(strcmp(in_id, "R0") == 0, LSIM_ERR_COMMAND);  /* Only one input. */
+
+  *in_terminal = dev->clk1.Reset_terminal;
+
+  return ERR_OK;
+}  /* lsim_dev_clk1_get_in_terminal */
+
+
+ERR_F lsim_dev_clk1_power(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+
+  dev->clk1.Reset_terminal->state = 0;
+  dev->clk1.q_terminal->state = 0;
+  dev->clk1.Q_terminal->state = 0;
+  /* Don't add clk1 to in_changed list because the logic is run explicitly. */
+
+  return ERR_OK;
+}  /* lsim_dev_clk1_power */
+
+
+ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+
+  int out_changed = 0;
+  /* Process reset. */
+  if (dev->clk1.Reset_terminal->state == 0) {
+    if (dev->clk1.q_terminal->state != 0) {
+      out_changed = 1;
+    }
+    dev->clk1.q_terminal->state = 0;
+    dev->clk1.Q_terminal->state = 0;
+  }
+  else {  /* Not reset. */
+    int new_state = lsim->total_steps % 2;  /* Clock changes with each step. */
+    if (dev->clk1.q_terminal->state != new_state || dev->clk1.Q_terminal->state != (1 - new_state)) {
+      out_changed = 1;
+      dev->clk1.q_terminal->state = new_state;
+      dev->clk1.Q_terminal->state = 1 - new_state;  /* Invert. */
+    }
+  } 
+  if (out_changed) {
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
+
+  int this_trace_level = dev->watch_level;
+  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
+    this_trace_level = lsim->trace_level;
+  }
+  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
+    printf("  clk1 %s: q0=%d, Q0=%d\n", dev->name, dev->clk1.q_terminal->state, dev->clk1.Q_terminal->state);
+  }
+
+  return ERR_OK;
+}  /* lsim_dev_clk1_run_logic */
+
+
+ERR_F lsim_dev_clk1_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+
+  int out_state = dev->clk1.q_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->clk1.q_terminal->in_terminal_list;
+
+  while (dst_in_terminal) {
+    if (dst_in_terminal->state != out_state) {
+      dst_in_terminal->state = out_state;
+      lsim_dev_t *dst_dev = dst_in_terminal->dev;
+      ERR(lsim_dev_in_changed(lsim, dst_dev));
+    }
+
+    /* Propagate output to next connected device. */
+    dst_in_terminal = dst_in_terminal->next_in_terminal;
+  }
+
+  out_state = dev->clk1.Q_terminal->state;
+  dst_in_terminal = dev->clk1.Q_terminal->in_terminal_list;
+
+  while (dst_in_terminal) {
+    if (dst_in_terminal->state != out_state) {
+      dst_in_terminal->state = out_state;
+      lsim_dev_t *dst_dev = dst_in_terminal->dev;
+      ERR(lsim_dev_in_changed(lsim, dst_dev));
+    }
+
+    /* Propagate output to next connected device. */
+    dst_in_terminal = dst_in_terminal->next_in_terminal;
+  }
+
+  return ERR_OK;
+}  /* lsim_dev_clk1_propagate_outputs */
+
+
+ERR_F lsim_dev_clk1_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+
+  free(dev->clk1.q_terminal);
+  free(dev->clk1.Q_terminal);
+  free(dev->clk1.Reset_terminal);
+
+  return ERR_OK;
+}  /* lsim_dev_clk1_delete */
+
+
+ERR_F lsim_dev_clk1_create(lsim_t *lsim, char *dev_name) {
+  /* Make sure name doesn't already exist. */
+  err_t *err;
+  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
+
+  ERR_ASSRT(lsim->active_clk_dev == NULL, LSIM_ERR_COMMAND);  /* Can't have multiple clocks. */
+
+  lsim_dev_t *dev;
+  ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
+  ERR(err_strdup(&(dev->name), dev_name));
+  dev->type = LSIM_DEV_TYPE_CLK1;
+  ERR(err_calloc((void **)&(dev->clk1.q_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->clk1.q_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->clk1.Q_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->clk1.Q_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->clk1.Reset_terminal), 1, sizeof(lsim_dev_in_terminal_t)));
+  dev->clk1.Reset_terminal->dev = dev;
+
+  /* Type-specific methods (inheritance). */
+  dev->get_out_terminal = lsim_dev_clk1_get_out_terminal;
+  dev->get_in_terminal = lsim_dev_clk1_get_in_terminal;
+  dev->power = lsim_dev_clk1_power;
+  dev->run_logic = lsim_dev_clk1_run_logic;
+  dev->propagate_outputs = lsim_dev_clk1_propagate_outputs;
+  dev->delete = lsim_dev_clk1_delete;
+
+  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+
+  lsim->active_clk_dev = dev;  /* Make clock visible to lsim_dev_step. */
+
+  return ERR_OK;
+}  /* lsim_dev_clk1_create */
 
 
 /*******************************************************************************/
@@ -456,7 +636,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   ERR(err_calloc((void **)&(dev->led.in_terminal), 1, sizeof(lsim_dev_in_terminal_t)));
   dev->led.in_terminal->dev = dev;
 
-  /* Type-specific methods (inheritence). */
+  /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_led_get_out_terminal;
   dev->get_in_terminal = lsim_dev_led_get_in_terminal;
   dev->power = lsim_dev_led_power;
@@ -530,14 +710,20 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   /* See if output changed. */
+  int out_changed = 0;
   if (dev->nand.out_terminal->state != new_output) {
     dev->nand.out_terminal->state = new_output;
-    ERR(lsim_dev_out_changed(lsim, dev));  /* Trigger to run the logic. */
-    if (lsim->trace_level > 0 || dev->watch_level == 1) {
-      printf("  nand %s: o0=%d\n", dev->name, dev->nand.out_terminal->state);
-    }
+    out_changed = 1;
   }
-  if (dev->watch_level == 2) {
+  if (out_changed) {
+    ERR(lsim_dev_out_changed(lsim, dev));
+  }
+
+  int this_trace_level = dev->watch_level;
+  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
+    this_trace_level = lsim->trace_level;
+  }
+  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
     printf("  nand %s: o0=%d\n", dev->name, dev->nand.out_terminal->state);
   }
 
@@ -600,7 +786,7 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
     dev->nand.in_terminals[in_index].dev = dev;
   }
 
-  /* Type-specific methods (inheritence). */
+  /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_nand_get_out_terminal;
   dev->get_in_terminal = lsim_dev_nand_get_in_terminal;
   dev->power = lsim_dev_nand_power;
@@ -655,15 +841,23 @@ ERR_F lsim_dev_power(lsim_t *lsim) {
 }  /* lsim_dev_power */
 
 
+ERR_F lsim_dev_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR(dev->delete(lsim, dev));
+  free(dev->name);
+  free(dev);
+
+  return ERR_OK;
+}  /* lsim_dev_delete */
+
+
 ERR_F lsim_dev_delete_all(lsim_t *lsim) {
   /* Step through entire hash map, starting with first entry. */
   hmap_entry_t *dev_entry = NULL;
   do {
     ERR(hmap_next(lsim->devs, &dev_entry));
     if (dev_entry) {
-      lsim_dev_t *cur_dev = dev_entry->value;
-      ERR(cur_dev->delete(lsim, cur_dev));
-      free(cur_dev);
+      lsim_dev_t *dev = dev_entry->value;
+      ERR(lsim_dev_delete(lsim, dev));
     }
   } while (dev_entry);
 
@@ -671,7 +865,7 @@ ERR_F lsim_dev_delete_all(lsim_t *lsim) {
 }  /* lsim_dev_delete_all */
 
 
-ERR_F lsim_dev_move(lsim_t *lsim, char *dev_name, long new_state) {
+ERR_F lsim_dev_move(lsim_t *lsim, const char *dev_name, long new_state) {
   lsim_dev_t *dev;
   ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
 
@@ -711,7 +905,7 @@ ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
   ERR_ASSRT(lsim->in_changed_list == NULL, LSIM_ERR_INTERNAL);
 
   /* This loop visits every device on the "out_changed_list". Note that the
-   * "propogate_outputs" function does not add devices to that list (it adds
+   * "propagate_outputs" function does not add devices to that list (it adds
    * them to "in_changed_list"). So this can't loop infinitely. */
   while (lsim->out_changed_list) {
     /* Remove from output changed list. */
@@ -740,6 +934,15 @@ ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level) {
 ERR_F lsim_dev_step(lsim_t *lsim) {
   long max_propagate_cycles;
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
+  ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
+
+  if (lsim->trace_level > 0) {
+    printf(" Step %ld:\n", lsim->total_steps);
+  }
+
+  if (lsim->active_clk_dev) {
+    ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
+  }
 
   long cur_cycle = 0;
   /* Loop while the logic states are still stabilizing. Note that this can
@@ -753,6 +956,9 @@ ERR_F lsim_dev_step(lsim_t *lsim) {
     ERR(lsim_dev_run_logic(lsim));
     ERR(lsim_dev_propagate_outputs(lsim));
   }
+
+  /* Step complete. */
+  lsim->total_steps++;
 
   return ERR_OK;
 }  /* lsim_dev_step */

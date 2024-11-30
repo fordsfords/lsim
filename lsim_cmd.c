@@ -116,6 +116,27 @@ ERR_F lsim_cmd_d_swtch(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_d_swtch */
 
 
+/* Define device "clk1":
+ * d;clk1;dev_name;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_d_clk1(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  /* Make sure we're at the end of the line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_clk1_create(lsim, dev_name));
+
+  return ERR_OK;
+}  /* lsim_cmd_d_clk1 */
+
+
 /* Define device "led":
  * d;led;dev_name;
  * cmd_line points at dev_name. */
@@ -186,6 +207,9 @@ ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
   }
   else if (strcmp(dev_type, "swtch") == 0) {
     ERR(lsim_cmd_d_swtch(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "clk1") == 0) {
+    ERR(lsim_cmd_d_clk1(lsim, next_field));
   }
   else if (strcmp(dev_type, "led") == 0) {
     ERR(lsim_cmd_d_led(lsim, next_field));
@@ -309,10 +333,6 @@ ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
   err_t *err;
   long step_num;
   for (step_num = 0; step_num < num_steps; step_num++) {
-    lsim->total_steps ++;
-    if (lsim->trace_level > 0) {
-      printf(" Step %ld:\n", lsim->total_steps);
-    }
     err = lsim_dev_step(lsim);
     if (err) {
       ERR_RETHROW(err, "Step command '%s' had error %s in step %ld", cmd_line, err->code, step_num);
@@ -494,6 +514,7 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
 
   long error_level;
   ERR(cfg_get_long_val(lsim->cfg, "error_level", &error_level));
+  ERR_ASSRT(error_level >= 0 && error_level <= 2, LSIM_ERR_CONFIG);
 
   int line_num = 0;
   err_t *err = ERR_OK;

@@ -12,6 +12,24 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Run Test Script",
+            "type": "shell",
+            "command": "./tst.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
         }
     ]
 }

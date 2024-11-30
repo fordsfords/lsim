@@ -1,4 +1,4 @@
-/* lsim.h - simple haslsim. */
+/* lsim.h */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include "err.h"
 #include "hmap.h"
+#include "lsim_dev.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,6 +28,7 @@ extern "C" {
 #endif
 ERR_CODE(LSIM_ERR_INTERNAL);
 ERR_CODE(LSIM_ERR_PARAM);
+ERR_CODE(LSIM_ERR_CONFIG);
 ERR_CODE(LSIM_ERR_NOMEM);
 ERR_CODE(LSIM_ERR_COMMAND);
 ERR_CODE(LSIM_ERR_NAME);
@@ -37,9 +39,6 @@ ERR_CODE(LSIM_ERR_MAXLOOPS);
 #undef ERR_CODE
 
 
-typedef struct lsim_s lsim_t;
-typedef struct lsim_dev_s lsim_dev_t;  /* Generic device. */
-
 /* Full definitions. */
 
 struct lsim_s {
@@ -47,6 +46,7 @@ struct lsim_s {
   hmap_t *devs;
   lsim_dev_t *out_changed_list;
   lsim_dev_t *in_changed_list;
+  lsim_dev_t *active_clk_dev;  /* Used by lsim_dev_step. */
   long total_steps;
   int trace_level;
   int stable;

@@ -30,16 +30,17 @@ extern "C" {
 
 
 /* Forward declarations. */
+typedef struct lsim_s lsim_t;
 typedef struct lsim_dev_out_terminal_s lsim_dev_out_terminal_t;
 typedef struct lsim_dev_in_terminal_s lsim_dev_in_terminal_t;
 typedef struct lsim_dev_gnd_s lsim_dev_gnd_t;
 typedef struct lsim_dev_vcc_s lsim_dev_vcc_t;
 typedef struct lsim_dev_swtch_s lsim_dev_swtch_t;
-typedef struct lsim_dev_led_s lsim_dev_led_t;
 typedef struct lsim_dev_clk1_s lsim_dev_clk1_t;
+typedef struct lsim_dev_led_s lsim_dev_led_t;
 typedef struct lsim_dev_nand_s lsim_dev_nand_t;
 typedef struct lsim_dev_mem_s lsim_dev_mem_t;
-/* typedef struct lsim_dev_s lsim_dev_t; - is declared in "lsim.h". */
+typedef struct lsim_dev_s lsim_dev_t;
 
 
 /* Full definitions. */
@@ -74,13 +75,15 @@ struct lsim_dev_swtch_s {
   lsim_dev_out_terminal_t *out_terminal;
 };
 
+struct lsim_dev_clk1_s {
+  lsim_dev_in_terminal_t *Reset_terminal;
+  lsim_dev_out_terminal_t *q_terminal;
+  lsim_dev_out_terminal_t *Q_terminal;
+};
+
 struct lsim_dev_led_s {
   int illuminated;
   lsim_dev_in_terminal_t *in_terminal;
-};
-
-struct lsim_dev_clk1_s {
-  lsim_dev_out_terminal_t *out_terminal;
 };
 
 struct lsim_dev_nand_s {
@@ -109,12 +112,12 @@ struct lsim_dev_s {
     lsim_dev_gnd_t gnd;
     lsim_dev_vcc_t vcc;
     lsim_dev_swtch_t swtch;
-    lsim_dev_led_t led;
     lsim_dev_clk1_t clk1;
+    lsim_dev_led_t led;
     lsim_dev_nand_t nand;
     lsim_dev_mem_t mem;
   };
-  /* Type-specific methods (inheritence). */
+  /* Type-specific methods (inheritance). */
   ERR_F (*get_out_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal);
   ERR_F (*get_in_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal);
   ERR_F (*power)(lsim_t *lsim, lsim_dev_t *dev);
@@ -127,11 +130,12 @@ struct lsim_dev_s {
 ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *name, int init_state);
+ERR_F lsim_dev_clk1_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);
 ERR_F lsim_dev_power(lsim_t *lsim);
-ERR_F lsim_dev_move(lsim_t *lsim, char *name, long new_state);
+ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);
 ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level);

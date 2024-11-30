@@ -116,45 +116,45 @@ void test1() {
 
   E(lsim_cmd_line(lsim, "d;nand;MyNand;2;"));
 
-  lsim_dev_t *nand_device;
-  E(hmap_lookup(lsim->devs, "MyNand", strlen("MyNand"), (void **)&nand_device));
-  ASSRT(nand_device);
-  ASSRT(nand_device->type == LSIM_DEV_TYPE_NAND);
-  ASSRT(nand_device->nand.num_inputs == 2);
-  ASSRT(nand_device->nand.out_terminal->state == 0);
-  ASSRT(nand_device->nand.out_terminal->in_terminal_list == NULL);
-  ASSRT(nand_device->nand.in_terminals[0].state == 0);
-  ASSRT(nand_device->nand.in_terminals[1].state == 0);
+  lsim_dev_t *nand_dev;
+  E(hmap_lookup(lsim->devs, "MyNand", strlen("MyNand"), (void **)&nand_dev));
+  ASSRT(nand_dev);
+  ASSRT(nand_dev->type == LSIM_DEV_TYPE_NAND);
+  ASSRT(nand_dev->nand.num_inputs == 2);
+  ASSRT(nand_dev->nand.out_terminal->state == 0);
+  ASSRT(nand_dev->nand.out_terminal->in_terminal_list == NULL);
+  ASSRT(nand_dev->nand.in_terminals[0].state == 0);
+  ASSRT(nand_dev->nand.in_terminals[1].state == 0);
 
-  lsim_dev_t *vcc_device;
-  E(hmap_lookup(lsim->devs, "MyVcc", strlen("MyVcc"), (void **)&vcc_device));
-  ASSRT(vcc_device);
-  ASSRT(vcc_device->type == LSIM_DEV_TYPE_VCC);
-  ASSRT(vcc_device->vcc.out_terminal->state == 0);
-  ASSRT(vcc_device->vcc.out_terminal->in_terminal_list == NULL);
+  lsim_dev_t *vcc_dev;
+  E(hmap_lookup(lsim->devs, "MyVcc", strlen("MyVcc"), (void **)&vcc_dev));
+  ASSRT(vcc_dev);
+  ASSRT(vcc_dev->type == LSIM_DEV_TYPE_VCC);
+  ASSRT(vcc_dev->vcc.out_terminal->state == 0);
+  ASSRT(vcc_dev->vcc.out_terminal->in_terminal_list == NULL);
 
-  lsim_dev_t *vcc2_device;
-  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&vcc2_device));
-  ASSRT(vcc2_device);
-  ASSRT(vcc2_device->type == LSIM_DEV_TYPE_VCC);
-  ASSRT(vcc2_device->vcc.out_terminal->state == 0);
-  ASSRT(vcc2_device->vcc.out_terminal->in_terminal_list == NULL);
+  lsim_dev_t *vcc2_dev;
+  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&vcc2_dev));
+  ASSRT(vcc2_dev);
+  ASSRT(vcc2_dev->type == LSIM_DEV_TYPE_VCC);
+  ASSRT(vcc2_dev->vcc.out_terminal->state == 0);
+  ASSRT(vcc2_dev->vcc.out_terminal->in_terminal_list == NULL);
 
   E(lsim_cmd_line(lsim, "c;-My_Vcc2;o0;MyNand;i0;"));
 
-  lsim_dev_t *tmp_device;
-  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&tmp_device));
-  ASSRT(tmp_device == vcc2_device);
-  ASSRT(vcc2_device->type == LSIM_DEV_TYPE_VCC);
-  ASSRT(vcc2_device->vcc.out_terminal->state == 0);
-  ASSRT(vcc2_device->vcc.out_terminal->in_terminal_list == &nand_device->nand.in_terminals[0]);
-  ASSRT(nand_device->nand.in_terminals[0].next_in_terminal == NULL);
-  ASSRT(nand_device->nand.in_terminals[0].driving_out_terminal == vcc2_device->vcc.out_terminal);
-  ASSRT(nand_device->nand.in_terminals[1].driving_out_terminal == NULL);
-  ASSRT(nand_device->nand.out_terminal->in_terminal_list == NULL);  /* Nand isn't driving anything yet. */
+  lsim_dev_t *tmp_dev;
+  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&tmp_dev));
+  ASSRT(tmp_dev == vcc2_dev);
+  ASSRT(vcc2_dev->type == LSIM_DEV_TYPE_VCC);
+  ASSRT(vcc2_dev->vcc.out_terminal->state == 0);
+  ASSRT(vcc2_dev->vcc.out_terminal->in_terminal_list == &nand_dev->nand.in_terminals[0]);
+  ASSRT(nand_dev->nand.in_terminals[0].next_in_terminal == NULL);
+  ASSRT(nand_dev->nand.in_terminals[0].driving_out_terminal == vcc2_dev->vcc.out_terminal);
+  ASSRT(nand_dev->nand.in_terminals[1].driving_out_terminal == NULL);
+  ASSRT(nand_dev->nand.out_terminal->in_terminal_list == NULL);  /* Nand isn't driving anything yet. */
 
   E(lsim_cmd_line(lsim, "c;MyNand;o0;MyNand;i1;"));
-  ASSRT(nand_device->nand.out_terminal->in_terminal_list == &nand_device->nand.in_terminals[1]);
+  ASSRT(nand_dev->nand.out_terminal->in_terminal_list == &nand_dev->nand.in_terminals[1]);
 
   E(lsim_cmd_line(lsim, "p;"));  /* Power. */
   /* Three devices with changed input. */
@@ -164,9 +164,9 @@ void test1() {
   ASSRT(lsim->in_changed_list->next_in_changed->next_in_changed->next_in_changed == NULL);
   /* No output changes yet. */
   ASSRT(lsim->out_changed_list == NULL);
-  ASSRT(vcc_device->vcc.out_terminal->state == 0);
-  ASSRT(vcc2_device->vcc.out_terminal->state == 0);
-  ASSRT(nand_device->nand.out_terminal->state == 0);
+  ASSRT(vcc_dev->vcc.out_terminal->state == 0);
+  ASSRT(vcc2_dev->vcc.out_terminal->state == 0);
+  ASSRT(nand_dev->nand.out_terminal->state == 0);
 
   /* First calculate new outputs. */
   E(lsim_dev_run_logic(lsim));
@@ -176,13 +176,13 @@ void test1() {
   ASSRT(lsim->out_changed_list->next_out_changed);
   ASSRT(lsim->out_changed_list->next_out_changed->next_out_changed);
   ASSRT(lsim->out_changed_list->next_out_changed->next_out_changed->next_out_changed == NULL);
-  ASSRT(vcc_device->vcc.out_terminal->state == 1);
-  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
-  ASSRT(nand_device->nand.out_terminal->state == 1);
+  ASSRT(vcc_dev->vcc.out_terminal->state == 1);
+  ASSRT(vcc2_dev->vcc.out_terminal->state == 1);
+  ASSRT(nand_dev->nand.out_terminal->state == 1);
   /* No inputs changes yet. */
   ASSRT(lsim->in_changed_list == NULL);
-  ASSRT(nand_device->nand.in_terminals[0].state == 0);
-  ASSRT(nand_device->nand.in_terminals[1].state == 0);
+  ASSRT(nand_dev->nand.in_terminals[0].state == 0);
+  ASSRT(nand_dev->nand.in_terminals[1].state == 0);
 
   /* Propagate outputs to inputs. */
   E(lsim_dev_propagate_outputs(lsim));
@@ -190,12 +190,12 @@ void test1() {
   /* One device with changed input. */
   ASSRT(lsim->in_changed_list);
   ASSRT(lsim->in_changed_list->next_in_changed == NULL);
-  ASSRT(nand_device->nand.in_terminals[0].state == 1);
-  ASSRT(nand_device->nand.in_terminals[1].state == 1);
+  ASSRT(nand_dev->nand.in_terminals[0].state == 1);
+  ASSRT(nand_dev->nand.in_terminals[1].state == 1);
   /* No outputs changes yet. */
   ASSRT(lsim->out_changed_list == NULL);
-  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
-  ASSRT(nand_device->nand.out_terminal->state == 1);
+  ASSRT(vcc2_dev->vcc.out_terminal->state == 1);
+  ASSRT(nand_dev->nand.out_terminal->state == 1);
 
   /* Calculate new outputs. */
   E(lsim_dev_run_logic(lsim));
@@ -203,12 +203,12 @@ void test1() {
   /* One device with changed output. */
   ASSRT(lsim->out_changed_list);
   ASSRT(lsim->out_changed_list->next_out_changed == NULL);
-  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
-  ASSRT(nand_device->nand.out_terminal->state == 0);
+  ASSRT(vcc2_dev->vcc.out_terminal->state == 1);
+  ASSRT(nand_dev->nand.out_terminal->state == 0);
   /* No inputs changes yet. */
   ASSRT(lsim->in_changed_list == NULL);
-  ASSRT(nand_device->nand.in_terminals[0].state == 1);
-  ASSRT(nand_device->nand.in_terminals[1].state == 1);
+  ASSRT(nand_dev->nand.in_terminals[0].state == 1);
+  ASSRT(nand_dev->nand.in_terminals[1].state == 1);
 
   /* Propagate outputs to inputs. */
   E(lsim_dev_propagate_outputs(lsim));
@@ -216,12 +216,12 @@ void test1() {
   /* One device with changed input. */
   ASSRT(lsim->in_changed_list);
   ASSRT(lsim->in_changed_list->next_in_changed == NULL);
-  ASSRT(nand_device->nand.in_terminals[0].state == 1);
-  ASSRT(nand_device->nand.in_terminals[1].state == 0);
+  ASSRT(nand_dev->nand.in_terminals[0].state == 1);
+  ASSRT(nand_dev->nand.in_terminals[1].state == 0);
   /* No outputs changes yet. */
   ASSRT(lsim->out_changed_list == NULL);
-  ASSRT(vcc2_device->vcc.out_terminal->state == 1);
-  ASSRT(nand_device->nand.out_terminal->state == 0);
+  ASSRT(vcc2_dev->vcc.out_terminal->state == 1);
+  ASSRT(nand_dev->nand.out_terminal->state == 0);
 
   err = lsim_cmd_line(lsim, "s;1;");
   ASSRT(err);
@@ -235,7 +235,69 @@ void test1() {
 
   E(lsim_create(&lsim, NULL));
 
-  E(lsim_cmd_file(lsim, "latch.lsim"));
+  E(lsim_cmd_file(lsim, "srlatch.lsim"));
+
+  E(lsim_cmd_line(lsim, "d;gnd;my_gnd;"));
+  E(lsim_cmd_line(lsim, "d;led;my_led;"));
+  E(lsim_cmd_line(lsim, "c;my_gnd;o0;my_led;i0;"));
+
+  E(lsim_cmd_line(lsim, "s;1;"));
+
+  lsim_dev_t *led_dev;
+  E(hmap_lookup(lsim->devs, "my_led", strlen("my_led"), (void **)&led_dev));
+  ASSRT(led_dev);
+  ASSRT(led_dev->type == LSIM_DEV_TYPE_LED);
+  ASSRT(led_dev->led.illuminated == 0);
+  ASSRT(led_dev->led.in_terminal->state == 0);
+
+  E(lsim_cmd_line(lsim, "s;1;"));
+
+  ASSRT(led_dev);
+  ASSRT(led_dev->type == LSIM_DEV_TYPE_LED);
+  ASSRT(led_dev->led.illuminated == 0);
+  ASSRT(led_dev->led.in_terminal->state == 0);
+
+  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "d;clk1;my_clk;"));
+  E(lsim_cmd_line(lsim, "d;swtch;Reset_sw;0;"));
+  E(lsim_cmd_line(lsim, "d;led;qled;"));
+  E(lsim_cmd_line(lsim, "d;led;Qled;"));
+  E(lsim_cmd_line(lsim, "c;my_clk;q0;qled;i0;"));
+  E(lsim_cmd_line(lsim, "c;my_clk;Q0;Qled;i0;"));
+  E(lsim_cmd_line(lsim, "c;Reset_sw;o0;my_clk;R0;"));
+
+  lsim_dev_t *qled_dev;
+  E(hmap_lookup(lsim->devs, "qled", strlen("qled"), (void **)&qled_dev));
+  ASSRT(qled_dev);
+  ASSRT(qled_dev->led.illuminated == 0);
+  lsim_dev_t *Qled_dev;
+  E(hmap_lookup(lsim->devs, "Qled", strlen("Qled"), (void **)&Qled_dev));
+  ASSRT(Qled_dev);
+  ASSRT(Qled_dev->led.illuminated == 0);
+  lsim_dev_t *clk_dev;
+  E(hmap_lookup(lsim->devs, "my_clk", strlen("my_clk"), (void **)&clk_dev));
+  ASSRT(clk_dev);
+
+  E(lsim_cmd_line(lsim, "s;1;"));
+
+  ASSRT(qled_dev->led.illuminated == 0);
+  ASSRT(Qled_dev->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;Reset_sw;1;"));
+  E(lsim_cmd_line(lsim, "s;1;"));
+
+  ASSRT(qled_dev->led.illuminated == 0);
+  ASSRT(Qled_dev->led.illuminated == 1);
+
+  E(lsim_cmd_line(lsim, "s;1;"));
+
+  ASSRT(qled_dev->led.illuminated == 1);
+  ASSRT(Qled_dev->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "s;1;"));
+
+  ASSRT(qled_dev->led.illuminated == 0);
+  ASSRT(Qled_dev->led.illuminated == 1);
 
   E(lsim_delete(lsim));
 }  /* test1 */
@@ -247,7 +309,7 @@ void test2() {
   E(lsim_create(&lsim, NULL));
 
   E(lsim_cmd_line(lsim, "t;1;"));
-  E(lsim_cmd_line(lsim, "i;latch.lsim;"));
+  E(lsim_cmd_line(lsim, "i;srlatch.lsim;"));
 
   E(lsim_delete(lsim));
 }  /* test2 */

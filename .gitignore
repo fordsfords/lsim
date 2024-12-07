@@ -12,6 +12,7 @@ tmp.*
 *.out
 *.pcap
 .DS_Store
+__pycache__
 
 # Executable
 a.out

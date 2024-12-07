@@ -596,7 +596,7 @@ ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 
   if (dev->led.in_terminal->state != dev->led.illuminated) {
     dev->led.illuminated = dev->led.in_terminal->state;
-    printf("Led %s: %s\n", dev->name, dev->led.illuminated ? "on" : "off");
+    printf("Led %s: %s (step %ld)\n", dev->name, dev->led.illuminated ? "on" : "off", lsim->total_steps);
   }
 
   return ERR_OK;

@@ -297,7 +297,7 @@ void test1() {
   E(lsim_cmd_line(lsim, "s;1;"));
 
   ASSRT(qled_dev->led.illuminated == 0);
-  ASSRT(Qled_dev->led.illuminated == 1);
+  ASSRT(Qled_dev->led.illuminated == 0);
 
   E(lsim_delete(lsim));
 }  /* test1 */

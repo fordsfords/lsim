@@ -38,4 +38,3 @@ if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
   egrep 'line must end with semicolon.*blah"' $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
   OK
 fi
-ERROR, line must end with semicolon "[test1.lcc:8] blah"

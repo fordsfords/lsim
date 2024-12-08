@@ -10,34 +10,35 @@ import argparse
 import fileinput
 import sys
 from contextlib import nullcontext
+from typing import Optional, TextIO, Dict, Any, List
 
 
 class LccApi:
     """The API that device plugins use to interact with the main program"""
 
-    def __init__(self, args):
+    def __init__(self, args: argparse.Namespace) -> None:
         """Init LCC API."""
-        self.symtab = {}
+        self.symtab: Dict[str, Any] = {}
         self.args = args
-        self._outfile = None  # set as a property.
+        self._outfile: Optional[TextIO] = None  # set as a property.
 
     @property
-    def outfile(self):
+    def outfile(self) -> TextIO:
         """Getter for outfile: file handle for lcc output."""
         if self._outfile is None:
             raise ValueError("outfile hasn't been initialized yet")
         return self._outfile
 
     @outfile.setter
-    def outfile(self, value):
+    def outfile(self, value: TextIO) -> None:
         """Setter for outfile: file handle for lcc output."""
         self._outfile = value
 
-    def write(self, message):
+    def write(self, message: str) -> None:
         """Use instead of print for lcc output."""
         print(message, file=self.outfile)
 
-    def error(self, message):
+    def error(self, message: str) -> None:
         """Use instead of print to standard error."""
         self.outfile.flush()
         print(message, file=sys.stderr)
@@ -46,25 +47,24 @@ class LccApi:
 class DevPlugin(ABC):
     """Base class that all device plugins must inherit from"""
 
-    def __init__(self, lcc_api):
+    def __init__(self, lcc_api: LccApi) -> None:
         self.lcc_api = lcc_api  # Functions plugin can make.
 
     @abstractmethod
-    def parse_dev(self, ref_line, fields):
+    def parse_dev(self, ref_line: str, fields: List[str]) -> int:
         """Parse the device parameters and use the API to update program state"""
 
     @property
     @abstractmethod
-    def dev_type_name(self):
+    def dev_type_name(self) -> str:
         """The name of the device type this plugin handles"""
 
 
 class Main:
-    """
-    Main program.
-    """
+    """Main program."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        # Command-line options.
         parser = argparse.ArgumentParser(
             description="Usage: lcc.py [-v] files...",
         )
@@ -73,9 +73,9 @@ class Main:
 
         self.args = parser.parse_args()
         self.lcc_api = LccApi(self.args)
-        self.dev_plugins = {}
+        self.dev_plugins: Dict[str, DevPlugin] = {}
 
-    def load_dev_plugins(self):
+    def load_dev_plugins(self) -> None:
         """Load device plugins from directory 'plugins'."""
         for filename in os.listdir("plugins"):
             if not filename.endswith(".py"):
@@ -104,7 +104,7 @@ class Main:
             except ImportError as ex:
                 self.lcc_api.error(f"Failed to load plugin {mod_name}: {ex}")
 
-    def process_d_cmd(self, ref_line, fields):
+    def process_d_cmd(self, ref_line: str, fields: List[str]) -> int:
         """Define device command."""
         dev_type = fields[1]
         if dev_type not in self.dev_plugins:
@@ -114,13 +114,13 @@ class Main:
         # Call plugin and return its status
         return self.dev_plugins[dev_type].parse_dev(ref_line, fields)
 
-    def process_c_cmd(self, ref_line, _):
+    def process_c_cmd(self, ref_line: str, _: List[str]) -> int:
         """Define device command."""
         # cmd, src_dev, src_out_id, dst_dev, dst_in_id = fields[0:5]
         self.lcc_api.error(f'ERROR, process_c_cmd is TBD "{ref_line}"')
         return 1
 
-    def process_line(self, ref_line, line):
+    def process_line(self, ref_line: str, line: str) -> int:
         """Simple device parsing: semicolon-termianted command, parameters."""
         # Strip comments
         fields = line.split("#", 1)
@@ -149,7 +149,7 @@ class Main:
                 self.lcc_api.error(f'ERROR, unrecognized command {cmd} "{ref_line}"')
                 return 1
 
-    def read_file(self):
+    def read_file(self) -> int:
         """Read input file and process."""
         num_errs = 0
         # Similar to Perl's 'while (<>) {' diamond operator.
@@ -159,14 +159,13 @@ class Main:
                 num_errs += self.process_line(ref_line.strip(), line.strip())
         return num_errs
 
-    def main(self):
+    def main(self) -> None:
         """Main program."""
-
         self.load_dev_plugins()
 
         # If output is None, this returns sys.stdout in a dummy context manager
-        output = self.args.output
-        with open(output, "w", encoding="utf-8") if output else nullcontext(sys.stdout) as outfile:
+        output: Optional[str] = self.args.output
+        with open(output, "w", encoding="utf-8") if output else nullcontext(sys.stdout) as outfile:  # type: ignore
             self.lcc_api.outfile = outfile
             num_errs = self.read_file()
 

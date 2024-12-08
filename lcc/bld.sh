@@ -26,6 +26,10 @@ echo pylint -sn -r n [a-zA-Z]*.py
 pylint -sn -r n [a-zA-Z]*.py
 ASSRT "$? -eq 0"
 
+echo mypy --strict --no-error-summary [a-zA-Z]*.py
+mypy --strict --no-error-summary [a-zA-Z]*.py
+ASSRT "$? -eq 0"
+
 echo ruff format plugins/[a-zA-Z]*.py
 ruff format plugins/[a-zA-Z]*.py
 ASSRT "$? -eq 0"
@@ -40,4 +44,8 @@ ASSRT "$? -eq 0"
 
 echo pylint -sn -r n plugins/[a-zA-Z]*.py
 pylint -sn -r n plugins/[a-zA-Z]*.py
+ASSRT "$? -eq 0"
+
+echo mypy --strict --no-error-summary plugins/[a-zA-Z]*.py
+mypy --strict --no-error-summary plugins/[a-zA-Z]*.py
 ASSRT "$? -eq 0"

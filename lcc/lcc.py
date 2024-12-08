@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # lcc.py
-"""Program to provide a higher-level language for lsim."""
+"""Program to provide a higher-level language for lsim.
+Claude.ai helped me with significant parts of this logic."""
 
 from abc import ABC, abstractmethod
 import importlib
@@ -12,7 +13,7 @@ from contextlib import nullcontext
 
 
 class LccApi:
-    """The API that plugins use to interact with the main program"""
+    """The API that device plugins use to interact with the main program"""
 
     def __init__(self, args):
         """Init LCC API."""
@@ -41,31 +42,21 @@ class LccApi:
         self.outfile.flush()
         print(message, file=sys.stderr)
 
-    def update_data(self, key, value):
-        """Example method - replace with your actual data structure updates."""
-        self.write(f"Updating data: {key} = {value}")
-        self.symtab[key] = value
-
-    def register_variable(self, key):
-        """Example method for registering variables."""
-        self.write(f"Registering variable {key}")
-        self.symtab[key] = ""
-
 
 class DevPlugin(ABC):
-    """Base class that all command plugins must inherit from"""
+    """Base class that all device plugins must inherit from"""
 
     def __init__(self, lcc_api):
-        self.lcc_api = lcc_api
+        self.lcc_api = lcc_api  # Functions plugin can make.
 
     @abstractmethod
-    def parse_command(self, ref_line, fields):
-        """Parse the command parameters and use the API to update program state"""
+    def parse_dev(self, ref_line, fields):
+        """Parse the device parameters and use the API to update program state"""
 
     @property
     @abstractmethod
-    def command_name(self):
-        """The name of the command this plugin handles"""
+    def dev_type_name(self):
+        """The name of the device type this plugin handles"""
 
 
 class Main:
@@ -82,11 +73,11 @@ class Main:
 
         self.args = parser.parse_args()
         self.lcc_api = LccApi(self.args)
-        self.plugins = {}
+        self.dev_plugins = {}
 
-    def load_plugins(self, plugin_dir):
-        """Load plugins."""
-        for filename in os.listdir(plugin_dir):
+    def load_dev_plugins(self):
+        """Load device plugins from directory 'plugins'."""
+        for filename in os.listdir("plugins"):
             if not filename.endswith(".py"):
                 continue
             if filename.startswith("_"):
@@ -105,54 +96,82 @@ class Main:
                     # Get base class names as strings
                     base_names = [f"{base.__module__}.{base.__name__}" for base in item_obj.__bases__]
                     if "lcc.DevPlugin" in base_names:
-                        plugin = item_obj(self.lcc_api)
-                        self.plugins[plugin.command_name] = plugin
+                        dev_plugin = item_obj(self.lcc_api)
+                        self.dev_plugins[dev_plugin.dev_type_name] = dev_plugin
                         found += 1
                 if found < 1:
                     self.lcc_api.error(f"ERROR, plugin {mod_name} needs class based on DevPlugin")
             except ImportError as ex:
                 self.lcc_api.error(f"Failed to load plugin {mod_name}: {ex}")
 
-    def process_line(self, ref_line, line):
-        """Simple command parsing: semicolon-termianted command, parameters."""
-        fields = line.split("#", 1)
-        no_comment = fields[0].strip()
-        if len(no_comment) == 0:
+    def process_d_cmd(self, ref_line, fields):
+        """Define device command."""
+        dev_type = fields[1]
+        if dev_type not in self.dev_plugins:
+            self.lcc_api.error(f'ERROR, unrecognized device type {dev_type} "{ref_line}"')
             return 1
 
+        # Call plugin and return its status
+        return self.dev_plugins[dev_type].parse_dev(ref_line, fields)
+
+    def process_c_cmd(self, ref_line, _):
+        """Define device command."""
+        # cmd, src_dev, src_out_id, dst_dev, dst_in_id = fields[0:5]
+        self.lcc_api.error(f'ERROR, process_c_cmd is TBD "{ref_line}"')
+        return 1
+
+    def process_line(self, ref_line, line):
+        """Simple device parsing: semicolon-termianted command, parameters."""
+        # Strip comments
+        fields = line.split("#", 1)
+        no_comment = fields[0].strip()
+        if len(no_comment) == 0:  # Blank lines are OK.
+            return 0
+
+        if " " in no_comment:
+            self.lcc_api.error(f'ERROR, command should contain no spaces "{ref_line}"')
+            return 1
         if not no_comment.endswith(";"):
             self.lcc_api.error(f'ERROR, line must end with semicolon "{ref_line}"')
             return 1
-        no_comment = no_comment[:-1]  # Remove final semicolon.
 
+        # Remove final semicolon so that split doesn't create trailing empty field.
+        no_comment = no_comment[:-1]
         fields = no_comment.split(";")
 
-        command = fields[0]
-
-        if command in self.plugins:
-            return self.plugins[command].parse_command(ref_line, fields)
-
-        self.lcc_api.error(f'ERROR, unrecognized command {command} "{ref_line}"')
-        return 1
+        cmd = fields[0]
+        match cmd:
+            case "d":
+                return self.process_d_cmd(ref_line, fields)
+            case "c":
+                return self.process_c_cmd(ref_line, fields)
+            case _:
+                self.lcc_api.error(f'ERROR, unrecognized command {cmd} "{ref_line}"')
+                return 1
 
     def read_file(self):
         """Read input file and process."""
+        num_errs = 0
         # Similar to Perl's 'while (<>) {' diamond operator.
         with fileinput.input(files=self.args.files) as file_input:
             for line in file_input:
                 ref_line = f"[{file_input.filename()}:{file_input.filelineno()}] {line}"
-                self.process_line(ref_line.strip(), line.strip())
+                num_errs += self.process_line(ref_line.strip(), line.strip())
+        return num_errs
 
     def main(self):
         """Main program."""
 
-        self.load_plugins("plugins")
+        self.load_dev_plugins()
 
         # If output is None, this returns sys.stdout in a dummy context manager
         output = self.args.output
         with open(output, "w", encoding="utf-8") if output else nullcontext(sys.stdout) as outfile:
             self.lcc_api.outfile = outfile
-            self.read_file()
+            num_errs = self.read_file()
+
+        if num_errs > 0:
+            sys.exit(1)
 
 
 if __name__ == "__main__":

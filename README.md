@@ -45,7 +45,7 @@ friendly (GUI?) that produces this as output.
 # Device definitions.
 d;gnd;dev_name;
 d;vcc;dev_name;
-d;switch;dev_name;init_state;
+d;swtch;dev_name;init_state;
 d;led;dev_name;
 d;clk1;dev_name;
 d;nand;dev_name;num_inputs;

@@ -1,0 +1,8 @@
+# test
+  # test 
+d;vcc;my_vcc;
+d;nand;my_nand;2; # comment is OK
+c;my_vcc;o0;my_nand;i0;
+z;my_vcc;o0;my_nand;i0;
+
+blah

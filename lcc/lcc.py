@@ -84,25 +84,22 @@ class Main:
                 continue
 
             mod_name = filename[:-3]
-            try:
-                module = importlib.import_module(f"plugins.{mod_name}")
-                # Look for a class that inherits from DevPlugin
-                found = 0
-                for item in dir(module):
-                    item_obj = getattr(module, item)
-                    if not hasattr(item_obj, "__bases__"):
-                        continue
+            module = importlib.import_module(f"plugins.{mod_name}")
+            # Look for a class that inherits from DevPlugin
+            found = 0
+            for item in dir(module):
+                item_obj = getattr(module, item)
+                if not hasattr(item_obj, "__bases__"):
+                    continue
 
-                    # Get base class names as strings
-                    base_names = [f"{base.__module__}.{base.__name__}" for base in item_obj.__bases__]
-                    if "lcc.DevPlugin" in base_names:
-                        dev_plugin = item_obj(self.lcc_api)
-                        self.dev_plugins[dev_plugin.dev_type_name] = dev_plugin
-                        found += 1
-                if found < 1:
-                    self.lcc_api.error(f"ERROR, plugin {mod_name} needs class based on DevPlugin")
-            except ImportError as ex:
-                self.lcc_api.error(f"Failed to load plugin {mod_name}: {ex}")
+                # Get base class names as strings
+                base_names = [f"{base.__module__}.{base.__name__}" for base in item_obj.__bases__]
+                if "lcc.DevPlugin" in base_names:
+                    dev_plugin = item_obj(self.lcc_api)
+                    self.dev_plugins[dev_plugin.dev_type_name] = dev_plugin
+                    found += 1
+            if found < 1:
+                self.lcc_api.error(f"ERROR, plugin {mod_name} needs class based on DevPlugin")
 
     def process_d_cmd(self, ref_line: str, fields: List[str]) -> int:
         """Define device command."""

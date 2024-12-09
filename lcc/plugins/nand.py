@@ -20,6 +20,7 @@ class NandDev(DevPlugin):
             return 1
 
         cmd, dev_type, dev_name, num_inputs = fields[0:4]
+        self.lcc_api.dev_types[dev_name] = dev_type
         self.lcc_api.write(f"{cmd};{dev_type};{dev_name};{num_inputs};")
 
         return 0

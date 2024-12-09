@@ -5,11 +5,13 @@
     "cSpell.words": [
         "ABRT",
         "hmap",
+        "ledq",
         "lsim",
         "mesg",
         "nand",
         "qled",
-        "srlatch"
+        "srlatch",
+        "swtch"
     ],
     "vim.scrolloff": 0,
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [

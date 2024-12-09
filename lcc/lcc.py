@@ -18,7 +18,7 @@ class LccApi:
 
     def __init__(self, args: argparse.Namespace) -> None:
         """Init LCC API."""
-        self.symtab: Dict[str, Any] = {}
+        self.dev_types: Dict[str, Any] = {}
         self.args = args
         self._outfile: Optional[TextIO] = None  # set as a property.
 
@@ -118,7 +118,7 @@ class Main:
         return 1
 
     def process_line(self, ref_line: str, line: str) -> int:
-        """Simple device parsing: semicolon-termianted command, parameters."""
+        """Simple device parsing: semicolon-terminated command, parameters."""
         # Strip comments
         fields = line.split("#", 1)
         no_comment = fields[0].strip()

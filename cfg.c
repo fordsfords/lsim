@@ -171,7 +171,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
 
   /* Remember location for this option. */
   char *location;
-  ERR_ASSRT(location = err_asprintf("%s:%d", filename, line_num), CFG_ERR_NOMEM);
+  ERR(err_asprintf(&location, "%s:%d", filename, line_num));
   ERR(hmap_write(cfg->option_locations, key, key_len, location));
 
   free(local_iline);  /* Clean up local copy. */

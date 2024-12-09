@@ -803,6 +803,127 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
 /*******************************************************************************/
 
 
+ERR_F lsim_dev_srlatch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
+
+  if (strcmp(out_id, "q0") == 0) {
+    *out_terminal = dev->srlatch.q_terminal;
+  }
+  else if (strcmp(out_id, "Q0") == 0) {
+    *out_terminal = dev->srlatch.Q_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized out_id '%s'", out_id);
+
+  return ERR_OK;
+}  /* lsim_dev_srlatch_get_out_terminal */
+
+
+ERR_F lsim_dev_srlatch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
+
+  if (strcmp(in_id, "S0") == 0) {
+    *in_terminal = dev->srlatch.S_terminal;
+  }
+  else if (strcmp(in_id, "R0") == 0) {
+    *in_terminal = dev->srlatch.R_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized in_id '%s'", in_id);
+
+  return ERR_OK;
+}  /* lsim_dev_srlatch_get_in_terminal */
+
+
+ERR_F lsim_dev_srlatch_power(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
+
+  return ERR_OK;
+}  /* lsim_dev_srlatch_power */
+
+
+ERR_F lsim_dev_srlatch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
+
+  ERR_THROW(LSIM_ERR_INTERNAL, "run logic should not be called for srlatch");
+
+  return ERR_OK;
+}  /* lsim_dev_srlatch_run_logic */
+
+
+ERR_F lsim_dev_srlatch_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
+
+  ERR_THROW(LSIM_ERR_INTERNAL, "propagate outputs should not be called for srlatch");
+
+  return ERR_OK;
+}  /* lsim_dev_srlatch_propagate_outputs */
+
+
+ERR_F lsim_dev_srlatch_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
+
+  free(dev->srlatch.nandq_name);
+  free(dev->srlatch.nandQ_name);
+
+  return ERR_OK;
+}  /* lsim_dev_srlatch_delete */
+
+
+ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
+  /* Make sure name doesn't already exist. */
+  err_t *err;
+  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
+
+  lsim_dev_t *dev;
+  ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
+  ERR(err_strdup(&(dev->name), dev_name));
+  dev->type = LSIM_DEV_TYPE_SRLATCH;
+
+  char *nandq_name;
+  ERR(err_asprintf(&nandq_name, "%s.nand_q", dev_name));
+  dev->srlatch.nandq_name = nandq_name;
+  ERR(lsim_dev_nand_create(lsim, nandq_name, 2));
+
+  char *nandQ_name;
+  ERR(err_asprintf(&nandQ_name, "%s.nand_Q", dev_name));
+  dev->srlatch.nandQ_name = nandQ_name;
+  ERR(lsim_dev_nand_create(lsim, nandQ_name, 2));
+
+  ERR(lsim_dev_connect(lsim, nandq_name, "o0", nandQ_name, "i1"));
+  ERR(lsim_dev_connect(lsim, nandQ_name, "o0", nandq_name, "i1"));
+
+  lsim_dev_t *nandq_dev;
+  ERR(hmap_lookup(lsim->devs, nandq_name, strlen(nandq_name), (void**)&nandq_dev));
+  lsim_dev_t *nandQ_dev;
+  ERR(hmap_lookup(lsim->devs, nandQ_name, strlen(nandQ_name), (void**)&nandQ_dev));
+  dev->srlatch.q_terminal = nandq_dev->nand.out_terminal;
+  dev->srlatch.Q_terminal = nandQ_dev->nand.out_terminal;
+  dev->srlatch.S_terminal = &nandq_dev->nand.in_terminals[0];
+  dev->srlatch.R_terminal = &nandQ_dev->nand.in_terminals[0];
+
+  /* Type-specific methods (inheritance). */
+  dev->get_out_terminal = lsim_dev_srlatch_get_out_terminal;
+  dev->get_in_terminal = lsim_dev_srlatch_get_in_terminal;
+  dev->power = lsim_dev_srlatch_power;
+  dev->run_logic = lsim_dev_srlatch_run_logic;
+  dev->propagate_outputs = lsim_dev_srlatch_propagate_outputs;
+  dev->delete = lsim_dev_srlatch_delete;
+
+  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+
+  return ERR_OK;
+}  /* lsim_dev_srlatch_create */
+
+
+/*******************************************************************************/
+
+
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id) {
   lsim_dev_t *src_dev;
   ERR(hmap_lookup(lsim->devs, src_dev_name, strlen(src_dev_name), (void**)&src_dev));

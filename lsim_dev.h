@@ -26,7 +26,8 @@ extern "C" {
 #define LSIM_DEV_TYPE_LED 4
 #define LSIM_DEV_TYPE_CLK1 5
 #define LSIM_DEV_TYPE_NAND 6
-#define LSIM_DEV_TYPE_MEM 7
+#define LSIM_DEV_TYPE_SRLATCH 7
+#define LSIM_DEV_TYPE_MEM 8
 
 
 /* Forward declarations. */
@@ -39,6 +40,7 @@ typedef struct lsim_dev_swtch_s lsim_dev_swtch_t;
 typedef struct lsim_dev_clk1_s lsim_dev_clk1_t;
 typedef struct lsim_dev_led_s lsim_dev_led_t;
 typedef struct lsim_dev_nand_s lsim_dev_nand_t;
+typedef struct lsim_dev_srlatch_s lsim_dev_srlatch_t;
 typedef struct lsim_dev_mem_s lsim_dev_mem_t;
 typedef struct lsim_dev_s lsim_dev_t;
 
@@ -92,6 +94,15 @@ struct lsim_dev_nand_s {
   lsim_dev_in_terminal_t *in_terminals;  /* Allocated array of input terminals. */
 };
 
+struct lsim_dev_srlatch_s {
+  char *nandq_name;
+  char *nandQ_name;
+  lsim_dev_out_terminal_t *q_terminal;
+  lsim_dev_out_terminal_t *Q_terminal;
+  lsim_dev_in_terminal_t *S_terminal;
+  lsim_dev_in_terminal_t *R_terminal;
+};
+
 struct lsim_dev_mem_s {
   long num_outputs;
   lsim_dev_out_terminal_t *out_terminals;  /* Allocated array of output terminals. */
@@ -115,6 +126,7 @@ struct lsim_dev_s {
     lsim_dev_clk1_t clk1;
     lsim_dev_led_t led;
     lsim_dev_nand_t nand;
+    lsim_dev_srlatch_t srlatch;
     lsim_dev_mem_t mem;
   };
   /* Type-specific methods (inheritance). */
@@ -133,6 +145,7 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *name, int init_state);
 ERR_F lsim_dev_clk1_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
+ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);
 ERR_F lsim_dev_power(lsim_t *lsim);
 ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);

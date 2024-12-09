@@ -311,8 +311,52 @@ void test2() {
   E(lsim_cmd_line(lsim, "t;1;"));
   E(lsim_cmd_line(lsim, "i;srlatch.lsim;"));
 
+  lsim_dev_t *nand1_dev;
+  E(hmap_lookup(lsim->devs, "nand1", strlen("nand1"), (void **)&nand1_dev));
+  ASSRT(nand1_dev->nand.out_terminal->state == 1);
+
+  lsim_dev_t *nand2_dev;
+  E(hmap_lookup(lsim->devs, "nand2", strlen("nand2"), (void **)&nand2_dev));
+  ASSRT(nand2_dev->nand.out_terminal->state == 0);
+
   E(lsim_delete(lsim));
 }  /* test2 */
+
+
+void test3() {
+  lsim_t *lsim;
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "d;swtch;swS;1;"));
+  E(lsim_cmd_line(lsim, "d;swtch;swR;0;"));
+  E(lsim_cmd_line(lsim, "d;led;ledq;"));
+  E(lsim_cmd_line(lsim, "d;led;ledQ;"));
+  E(lsim_cmd_line(lsim, "d;srlatch;srlatch1;"));
+  E(lsim_cmd_line(lsim, "c;swS;o0;srlatch1;S0;"));
+  E(lsim_cmd_line(lsim, "c;swR;o0;srlatch1;R0;"));
+  E(lsim_cmd_line(lsim, "c;srlatch1;q0;ledq;i0;"));
+  E(lsim_cmd_line(lsim, "c;srlatch1;Q0;ledQ;i0;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "p;"));
+  E(lsim_cmd_line(lsim, "s;3;"));
+  E(lsim_cmd_line(lsim, "m;swR;1;"));
+  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "m;swS;0;"));
+  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "m;swS;1;"));
+  E(lsim_cmd_line(lsim, "s;2;"));
+
+  lsim_dev_t *ledq_dev;
+  E(hmap_lookup(lsim->devs, "ledq", strlen("ledq"), (void **)&ledq_dev));
+  ASSRT(ledq_dev->led.in_terminal->state == 1);
+
+  lsim_dev_t *ledQ_dev;
+  E(hmap_lookup(lsim->devs, "ledQ", strlen("ledQ"), (void **)&ledQ_dev));
+  ASSRT(ledQ_dev->led.in_terminal->state == 0);
+
+  E(lsim_delete(lsim));
+}  /* test3 */
 
 
 int main(int argc, char **argv) {
@@ -325,7 +369,12 @@ int main(int argc, char **argv) {
 
   if (o_testnum == 0 || o_testnum == 2) {
     test2();
-    printf("test1: success\n");
+    printf("test2: success\n");
+  }
+
+  if (o_testnum == 0 || o_testnum == 3) {
+    test3();
+    printf("test3: success\n");
   }
 
   return 0;

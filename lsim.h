@@ -46,10 +46,10 @@ struct lsim_s {
   hmap_t *devs;
   lsim_dev_t *out_changed_list;
   lsim_dev_t *in_changed_list;
-  lsim_dev_t *active_clk_dev;  /* Used by lsim_dev_step. */
-  long total_steps;
-  int trace_level;
-  int stable;
+  lsim_dev_t *active_clk_dev;  /* Used by lsim_dev_tick. */
+  long total_ticks;
+  int power_on;
+  int verbosity_level;
   int quit;
 };
 

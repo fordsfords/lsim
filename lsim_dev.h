@@ -109,7 +109,7 @@ struct lsim_dev_dlatch_s {
   lsim_dev_in_terminal_t *S_terminal;
   lsim_dev_in_terminal_t *R_terminal;
   lsim_dev_in_terminal_t *d_terminal;
-  lsim_dev_in_terminal_t *C_terminal;
+  lsim_dev_in_terminal_t *c_terminal;
 };
 
 struct lsim_dev_mem_s {
@@ -163,7 +163,7 @@ ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);
 ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level);
-ERR_F lsim_dev_step(lsim_t *lsim);
+ERR_F lsim_dev_tick(lsim_t *lsim);
 ERR_F lsim_dev_delete_all(lsim_t *lsim);
 
 #ifdef __cplusplus

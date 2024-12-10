@@ -24,7 +24,7 @@
 /* Config file definition and defaults. */
 char *lsim_cfg_defaults[] = {
   "device_hash_buckets=10007",
-  "max_propagate_cycles=5000",  /* For loop detection. */
+  "max_propagate_cycles=50",  /* For loop detection. */
   "error_level=0",  /* 0=abort, 1=exit(1), 2=warn and continue. */
   NULL
 };
@@ -45,7 +45,7 @@ ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name) {
   ERR_ASSRT(device_hash_buckets > 0, LSIM_ERR_CONFIG);
   ERR(hmap_create(&(lsim->devs), device_hash_buckets));
 
-  lsim->stable = 1;
+  lsim->power_on = 0;
   lsim->quit = 0;
 
   *rtn_lsim = lsim;

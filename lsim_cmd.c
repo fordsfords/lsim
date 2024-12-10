@@ -361,29 +361,29 @@ ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
 
 
 /* Step:
- * s;num_steps;
+ * s;num_ticks;
  * cmd_line points past first semi-colon. */
 ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
-  char *num_steps_s = cmd_line;
-  ERR_ASSRT(semi_colon = strchr(num_steps_s, ';'), LSIM_ERR_COMMAND);
+  char *num_ticks_s = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(num_ticks_s, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';  /* Overwrite semicolon. */
 
   /* Make sure we're at end of line. */
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  long num_steps;
-  ERR(cfg_atol(num_steps_s, &num_steps));
-  ERR_ASSRT(num_steps > 0, LSIM_ERR_COMMAND);
+  long num_ticks;
+  ERR(cfg_atol(num_ticks_s, &num_ticks));
+  ERR_ASSRT(num_ticks > 0, LSIM_ERR_COMMAND);
 
   err_t *err;
-  long step_num;
-  for (step_num = 0; step_num < num_steps; step_num++) {
-    err = lsim_dev_step(lsim);
+  long tick_num;
+  for (tick_num = 0; tick_num < num_ticks; tick_num++) {
+    err = lsim_dev_tick(lsim);
     if (err) {
-      ERR_RETHROW(err, "Step command '%s' had error %s in step %ld", cmd_line, err->code, step_num);
+      ERR_RETHROW(err, "Step command '%s' had error %s in tick %ld", cmd_line, err->code, tick_num);
     }
   }
 
@@ -391,27 +391,50 @@ ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_s */
 
 
-/* trace:
- * t;trace_level;
+/* verbose:
+ * v;verbosity_level;
  * cmd_line points past first semi-colon. */
 ERR_F lsim_cmd_t(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
-  char *trace_level_s = cmd_line;
-  ERR_ASSRT(semi_colon = strchr(trace_level_s, ';'), LSIM_ERR_COMMAND);
+  char *verbosity_level_s = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(verbosity_level_s, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';  /* Overwrite semicolon. */
 
   /* Make sure we're at end of line. */
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  long trace_level;
-  ERR(cfg_atol(trace_level_s, &trace_level));
-  ERR_ASSRT(trace_level >= 0 && trace_level <= 2, LSIM_ERR_COMMAND);
-  lsim->trace_level = (int)trace_level;
+  long verbosity_level;
+  ERR(cfg_atol(verbosity_level_s, &verbosity_level));
+  ERR_ASSRT(verbosity_level >= 0 && verbosity_level <= 2, LSIM_ERR_COMMAND);
+  lsim->verbosity_level = (int)verbosity_level;
 
   return ERR_OK;
 }  /* lsim_cmd_t */
+
+
+/* verbosity:
+ * t;verbosity_level;
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_v(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *verbosity_level_s = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(verbosity_level_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long verbosity_level;
+  ERR(cfg_atol(verbosity_level_s, &verbosity_level));
+  ERR_ASSRT(verbosity_level >= 0 && verbosity_level <= 2, LSIM_ERR_COMMAND);
+  lsim->verbosity_level = (int)verbosity_level;
+
+  return ERR_OK;
+}  /* lsim_cmd_v */
 
 
 /* include:
@@ -517,6 +540,9 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
     err = lsim_cmd_t(lsim, &local_cmd_line[2]);
   }
+  else if (strstr(local_cmd_line, "v;") == local_cmd_line) {
+    err = lsim_cmd_v(lsim, &local_cmd_line[2]);
+  }
   else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
     err = lsim_cmd_i(lsim, &local_cmd_line[2]);
   }
@@ -576,7 +602,7 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
       iline[len] = '\0';
     }
     if (len > 0) {
-      if (lsim->trace_level > 0) {
+      if (lsim->verbosity_level > 0) {
         printf("Trace: %s:%d, '%s'\n", filename, line_num, iline);
       }
       err = lsim_cmd_line(lsim, iline);

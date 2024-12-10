@@ -44,6 +44,19 @@ An sr-latch with active-low set and reset labels its inputs S and R.
 complicated the code more.)
 * The "step" command is the performance-critical part that actually simulates
 the circuit.
+* It is very easy to get the system into an unstable state.
+For example, wire two NAND gates into an SR latch and connect two switches to the
+S and R inputs respectively.
+Then, in the same step, move both switches from 0 to 1.
+This will trigger infinite oscillation.
+But in real life it is almost impossible for two independent events to happen at
+exactly the same time, and an SR latch will behave properly if there is even the
+slightest difference in event arrival time.
+My solution is to have external events (each switch movement) run the engine
+before the clock tick.
+This will still catch an incorrectly designed circuit by letting it go unstable,
+but will make sure that the clock transitions asynchronously to any external
+events, like switches being moved.
 
 ## Circuit Entry Language
 
@@ -76,10 +89,10 @@ m;dev_name;new_state;
 # Watch a device (watch_level: 0=none, 1=output change, 2=always print)
 w;dev_name;watch_level;
 
-# Step.
-s;num_steps;
-# Trace. (trace_level: 0=none, 1=output change, 2=always print)
-t;trace_level;
+# Tick
+t;num_ticks;
+# Verbosity. (verbosity_level: 0=none, 1=output change, 2=always print)
+v;verbosity_level;
 
 # quit
 q;

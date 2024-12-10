@@ -90,11 +90,11 @@ ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     ERR(lsim_dev_out_changed(lsim, dev));
   }
 
-  int this_trace_level = dev->watch_level;
-  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
-    this_trace_level = lsim->trace_level;
+  int this_verbosity_level = dev->watch_level;
+  if (lsim->verbosity_level > this_verbosity_level) {  /* Global verbosity level. */
+    this_verbosity_level = lsim->verbosity_level;
   }
-  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
+  if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
     printf("  gnd %s: o0=%d\n", dev->name, dev->gnd.out_terminal->state);
   }
 
@@ -206,11 +206,11 @@ ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     ERR(lsim_dev_out_changed(lsim, dev));
   }
 
-  int this_trace_level = dev->watch_level;
-  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
-    this_trace_level = lsim->trace_level;
+  int this_verbosity_level = dev->watch_level;
+  if (lsim->verbosity_level > this_verbosity_level) {  /* Global verbosity level. */
+    this_verbosity_level = lsim->verbosity_level;
   }
-  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
+  if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
     printf("  vcc %s: o0=%d\n", dev->name, dev->vcc.out_terminal->state);
   }
 
@@ -322,11 +322,11 @@ ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     ERR(lsim_dev_out_changed(lsim, dev));
   }
 
-  int this_trace_level = dev->watch_level;
-  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
-    this_trace_level = lsim->trace_level;
+  int this_verbosity_level = dev->watch_level;
+  if (lsim->verbosity_level > this_verbosity_level) {  /* Global verbosity level. */
+    this_verbosity_level = lsim->verbosity_level;
   }
-  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
+  if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
     printf("  swtch %s: o0=%d\n", dev->name, dev->swtch.out_terminal->state);
   }
 
@@ -455,7 +455,7 @@ ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     dev->clk1.Q_terminal->state = 0;
   }
   else {  /* Not reset. */
-    int new_state = lsim->total_steps % 2;  /* Clock changes with each step. */
+    int new_state = lsim->total_ticks % 2;  /* Clock changes with each tick. */
     if (dev->clk1.q_terminal->state != new_state || dev->clk1.Q_terminal->state != (1 - new_state)) {
       out_changed = 1;
       dev->clk1.q_terminal->state = new_state;
@@ -466,11 +466,11 @@ ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     ERR(lsim_dev_out_changed(lsim, dev));
   }
 
-  int this_trace_level = dev->watch_level;
-  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
-    this_trace_level = lsim->trace_level;
+  int this_verbosity_level = dev->watch_level;
+  if (lsim->verbosity_level > this_verbosity_level) {  /* Global verbosity level. */
+    this_verbosity_level = lsim->verbosity_level;
   }
-  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
+  if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
     printf("  clk1 %s: q0=%d, Q0=%d\n", dev->name, dev->clk1.q_terminal->state, dev->clk1.Q_terminal->state);
   }
 
@@ -554,7 +554,7 @@ ERR_F lsim_dev_clk1_create(lsim_t *lsim, char *dev_name) {
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
-  lsim->active_clk_dev = dev;  /* Make clock visible to lsim_dev_step. */
+  lsim->active_clk_dev = dev;  /* Make clock visible to lsim_dev_tick. */
 
   return ERR_OK;
 }  /* lsim_dev_clk1_create */
@@ -605,7 +605,7 @@ ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 
   if (dev->led.in_terminal->state != dev->led.illuminated) {
     dev->led.illuminated = dev->led.in_terminal->state;
-    printf("Led %s: %s (step %ld)\n", dev->name, dev->led.illuminated ? "on" : "off", lsim->total_steps);
+    printf("Led %s: %s (tick %ld)\n", dev->name, dev->led.illuminated ? "on" : "off", lsim->total_ticks);
   }
 
   return ERR_OK;
@@ -732,11 +732,11 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     ERR(lsim_dev_out_changed(lsim, dev));
   }
 
-  int this_trace_level = dev->watch_level;
-  if (lsim->trace_level > this_trace_level) {  /* Global trace level. */
-    this_trace_level = lsim->trace_level;
+  int this_verbosity_level = dev->watch_level;
+  if (lsim->verbosity_level > this_verbosity_level) {  /* Global verbosity level. */
+    this_verbosity_level = lsim->verbosity_level;
   }
-  if (this_trace_level == 2 || (this_trace_level == 1 && out_changed)) {
+  if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
     printf("  nand %s: o0=%d\n", dev->name, dev->nand.out_terminal->state);
   }
 
@@ -966,8 +966,8 @@ ERR_F lsim_dev_dlatch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char 
   else if (strcmp(in_id, "d0") == 0) {
     *in_terminal = dev->dlatch.d_terminal;
   }
-  else if (strcmp(in_id, "C0") == 0) {
-    *in_terminal = dev->dlatch.C_terminal;
+  else if (strcmp(in_id, "c0") == 0) {
+    *in_terminal = dev->dlatch.c_terminal;
   }
   else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized in_id '%s'", in_id);
 
@@ -1086,7 +1086,7 @@ ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   dev->dlatch.S_terminal = &nand_q_dev->nand.in_terminals[0];
   dev->dlatch.R_terminal = &nand_Q_dev->nand.in_terminals[0];
   dev->dlatch.d_terminal = &nand_d_dev->nand.in_terminals[0];
-  dev->dlatch.C_terminal = &nand_c_dev->nand.in_terminals[0];
+  dev->dlatch.c_terminal = &nand_c_dev->nand.in_terminals[0];
 
   /* Need to chain internal inputs onto the "external" inputs. */
 
@@ -1145,23 +1145,6 @@ ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_o
 }  /* lsim_dev_connect */
 
 
-ERR_F lsim_dev_power(lsim_t *lsim) {
-  /* Step through entire hash map, starting with first entry. */
-  hmap_entry_t *dev_entry = NULL;
-  do {
-    ERR(hmap_next(lsim->devs, &dev_entry));
-    if (dev_entry) {
-      lsim_dev_t *cur_dev = dev_entry->value;
-      ERR_ASSRT(cur_dev->next_out_changed == NULL, LSIM_ERR_INTERNAL);
-      ERR_ASSRT(cur_dev->next_in_changed == NULL, LSIM_ERR_INTERNAL);
-      ERR(cur_dev->power(lsim, cur_dev));
-    }
-  } while (dev_entry);
-
-  return ERR_OK;
-}  /* lsim_dev_power */
-
-
 ERR_F lsim_dev_delete(lsim_t *lsim, lsim_dev_t *dev) {
   ERR(dev->delete(lsim, dev));
   free(dev->name);
@@ -1184,21 +1167,6 @@ ERR_F lsim_dev_delete_all(lsim_t *lsim) {
 
   return ERR_OK;
 }  /* lsim_dev_delete_all */
-
-
-ERR_F lsim_dev_move(lsim_t *lsim, const char *dev_name, long new_state) {
-  lsim_dev_t *dev;
-  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
-
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_COMMAND);
-
-  if (dev->swtch.swtch_state != new_state) {
-    dev->swtch.swtch_state = new_state;
-    ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
-  }
-
-  return ERR_OK;
-}  /* lsim_dev_move */
 
 
 ERR_F lsim_dev_run_logic(lsim_t *lsim) {
@@ -1242,28 +1210,13 @@ ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
 }  /* lsim_dev_propagate_outputs */
 
 
-ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level) {
-  lsim_dev_t *dev;
-  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
-
-  dev->watch_level = watch_level;
-
-  return ERR_OK;
-}  /* lsim_dev_watch */
-
-
-ERR_F lsim_dev_step(lsim_t *lsim) {
+ERR_F lsim_dev_engine(lsim_t *lsim) {
+  if (! lsim->power_on) {
+    return ERR_OK;
+  }
   long max_propagate_cycles;
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
   ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
-
-  if (lsim->trace_level > 0) {
-    printf(" Step %ld:\n", lsim->total_steps);
-  }
-
-  if (lsim->active_clk_dev) {
-    ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
-  }
 
   long cur_cycle = 0;
   /* Loop while the logic states are still stabilizing. Note that this can
@@ -1278,8 +1231,75 @@ ERR_F lsim_dev_step(lsim_t *lsim) {
     ERR(lsim_dev_propagate_outputs(lsim));
   }
 
-  /* Step complete. */
-  lsim->total_steps++;
+  return ERR_OK;
+}  /* lsim_dev_engine */
+
+
+ERR_F lsim_dev_power(lsim_t *lsim) {
+  lsim->power_on = 1;
+
+  /* Step through entire hash map, starting with first entry. */
+  hmap_entry_t *dev_entry = NULL;
+  do {
+    ERR(hmap_next(lsim->devs, &dev_entry));
+    if (dev_entry) {
+      lsim_dev_t *cur_dev = dev_entry->value;
+      ERR_ASSRT(cur_dev->next_out_changed == NULL, LSIM_ERR_INTERNAL);
+      ERR_ASSRT(cur_dev->next_in_changed == NULL, LSIM_ERR_INTERNAL);
+      ERR(cur_dev->power(lsim, cur_dev));
+    }
+  } while (dev_entry);
+
+  ERR(lsim_dev_engine(lsim));
 
   return ERR_OK;
-}  /* lsim_dev_step */
+}  /* lsim_dev_power */
+
+
+ERR_F lsim_dev_move(lsim_t *lsim, const char *dev_name, long new_state) {
+  lsim_dev_t *dev;
+  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
+
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_COMMAND);
+
+  if (dev->swtch.swtch_state != new_state) {
+    dev->swtch.swtch_state = new_state;
+    ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
+  }
+
+  ERR(lsim_dev_engine(lsim));
+
+  return ERR_OK;
+}  /* lsim_dev_move */
+
+
+ERR_F lsim_dev_tick(lsim_t *lsim) {
+  long max_propagate_cycles;
+  ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
+  ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
+
+  if (lsim->verbosity_level > 0) {
+    printf(" Step %ld:\n", lsim->total_ticks);
+  }
+
+  if (lsim->active_clk_dev) {
+    ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
+  }
+
+  ERR(lsim_dev_engine(lsim));
+
+  /* Step complete. */
+  lsim->total_ticks++;
+
+  return ERR_OK;
+}  /* lsim_dev_tick */
+
+
+ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level) {
+  lsim_dev_t *dev;
+  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
+
+  dev->watch_level = watch_level;
+
+  return ERR_OK;
+}  /* lsim_dev_watch */

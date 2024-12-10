@@ -32,6 +32,16 @@ tbd.
 
 ## Design Notes
 
+* A "terminal" is an input or an output to a device.
+(I thought of naming it a "pin", but many logic gates are not exposed
+to the package pins. I thought of "wire", but a wire is something that connects
+to a terminal. I thought of "connection" but that is when you connect two
+terminals together (maybe with a wire). Terminal was the best I could think of.)
+* I use upper-case in some naming conventions to indicate "not".
+For example, a latch has "q" and "Q" outputs.
+An sr-latch with active-low set and reset labels its inputs S and R.
+(I thought about underscore for not, "_q" for not-Q, but it would have
+complicated the code more.)
 * The "step" command is the performance-critical part that actually simulates
 the circuit.
 

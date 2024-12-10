@@ -439,8 +439,13 @@ ERR_F lsim_dev_clk1_power(lsim_t *lsim, lsim_dev_t *dev) {
 
 ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+  /* Check for floating inputs. */
+  if (dev->clk1.Reset_terminal->driving_out_terminal == NULL) {
+    ERR_THROW(LSIM_ERR_COMMAND, "Clock %s: input R0 is floating", dev->name);
+  }
 
   int out_changed = 0;
+
   /* Process reset. */
   if (dev->clk1.Reset_terminal->state == 0) {
     if (dev->clk1.q_terminal->state != 0) {
@@ -593,6 +598,10 @@ ERR_F lsim_dev_led_power(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
+  /* Check for floating inputs. */
+  if (dev->led.in_terminal->driving_out_terminal == NULL) {
+    ERR_THROW(LSIM_ERR_COMMAND, "Led %s: input i0 is floating", dev->name);
+  }
 
   if (dev->led.in_terminal->state != dev->led.illuminated) {
     dev->led.illuminated = dev->led.in_terminal->state;
@@ -702,6 +711,10 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   int new_output = 0;  /* Assume all inputs are 1. */
   int input_index;
   for (input_index = 0; input_index < dev->nand.num_inputs; input_index++) {
+    /* Check for floating inputs. */
+    if (dev->nand.in_terminals[input_index].driving_out_terminal == NULL) {
+      ERR_THROW(LSIM_ERR_COMMAND, "Nand %s: input i%d is floating", dev->name, input_index);
+    }
     if (dev->nand.in_terminals[input_index].state == 0) {
       /* At least one input is 0; output is 1. */
       new_output = 1;
@@ -867,9 +880,6 @@ ERR_F lsim_dev_srlatch_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
 
-  free(dev->srlatch.nandq_name);
-  free(dev->srlatch.nandQ_name);
-
   return ERR_OK;
 }  /* lsim_dev_srlatch_delete */
 
@@ -885,27 +895,27 @@ ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
   ERR(err_strdup(&(dev->name), dev_name));
   dev->type = LSIM_DEV_TYPE_SRLATCH;
 
-  char *nandq_name;
-  ERR(err_asprintf(&nandq_name, "%s.nand_q", dev_name));
-  dev->srlatch.nandq_name = nandq_name;
-  ERR(lsim_dev_nand_create(lsim, nandq_name, 2));
+  char *nand_q_name;
+  ERR(err_asprintf(&nand_q_name, "%s.nand_q", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_q_name, 2));
+  lsim_dev_t *nand_q_dev;
+  ERR(hmap_lookup(lsim->devs, nand_q_name, strlen(nand_q_name), (void**)&nand_q_dev));
 
-  char *nandQ_name;
-  ERR(err_asprintf(&nandQ_name, "%s.nand_Q", dev_name));
-  dev->srlatch.nandQ_name = nandQ_name;
-  ERR(lsim_dev_nand_create(lsim, nandQ_name, 2));
+  char *nand_Q_name;
+  ERR(err_asprintf(&nand_Q_name, "%s.nand_Q", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_Q_name, 2));
+  lsim_dev_t *nand_Q_dev;
+  ERR(hmap_lookup(lsim->devs, nand_Q_name, strlen(nand_Q_name), (void**)&nand_Q_dev));
 
-  ERR(lsim_dev_connect(lsim, nandq_name, "o0", nandQ_name, "i1"));
-  ERR(lsim_dev_connect(lsim, nandQ_name, "o0", nandq_name, "i1"));
+  /* Make connections. */
+  ERR(lsim_dev_connect(lsim, nand_q_name, "o0", nand_Q_name, "i1"));
+  ERR(lsim_dev_connect(lsim, nand_Q_name, "o0", nand_q_name, "i1"));
 
-  lsim_dev_t *nandq_dev;
-  ERR(hmap_lookup(lsim->devs, nandq_name, strlen(nandq_name), (void**)&nandq_dev));
-  lsim_dev_t *nandQ_dev;
-  ERR(hmap_lookup(lsim->devs, nandQ_name, strlen(nandQ_name), (void**)&nandQ_dev));
-  dev->srlatch.q_terminal = nandq_dev->nand.out_terminal;
-  dev->srlatch.Q_terminal = nandQ_dev->nand.out_terminal;
-  dev->srlatch.S_terminal = &nandq_dev->nand.in_terminals[0];
-  dev->srlatch.R_terminal = &nandQ_dev->nand.in_terminals[0];
+  /* Save the "external" terminals. */
+  dev->srlatch.q_terminal = nand_q_dev->nand.out_terminal;
+  dev->srlatch.Q_terminal = nand_Q_dev->nand.out_terminal;
+  dev->srlatch.S_terminal = &nand_q_dev->nand.in_terminals[0];
+  dev->srlatch.R_terminal = &nand_Q_dev->nand.in_terminals[0];
 
   /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_srlatch_get_out_terminal;
@@ -917,8 +927,185 @@ ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
+  free(nand_q_name);
+  free(nand_Q_name);
+
   return ERR_OK;
 }  /* lsim_dev_srlatch_create */
+
+
+/*******************************************************************************/
+
+
+ERR_F lsim_dev_dlatch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
+
+  if (strcmp(out_id, "q0") == 0) {
+    *out_terminal = dev->dlatch.q_terminal;
+  }
+  else if (strcmp(out_id, "Q0") == 0) {
+    *out_terminal = dev->dlatch.Q_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized out_id '%s'", out_id);
+
+  return ERR_OK;
+}  /* lsim_dev_dlatch_get_out_terminal */
+
+
+ERR_F lsim_dev_dlatch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
+
+  if (strcmp(in_id, "S0") == 0) {
+    *in_terminal = dev->dlatch.S_terminal;
+  }
+  else if (strcmp(in_id, "R0") == 0) {
+    *in_terminal = dev->dlatch.R_terminal;
+  }
+  else if (strcmp(in_id, "d0") == 0) {
+    *in_terminal = dev->dlatch.d_terminal;
+  }
+  else if (strcmp(in_id, "C0") == 0) {
+    *in_terminal = dev->dlatch.C_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized in_id '%s'", in_id);
+
+  return ERR_OK;
+}  /* lsim_dev_dlatch_get_in_terminal */
+
+
+ERR_F lsim_dev_dlatch_power(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
+
+  return ERR_OK;
+}  /* lsim_dev_dlatch_power */
+
+
+ERR_F lsim_dev_dlatch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
+
+  ERR_THROW(LSIM_ERR_INTERNAL, "run logic should not be called for dlatch");
+
+  return ERR_OK;
+}  /* lsim_dev_dlatch_run_logic */
+
+
+ERR_F lsim_dev_dlatch_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
+
+  ERR_THROW(LSIM_ERR_INTERNAL, "propagate outputs should not be called for dlatch");
+
+  return ERR_OK;
+}  /* lsim_dev_dlatch_propagate_outputs */
+
+
+ERR_F lsim_dev_dlatch_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
+
+  return ERR_OK;
+}  /* lsim_dev_dlatch_delete */
+
+
+ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
+  /* Make sure name doesn't already exist. */
+  err_t *err;
+  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
+
+  lsim_dev_t *dev;
+  ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
+  ERR(err_strdup(&(dev->name), dev_name));
+  dev->type = LSIM_DEV_TYPE_DLATCH;
+
+  char *nand_q_name;
+  ERR(err_asprintf(&nand_q_name, "%s.nand_q", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_q_name, 3));
+  lsim_dev_t *nand_q_dev;
+  ERR(hmap_lookup(lsim->devs, nand_q_name, strlen(nand_q_name), (void**)&nand_q_dev));
+
+  char *nand_Q_name;
+  ERR(err_asprintf(&nand_Q_name, "%s.nand_Q", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_Q_name, 3));
+  lsim_dev_t *nand_Q_dev;
+  ERR(hmap_lookup(lsim->devs, nand_Q_name, strlen(nand_Q_name), (void**)&nand_Q_dev));
+
+  char *nand_a_name;
+  ERR(err_asprintf(&nand_a_name, "%s.nand_a", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_a_name, 3));
+  lsim_dev_t *nand_a_dev;
+  ERR(hmap_lookup(lsim->devs, nand_a_name, strlen(nand_a_name), (void**)&nand_a_dev));
+
+  char *nand_b_name;
+  ERR(err_asprintf(&nand_b_name, "%s.nand_b", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_b_name, 3));
+  lsim_dev_t *nand_b_dev;
+  ERR(hmap_lookup(lsim->devs, nand_b_name, strlen(nand_b_name), (void**)&nand_b_dev));
+
+  char *nand_c_name;
+  ERR(err_asprintf(&nand_c_name, "%s.nand_c", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_c_name, 3));
+  lsim_dev_t *nand_c_dev;
+  ERR(hmap_lookup(lsim->devs, nand_c_name, strlen(nand_c_name), (void**)&nand_c_dev));
+
+  char *nand_d_name;
+  ERR(err_asprintf(&nand_d_name, "%s.nand_d", dev_name));
+  ERR(lsim_dev_nand_create(lsim, nand_d_name, 3));
+  lsim_dev_t *nand_d_dev;
+  ERR(hmap_lookup(lsim->devs, nand_d_name, strlen(nand_d_name), (void**)&nand_d_dev));
+
+  /* Make connections. */
+  ERR(lsim_dev_connect(lsim, nand_q_name, "o0", nand_Q_name, "i2"));
+  ERR(lsim_dev_connect(lsim, nand_Q_name, "o0", nand_q_name, "i2"));
+
+  ERR(lsim_dev_connect(lsim, nand_a_name, "o0", nand_b_name, "i2"));
+  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_a_name, "i2"));
+  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_c_name, "i1"));
+  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_q_name, "i1"));
+
+  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_d_name, "i2"));
+  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_Q_name, "i1"));
+  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_c_name, "i2"));
+  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_a_name, "i1"));
+
+  /* Chain "External" inputs for "set". */
+  nand_q_dev->nand.in_terminals[0].next_in_terminal = &nand_a_dev->nand.in_terminals[0];
+  /* Chain "External" inputs for "reset". */
+  nand_Q_dev->nand.in_terminals[0].next_in_terminal = &nand_d_dev->nand.in_terminals[1];
+  nand_d_dev->nand.in_terminals[1].next_in_terminal = &nand_b_dev->nand.in_terminals[1];
+  /* Chain "External" inputs for "clock". */
+  nand_c_dev->nand.in_terminals[0].next_in_terminal = &nand_b_dev->nand.in_terminals[0];
+
+  /* Save the "external" terminals. */
+  dev->dlatch.q_terminal = nand_q_dev->nand.out_terminal;
+  dev->dlatch.Q_terminal = nand_Q_dev->nand.out_terminal;
+  dev->dlatch.S_terminal = &nand_q_dev->nand.in_terminals[0];
+  dev->dlatch.R_terminal = &nand_Q_dev->nand.in_terminals[0];
+  dev->dlatch.d_terminal = &nand_d_dev->nand.in_terminals[0];
+  dev->dlatch.C_terminal = &nand_c_dev->nand.in_terminals[0];
+
+  /* Need to chain internal inputs onto the "external" inputs. */
+
+  /* Type-specific methods (inheritance). */
+  dev->get_out_terminal = lsim_dev_dlatch_get_out_terminal;
+  dev->get_in_terminal = lsim_dev_dlatch_get_in_terminal;
+  dev->power = lsim_dev_dlatch_power;
+  dev->run_logic = lsim_dev_dlatch_run_logic;
+  dev->propagate_outputs = lsim_dev_dlatch_propagate_outputs;
+  dev->delete = lsim_dev_dlatch_delete;
+
+  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+
+  free(nand_q_name);  free(nand_Q_name);
+  free(nand_a_name);  free(nand_b_name);
+  free(nand_c_name);  free(nand_d_name);
+
+  return ERR_OK;
+}  /* lsim_dev_dlatch_create */
 
 
 /*******************************************************************************/
@@ -935,11 +1122,24 @@ ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_o
   lsim_dev_in_terminal_t *dst_in_terminal;
   ERR(dst_dev->get_in_terminal(lsim, dst_dev, dst_in_id, &dst_in_terminal));
 
-  ERR_ASSRT(dst_in_terminal->driving_out_terminal == NULL, LSIM_ERR_COMMAND);  /* Can't drive it twice. */
+  /* Can't have two outputs driving the same input. */
+  if (dst_in_terminal->driving_out_terminal != NULL) {
+    ERR_THROW(LSIM_ERR_COMMAND, "Can't connect %s;%s to %s;%s, it's already connected to %s",
+              src_dev->name, src_out_id, dst_dev->name, dst_in_id, dst_in_terminal->driving_out_terminal->dev->name);
+  }
+  ERR_ASSRT(dst_in_terminal->driving_out_terminal == NULL, LSIM_ERR_COMMAND);
 
-  dst_in_terminal->driving_out_terminal = src_out_terminal;
-  dst_in_terminal->next_in_terminal = src_out_terminal->in_terminal_list;
-  src_out_terminal->in_terminal_list = dst_in_terminal;
+  /* This input might be the head of a chain of inputs that need to be connected to this output. */
+  lsim_dev_in_terminal_t *next_in_terminal;
+  do {
+    next_in_terminal = dst_in_terminal->next_in_terminal;
+    dst_in_terminal->driving_out_terminal = src_out_terminal;
+    /* Link this terminal into the output list. */
+    dst_in_terminal->next_in_terminal = src_out_terminal->in_terminal_list;
+    src_out_terminal->in_terminal_list = dst_in_terminal;
+    /* Next input terminal in this chain. */
+    dst_in_terminal = next_in_terminal;
+  } while (dst_in_terminal);
 
   return ERR_OK;
 }  /* lsim_dev_connect */

@@ -208,6 +208,27 @@ ERR_F lsim_cmd_d_srlatch(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_d_srlatch */
 
 
+/* Define device "dlatch":
+ * d;mem;dev_name;num_addr;num_data;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_d_dlatch(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_dlatch_create(lsim, dev_name));
+
+  return ERR_OK;
+}  /* lsim_cmd_d_dlatch */
+
+
 /* Define device:
  * d;dev_type;...
  * cmd_line points at dev_type. */
@@ -245,6 +266,9 @@ ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
   }
   else if (strcmp(dev_type, "srlatch") == 0) {
     ERR(lsim_cmd_d_srlatch(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "dlatch") == 0) {
+    ERR(lsim_cmd_d_dlatch(lsim, next_field));
   }
 /*???
  *else if (strcmp(dev_type, "mem") == 0) {

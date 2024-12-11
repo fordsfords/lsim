@@ -31,7 +31,6 @@
 #endif
 
 #define E(e__test) do { \
-  printf("sdf [%s:%d]: '%s'\n", __FILE__, __LINE__, #e__test); \
   err_t *e__err = (e__test); \
   if (e__err != ERR_OK) { \
     printf("ERROR [%s:%d]: '%s' returned error\n", __FILE__, __LINE__, #e__test); \
@@ -358,13 +357,14 @@ void test5() {
   E(lsim_create(&lsim, NULL));
 
   E(lsim_cmd_line(lsim, "d;swtch;swd;0;"));
+  E(lsim_cmd_line(lsim, "d;swtch;swS;1;"));
   E(lsim_cmd_line(lsim, "d;swtch;swR;0;"));
   E(lsim_cmd_line(lsim, "d;clk1;clock;"));
   E(lsim_cmd_line(lsim, "d;vcc;vcc;"));
   E(lsim_cmd_line(lsim, "d;led;ledq;"));
   E(lsim_cmd_line(lsim, "d;led;ledQ;"));
   E(lsim_cmd_line(lsim, "d;dlatch;dlatch1;"));
-  E(lsim_cmd_line(lsim, "c;vcc;o0;dlatch1;S0;"));
+  E(lsim_cmd_line(lsim, "c;swS;o0;dlatch1;S0;"));
   E(lsim_cmd_line(lsim, "c;swd;o0;dlatch1;d0;"));
   E(lsim_cmd_line(lsim, "c;swR;o0;dlatch1;R0;"));
   E(lsim_cmd_line(lsim, "c;swR;o0;clock;R0;"));
@@ -402,6 +402,9 @@ void test5() {
   E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
+  E(lsim_cmd_line(lsim, "m;swS;0;"));
+  ASSRT(ledq_dev->led.in_terminal->state == 1);
+  ASSRT(ledQ_dev->led.in_terminal->state == 0);
 
   E(lsim_delete(lsim));
 }  /* test5 */

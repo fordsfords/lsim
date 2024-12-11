@@ -456,7 +456,6 @@ ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   }
   else {  /* Not reset. */
     int new_state = lsim->total_ticks % 2;  /* Clock changes with each tick. */
-    printf("  sdf total_ticks=%d, new_state=%d\n", (int)lsim->total_ticks, new_state);
     if (dev->clk1.q_terminal->state != new_state || dev->clk1.Q_terminal->state != (1 - new_state)) {
       out_changed = 1;
       dev->clk1.q_terminal->state = new_state;

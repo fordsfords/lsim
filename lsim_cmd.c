@@ -530,7 +530,7 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
 
   if (err) {
     /* Improve error reporting. */
-    ERR_RETHROW(err, "Error parsing '%s'", cmd_line);
+    ERR_RETHROW(err, "Error processing '%s'", cmd_line);
   }
 
   return ERR_OK;

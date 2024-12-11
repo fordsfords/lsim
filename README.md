@@ -10,22 +10,6 @@ Logic simulator.
 <!-- TOC created by '../mdtoc/mdtoc.pl README.md' (see https://github.com/fordsfords/mdtoc) -->
 <!-- mdtoc-end -->
 
-## License
-
-Copyright 2024, 2024 Steven Ford http://geeky-boy.com and licensed
-"public domain" style under
-[CC0](http://creativecommons.org/publicdomain/zero/1.0/): 
-![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png "CC0")
-
-To the extent possible under law, the contributors to this project have
-waived all copyright and related or neighboring rights to this work.
-In other words, you can use this code for any purpose without any
-restrictions.  This work is published from: United States.  The project home
-is https://github.com/fordsfords/lsim
-
-To contact me, Steve Ford, project owner, you can find my email address
-at http://geeky-boy.com.  Can't see it?  Keep looking.
-
 ## Introduction
 
 tbd.
@@ -45,18 +29,19 @@ complicated the code more.)
 * The "step" command is the performance-critical part that actually simulates
 the circuit.
 * It is very easy to get the system into an unstable state.
-For example, wire two NAND gates into an SR latch and connect two switches to the
-S and R inputs respectively.
-Then, in the same step, move both switches from 0 to 1.
+For example, wire two NAND gates into an SR latch and connect a switch to both
+the S and R inputs.
+Then just move the switch to 1.
 This will trigger infinite oscillation.
 But in real life it is almost impossible for two independent events to happen at
 exactly the same time, and an SR latch will behave properly if there is even the
 slightest difference in event arrival time.
 My solution is to have external events (each switch movement) run the engine
 before the clock tick.
-This will still catch an incorrectly designed circuit by letting it go unstable,
-but will make sure that the clock transitions asynchronously to any external
-events, like switches being moved.
+The user still has a responsibility to avoid bad designs (like connecting both
+S and R inputs to the same switch - it makes no sense - instead use two
+switches; moving the first will run the engine and moving the second will run
+it again, and all will be stable.)
 
 ## Circuit Entry Language
 
@@ -103,3 +88,19 @@ v;verbosity_level;
 # quit
 q;
 ````
+
+## License
+
+Copyright 2024, 2024 Steven Ford http://geeky-boy.com and licensed
+"public domain" style under
+[CC0](http://creativecommons.org/publicdomain/zero/1.0/): 
+![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png "CC0")
+
+To the extent possible under law, the contributors to this project have
+waived all copyright and related or neighboring rights to this work.
+In other words, you can use this code for any purpose without any
+restrictions.  This work is published from: United States.  The project home
+is https://github.com/fordsfords/lsim
+
+To contact me, Steve Ford, project owner, you can find my email address
+at http://geeky-boy.com.  Can't see it?  Keep looking.

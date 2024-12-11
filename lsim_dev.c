@@ -396,70 +396,70 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
 /*******************************************************************************/
 
 
-ERR_F lsim_dev_clk1_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+ERR_F lsim_dev_clk_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
   (void)lsim;
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
   if (strcmp(out_id, "q0") == 0) {
-    *out_terminal = dev->clk1.q_terminal;
+    *out_terminal = dev->clk.q_terminal;
   }
   else if (strcmp(out_id, "Q0") == 0) {
-    *out_terminal = dev->clk1.Q_terminal;
+    *out_terminal = dev->clk.Q_terminal;
   }
-  else { ERR_THROW(LSIM_ERR_COMMAND, "clk1 outputs are q0 and Q0, not '%s'", out_id); }
+  else { ERR_THROW(LSIM_ERR_COMMAND, "clk outputs are q0 and Q0, not '%s'", out_id); }
 
   return ERR_OK;
-}  /* lsim_dev_clk1_get_out_terminal */
+}  /* lsim_dev_clk_get_out_terminal */
 
 
-ERR_F lsim_dev_clk1_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+ERR_F lsim_dev_clk_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
   (void)lsim;
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(strcmp(in_id, "R0") == 0, LSIM_ERR_COMMAND);  /* Only one input. */
 
-  *in_terminal = dev->clk1.Reset_terminal;
+  *in_terminal = dev->clk.Reset_terminal;
 
   return ERR_OK;
-}  /* lsim_dev_clk1_get_in_terminal */
+}  /* lsim_dev_clk_get_in_terminal */
 
 
-ERR_F lsim_dev_clk1_power(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_clk_power(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
-  dev->clk1.Reset_terminal->state = 0;
-  dev->clk1.q_terminal->state = 0;
-  dev->clk1.Q_terminal->state = 0;
-  /* Don't add clk1 to in_changed list because the logic is run explicitly. */
+  dev->clk.Reset_terminal->state = 0;
+  dev->clk.q_terminal->state = 0;
+  dev->clk.Q_terminal->state = 0;
+  /* Don't add clk to in_changed list because the logic is run explicitly. */
 
   return ERR_OK;
-}  /* lsim_dev_clk1_power */
+}  /* lsim_dev_clk_power */
 
 
-ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+ERR_F lsim_dev_clk_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
   /* Check for floating inputs. */
-  if (dev->clk1.Reset_terminal->driving_out_terminal == NULL) {
+  if (dev->clk.Reset_terminal->driving_out_terminal == NULL) {
     ERR_THROW(LSIM_ERR_COMMAND, "Clock %s: input R0 is floating", dev->name);
   }
 
   int out_changed = 0;
 
   /* Process reset. */
-  if (dev->clk1.Reset_terminal->state == 0) {
-    if (dev->clk1.q_terminal->state != 0) {
+  if (dev->clk.Reset_terminal->state == 0) {
+    if (dev->clk.q_terminal->state != 0) {
       out_changed = 1;
     }
-    dev->clk1.q_terminal->state = 0;
-    dev->clk1.Q_terminal->state = 0;
+    dev->clk.q_terminal->state = 0;
+    dev->clk.Q_terminal->state = 0;
   }
   else {  /* Not reset. */
     int new_state = lsim->total_ticks % 2;  /* Clock changes with each tick. */
-    if (dev->clk1.q_terminal->state != new_state || dev->clk1.Q_terminal->state != (1 - new_state)) {
+    if (dev->clk.q_terminal->state != new_state || dev->clk.Q_terminal->state != (1 - new_state)) {
       out_changed = 1;
-      dev->clk1.q_terminal->state = new_state;
-      dev->clk1.Q_terminal->state = 1 - new_state;  /* Invert. */
+      dev->clk.q_terminal->state = new_state;
+      dev->clk.Q_terminal->state = 1 - new_state;  /* Invert. */
     }
   } 
   if (out_changed) {
@@ -471,18 +471,18 @@ ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     this_verbosity_level = lsim->verbosity_level;
   }
   if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
-    printf("  clk1 %s: q0=%d, Q0=%d\n", dev->name, dev->clk1.q_terminal->state, dev->clk1.Q_terminal->state);
+    printf("  clk %s: q0=%d, Q0=%d\n", dev->name, dev->clk.q_terminal->state, dev->clk.Q_terminal->state);
   }
 
   return ERR_OK;
-}  /* lsim_dev_clk1_run_logic */
+}  /* lsim_dev_clk_run_logic */
 
 
-ERR_F lsim_dev_clk1_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+ERR_F lsim_dev_clk_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
-  int out_state = dev->clk1.q_terminal->state;
-  lsim_dev_in_terminal_t *dst_in_terminal = dev->clk1.q_terminal->in_terminal_list;
+  int out_state = dev->clk.q_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->clk.q_terminal->in_terminal_list;
 
   while (dst_in_terminal) {
     if (dst_in_terminal->state != out_state) {
@@ -495,8 +495,8 @@ ERR_F lsim_dev_clk1_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
     dst_in_terminal = dst_in_terminal->next_in_terminal;
   }
 
-  out_state = dev->clk1.Q_terminal->state;
-  dst_in_terminal = dev->clk1.Q_terminal->in_terminal_list;
+  out_state = dev->clk.Q_terminal->state;
+  dst_in_terminal = dev->clk.Q_terminal->in_terminal_list;
 
   while (dst_in_terminal) {
     if (dst_in_terminal->state != out_state) {
@@ -510,22 +510,22 @@ ERR_F lsim_dev_clk1_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_clk1_propagate_outputs */
+}  /* lsim_dev_clk_propagate_outputs */
 
 
-ERR_F lsim_dev_clk1_delete(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_dev_clk_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
-  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK1, LSIM_ERR_INTERNAL);
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
-  free(dev->clk1.q_terminal);
-  free(dev->clk1.Q_terminal);
-  free(dev->clk1.Reset_terminal);
+  free(dev->clk.q_terminal);
+  free(dev->clk.Q_terminal);
+  free(dev->clk.Reset_terminal);
 
   return ERR_OK;
-}  /* lsim_dev_clk1_delete */
+}  /* lsim_dev_clk_delete */
 
 
-ERR_F lsim_dev_clk1_create(lsim_t *lsim, char *dev_name) {
+ERR_F lsim_dev_clk_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
   err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
@@ -536,28 +536,28 @@ ERR_F lsim_dev_clk1_create(lsim_t *lsim, char *dev_name) {
   lsim_dev_t *dev;
   ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
   ERR(err_strdup(&(dev->name), dev_name));
-  dev->type = LSIM_DEV_TYPE_CLK1;
-  ERR(err_calloc((void **)&(dev->clk1.q_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
-  dev->clk1.q_terminal->dev = dev;
-  ERR(err_calloc((void **)&(dev->clk1.Q_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
-  dev->clk1.Q_terminal->dev = dev;
-  ERR(err_calloc((void **)&(dev->clk1.Reset_terminal), 1, sizeof(lsim_dev_in_terminal_t)));
-  dev->clk1.Reset_terminal->dev = dev;
+  dev->type = LSIM_DEV_TYPE_CLK;
+  ERR(err_calloc((void **)&(dev->clk.q_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->clk.q_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->clk.Q_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->clk.Q_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->clk.Reset_terminal), 1, sizeof(lsim_dev_in_terminal_t)));
+  dev->clk.Reset_terminal->dev = dev;
 
   /* Type-specific methods (inheritance). */
-  dev->get_out_terminal = lsim_dev_clk1_get_out_terminal;
-  dev->get_in_terminal = lsim_dev_clk1_get_in_terminal;
-  dev->power = lsim_dev_clk1_power;
-  dev->run_logic = lsim_dev_clk1_run_logic;
-  dev->propagate_outputs = lsim_dev_clk1_propagate_outputs;
-  dev->delete = lsim_dev_clk1_delete;
+  dev->get_out_terminal = lsim_dev_clk_get_out_terminal;
+  dev->get_in_terminal = lsim_dev_clk_get_in_terminal;
+  dev->power = lsim_dev_clk_power;
+  dev->run_logic = lsim_dev_clk_run_logic;
+  dev->propagate_outputs = lsim_dev_clk_propagate_outputs;
+  dev->delete = lsim_dev_clk_delete;
 
   ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
 
   lsim->active_clk_dev = dev;  /* Make clock visible to lsim_dev_tick. */
 
   return ERR_OK;
-}  /* lsim_dev_clk1_create */
+}  /* lsim_dev_clk_create */
 
 
 /*******************************************************************************/

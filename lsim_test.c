@@ -186,7 +186,7 @@ void test1() {
   ASSRT(led_dev->led.in_terminal->state == 0);
 
   E(lsim_cmd_line(lsim, "v;1;"));
-  E(lsim_cmd_line(lsim, "d;clk1;my_clk;"));
+  E(lsim_cmd_line(lsim, "d;clk;my_clk;"));
   E(lsim_cmd_line(lsim, "d;swtch;Reset_sw;0;"));
   E(lsim_cmd_line(lsim, "d;led;qled;"));
   E(lsim_cmd_line(lsim, "d;led;Qled;"));
@@ -359,7 +359,7 @@ void test5() {
   E(lsim_cmd_line(lsim, "d;swtch;swd;0;"));
   E(lsim_cmd_line(lsim, "d;swtch;swS;1;"));
   E(lsim_cmd_line(lsim, "d;swtch;swR;0;"));
-  E(lsim_cmd_line(lsim, "d;clk1;clock;"));
+  E(lsim_cmd_line(lsim, "d;clk;clock;"));
   E(lsim_cmd_line(lsim, "d;vcc;vcc;"));
   E(lsim_cmd_line(lsim, "d;led;ledq;"));
   E(lsim_cmd_line(lsim, "d;led;ledQ;"));

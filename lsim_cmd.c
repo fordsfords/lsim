@@ -116,10 +116,10 @@ ERR_F lsim_cmd_d_swtch(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_d_swtch */
 
 
-/* Define device "clk1":
- * d;clk1;dev_name;
+/* Define device "clk":
+ * d;clk;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_clk1(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_d_clk(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -131,10 +131,10 @@ ERR_F lsim_cmd_d_clk1(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_clk1_create(lsim, dev_name));
+  ERR(lsim_dev_clk_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_d_clk1 */
+}  /* lsim_cmd_d_clk */
 
 
 /* Define device "led":
@@ -250,17 +250,12 @@ ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
   else if (strcmp(dev_type, "swtch") == 0) {
     ERR(lsim_cmd_d_swtch(lsim, next_field));
   }
-  else if (strcmp(dev_type, "clk1") == 0) {
-    ERR(lsim_cmd_d_clk1(lsim, next_field));
+  else if (strcmp(dev_type, "clk") == 0) {
+    ERR(lsim_cmd_d_clk(lsim, next_field));
   }
   else if (strcmp(dev_type, "led") == 0) {
     ERR(lsim_cmd_d_led(lsim, next_field));
   }
-/*???
- *else if (strcmp(dev_type, "clk1") == 0) {
- *   ERR(lsim_cmd_d_clk1(lsim, next_field));
- * }
- */
   else if (strcmp(dev_type, "nand") == 0) {
     ERR(lsim_cmd_d_nand(lsim, next_field));
   }

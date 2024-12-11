@@ -64,15 +64,21 @@ Going for ease of parsing, not human friendliness.
 Eventually should have a circuit editor that is more human
 friendly (GUI?) that produces this as output.
 
+For a full detailed description,
+see [Logic Simulator Circuit Definition Language Documentation](circuit-language-docs.md) (Thanks Claude.ai!).
+Here is a cheat sheet:
+
 ````
 # Device definitions.
 d;gnd;dev_name;
 d;vcc;dev_name;
 d;swtch;dev_name;init_state;
 d;led;dev_name;
-d;clk1;dev_name;
+d;clk;dev_name;
 d;nand;dev_name;num_inputs;
-d;mem;dev_name;num_addr;num_data;
+d;srlatch;dev_name;
+d;dlatch;dev_name;
+d;mem;dev_name;num_addr;num_data;  - not yet implemented.
 
 # Connect devices.
 c;src_dev_name;src_output_id;dst_dev_name;dst_input_id;

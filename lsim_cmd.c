@@ -360,10 +360,10 @@ ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_m */
 
 
-/* Step:
- * s;num_ticks;
+/* tick:
+ * t;num_ticks;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_t(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *num_ticks_s = cmd_line;
@@ -388,34 +388,11 @@ ERR_F lsim_cmd_s(lsim_t *lsim, char *cmd_line) {
   }
 
   return ERR_OK;
-}  /* lsim_cmd_s */
-
-
-/* verbose:
- * v;verbosity_level;
- * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_t(lsim_t *lsim, char *cmd_line) {
-  char *semi_colon;
-
-  char *verbosity_level_s = cmd_line;
-  ERR_ASSRT(semi_colon = strchr(verbosity_level_s, ';'), LSIM_ERR_COMMAND);
-  *semi_colon = '\0';  /* Overwrite semicolon. */
-
-  /* Make sure we're at end of line. */
-  char *end_field = semi_colon + 1;
-  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
-
-  long verbosity_level;
-  ERR(cfg_atol(verbosity_level_s, &verbosity_level));
-  ERR_ASSRT(verbosity_level >= 0 && verbosity_level <= 2, LSIM_ERR_COMMAND);
-  lsim->verbosity_level = (int)verbosity_level;
-
-  return ERR_OK;
 }  /* lsim_cmd_t */
 
 
 /* verbosity:
- * t;verbosity_level;
+ * v;verbosity_level;
  * cmd_line points past first semi-colon. */
 ERR_F lsim_cmd_v(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
@@ -534,9 +511,6 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "m;") == local_cmd_line) {
     err = lsim_cmd_m(lsim, &local_cmd_line[2]);
   }
-  else if (strstr(local_cmd_line, "s;") == local_cmd_line) {
-    err = lsim_cmd_s(lsim, &local_cmd_line[2]);
-  }
   else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
     err = lsim_cmd_t(lsim, &local_cmd_line[2]);
   }
@@ -607,11 +581,11 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
       }
       err = lsim_cmd_line(lsim, iline);
       if (err) {
+        fprintf(stderr, "Error %s:%d '%s':\n", filename, line_num, iline);
         switch (error_level) {
         case 0: ERR_ABRT_ON_ERR(err, stderr); break;
         case 1: ERR_EXIT_ON_ERR(err, stderr); break;
         case 2:
-          fprintf(stderr, "Error %s:%d '%s':\n", filename, line_num, iline);
           ERR_WARN_ON_ERR(err, stderr);
           break;
         }

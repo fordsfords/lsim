@@ -456,6 +456,7 @@ ERR_F lsim_dev_clk1_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   }
   else {  /* Not reset. */
     int new_state = lsim->total_ticks % 2;  /* Clock changes with each tick. */
+    printf("  sdf total_ticks=%d, new_state=%d\n", (int)lsim->total_ticks, new_state);
     if (dev->clk1.q_terminal->state != new_state || dev->clk1.Q_terminal->state != (1 - new_state)) {
       out_changed = 1;
       dev->clk1.q_terminal->state = new_state;
@@ -1278,8 +1279,9 @@ ERR_F lsim_dev_tick(lsim_t *lsim) {
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
   ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
 
+  lsim->total_ticks++;
   if (lsim->verbosity_level > 0) {
-    printf(" Step %ld:\n", lsim->total_ticks);
+    printf(" Tick %ld:\n", lsim->total_ticks);
   }
 
   if (lsim->active_clk_dev) {
@@ -1287,9 +1289,6 @@ ERR_F lsim_dev_tick(lsim_t *lsim) {
   }
 
   ERR(lsim_dev_engine(lsim));
-
-  /* Step complete. */
-  lsim->total_ticks++;
 
   return ERR_OK;
 }  /* lsim_dev_tick */

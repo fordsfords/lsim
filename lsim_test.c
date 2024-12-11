@@ -31,6 +31,7 @@
 #endif
 
 #define E(e__test) do { \
+  printf("sdf [%s:%d]: '%s'\n", __FILE__, __LINE__, #e__test); \
   err_t *e__err = (e__test); \
   if (e__err != ERR_OK) { \
     printf("ERROR [%s:%d]: '%s' returned error\n", __FILE__, __LINE__, #e__test); \
@@ -163,14 +164,13 @@ void test1() {
   E(lsim_delete(lsim));
 
   E(lsim_create(&lsim, NULL));
-
   E(lsim_cmd_file(lsim, "srlatch.lsim"));
 
   E(lsim_cmd_line(lsim, "d;gnd;my_gnd;"));
   E(lsim_cmd_line(lsim, "d;led;my_led;"));
   E(lsim_cmd_line(lsim, "c;my_gnd;o0;my_led;i0;"));
 
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
 
   lsim_dev_t *led_dev;
   E(hmap_lookup(lsim->devs, "my_led", strlen("my_led"), (void **)&led_dev));
@@ -179,14 +179,14 @@ void test1() {
   ASSRT(led_dev->led.illuminated == 0);
   ASSRT(led_dev->led.in_terminal->state == 0);
 
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
 
   ASSRT(led_dev);
   ASSRT(led_dev->type == LSIM_DEV_TYPE_LED);
   ASSRT(led_dev->led.illuminated == 0);
   ASSRT(led_dev->led.in_terminal->state == 0);
 
-  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "v;1;"));
   E(lsim_cmd_line(lsim, "d;clk1;my_clk;"));
   E(lsim_cmd_line(lsim, "d;swtch;Reset_sw;0;"));
   E(lsim_cmd_line(lsim, "d;led;qled;"));
@@ -207,24 +207,20 @@ void test1() {
   E(hmap_lookup(lsim->devs, "my_clk", strlen("my_clk"), (void **)&clk_dev));
   ASSRT(clk_dev);
 
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
 
   ASSRT(qled_dev->led.illuminated == 0);
   ASSRT(Qled_dev->led.illuminated == 0);
 
   E(lsim_cmd_line(lsim, "m;Reset_sw;1;"));
-  E(lsim_cmd_line(lsim, "s;1;"));
-
   ASSRT(qled_dev->led.illuminated == 0);
   ASSRT(Qled_dev->led.illuminated == 1);
 
-  E(lsim_cmd_line(lsim, "s;1;"));
-
+  E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(qled_dev->led.illuminated == 1);
   ASSRT(Qled_dev->led.illuminated == 0);
 
-  E(lsim_cmd_line(lsim, "s;1;"));
-
+  E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(qled_dev->led.illuminated == 0);
   ASSRT(Qled_dev->led.illuminated == 1);
 
@@ -237,7 +233,7 @@ void test2() {
 
   E(lsim_create(&lsim, NULL));
 
-  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "v;1;"));
   E(lsim_cmd_line(lsim, "i;srlatch.lsim;"));
 
   lsim_dev_t *nand1_dev;
@@ -266,15 +262,15 @@ void test3() {
   E(lsim_cmd_line(lsim, "c;swR;o0;srlatch1;R0;"));
   E(lsim_cmd_line(lsim, "c;srlatch1;q0;ledq;i0;"));
   E(lsim_cmd_line(lsim, "c;srlatch1;Q0;ledQ;i0;"));
-  E(lsim_cmd_line(lsim, "t;1;"));  /* Trace. */
+  E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
   E(lsim_cmd_line(lsim, "p;"));  /* Power up. */
-  E(lsim_cmd_line(lsim, "s;3;"));
+  E(lsim_cmd_line(lsim, "t;3;"));
   E(lsim_cmd_line(lsim, "m;swR;1;"));
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   E(lsim_cmd_line(lsim, "m;swS;0;"));
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   E(lsim_cmd_line(lsim, "m;swS;1;"));
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
 
   lsim_dev_t *ledq_dev;
   E(hmap_lookup(lsim->devs, "ledq", strlen("ledq"), (void **)&ledq_dev));
@@ -306,7 +302,7 @@ void test4() {
   E(lsim_cmd_line(lsim, "c;swc;o0;dlatch1;c0;"));
   E(lsim_cmd_line(lsim, "c;dlatch1;q0;ledq;i0;"));
   E(lsim_cmd_line(lsim, "c;dlatch1;Q0;ledQ;i0;"));
-  E(lsim_cmd_line(lsim, "t;1;"));  /* Trace. */
+  E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
 
   lsim_dev_t *ledq_dev;
   E(hmap_lookup(lsim->devs, "ledq", strlen("ledq"), (void **)&ledq_dev));
@@ -315,40 +311,40 @@ void test4() {
 
   E(lsim_cmd_line(lsim, "p;"));  /* Power-up. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
-  ASSRT(ledQ_dev->led.in_terminal->state == 0);
-  E(lsim_cmd_line(lsim, "s;1;"));  /* reset. */
+  ASSRT(ledQ_dev->led.in_terminal->state == 1);
+  E(lsim_cmd_line(lsim, "t;1;"));  /* reset. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
   E(lsim_cmd_line(lsim, "m;swR;1;"));  /* not reset. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
   E(lsim_cmd_line(lsim, "m;swd;1;"));
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
   E(lsim_cmd_line(lsim, "m;swc;0;"));  /* Clock falling edge. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
   E(lsim_cmd_line(lsim, "m;swc;1;"));  /* Clock rising edge. */
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(ledq_dev->led.in_terminal->state == 1);
   ASSRT(ledQ_dev->led.in_terminal->state == 0);
   E(lsim_cmd_line(lsim, "m;swd;0;"));  /* Data in 0. */
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   ASSRT(ledq_dev->led.in_terminal->state == 1);
   ASSRT(ledQ_dev->led.in_terminal->state == 0);
   E(lsim_cmd_line(lsim, "m;swc;0;"));  /* Clock falling edge. */
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   ASSRT(ledq_dev->led.in_terminal->state == 1);
   ASSRT(ledQ_dev->led.in_terminal->state == 0);
   E(lsim_cmd_line(lsim, "m;swc;1;"));  /* Clock rising edge. */
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
 
@@ -375,7 +371,7 @@ void test5() {
   E(lsim_cmd_line(lsim, "c;clock;q0;dlatch1;c0;"));
   E(lsim_cmd_line(lsim, "c;dlatch1;q0;ledq;i0;"));
   E(lsim_cmd_line(lsim, "c;dlatch1;Q0;ledQ;i0;"));
-  E(lsim_cmd_line(lsim, "t;1;"));  /* Trace. */
+  E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
 
   lsim_dev_t *ledq_dev;
   E(hmap_lookup(lsim->devs, "ledq", strlen("ledq"), (void **)&ledq_dev));
@@ -384,40 +380,26 @@ void test5() {
 
   E(lsim_cmd_line(lsim, "p;"));  /* Power-up. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
-  ASSRT(ledQ_dev->led.in_terminal->state == 0);
-  E(lsim_cmd_line(lsim, "s;1;"));  /* reset. */
+  ASSRT(ledQ_dev->led.in_terminal->state == 1);
+  E(lsim_cmd_line(lsim, "t;1;"));  /* reset. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
   E(lsim_cmd_line(lsim, "m;swR;1;"));  /* not reset. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
   E(lsim_cmd_line(lsim, "m;swd;1;"));
-  E(lsim_cmd_line(lsim, "s;2;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
-  E(lsim_cmd_line(lsim, "m;swc;0;"));  /* Clock falling edge. */
-  ASSRT(ledq_dev->led.in_terminal->state == 0);
-  ASSRT(ledQ_dev->led.in_terminal->state == 1);
-  E(lsim_cmd_line(lsim, "s;1;"));
-  ASSRT(ledq_dev->led.in_terminal->state == 0);
-  ASSRT(ledQ_dev->led.in_terminal->state == 1);
-  E(lsim_cmd_line(lsim, "m;swc;1;"));  /* Clock rising edge. */
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   ASSRT(ledq_dev->led.in_terminal->state == 1);
   ASSRT(ledQ_dev->led.in_terminal->state == 0);
-  E(lsim_cmd_line(lsim, "m;swd;0;"));  /* Data in 0. */
-  E(lsim_cmd_line(lsim, "s;2;"));
+  E(lsim_cmd_line(lsim, "m;swd;0;"));
   ASSRT(ledq_dev->led.in_terminal->state == 1);
   ASSRT(ledQ_dev->led.in_terminal->state == 0);
-  E(lsim_cmd_line(lsim, "m;swc;0;"));  /* Clock falling edge. */
-  E(lsim_cmd_line(lsim, "s;2;"));
-  ASSRT(ledq_dev->led.in_terminal->state == 1);
-  ASSRT(ledQ_dev->led.in_terminal->state == 0);
-  E(lsim_cmd_line(lsim, "m;swc;1;"));  /* Clock rising edge. */
-  E(lsim_cmd_line(lsim, "s;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
 

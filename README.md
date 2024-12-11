@@ -14,6 +14,27 @@ Logic simulator.
 
 tbd.
 
+## Configuration
+
+There are a few configurable parameters for lsim (defaults shown in [square brackets]):
+  * device_hash_buckets - set to a prime number somewhat larger than the
+  total number of logic devices in your circuit [10007]
+  * max_propagate_cycles - prevent logic engine from infinite looping [50]
+  * error_level - how to react if an error is detected: 0=abort, 1=exit(1),
+  2=warn and continue [0].
+
+To set one or more configs, create a file. For example:
+```
+# Format:
+# config_name = value
+error_level = 2
+```
+
+Then specify the file on the lsim command line using the "-c" option. For example:
+```
+./lsim -c mycfg.txt
+```
+
 ## Design Notes
 
 * A "terminal" is an input or an output to a device.
@@ -26,18 +47,35 @@ For example, a latch has "q" and "Q" outputs.
 An sr-latch with active-low set and reset labels its inputs S and R.
 (I thought about underscore for not, "_q" for not-Q, but it would have
 complicated the code more.)
-* The "step" command is the performance-critical part that actually simulates
+* I wanted a absolute minimum of different logic devices.
+So some devices, like srlatch and dlatch, are composit devices;
+defining a dlatch actually generates 6 nand gates wired as a
+[classical d flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop).
+Note that it names the internal gates with a period (.) so that the name won't
+conflict with any user-chosen names (which can't have a period).
+* The "tick" command is the performance-critical part that actually simulates
 the circuit.
-* It is very easy to get the system into an unstable state.
+I.e. "t;1000;" should simulate 1000 timer ticks without any mallocs/frees,
+hashes, or any other time-consuming operations.
+* A single "run" of the logic engine consists of a loop containing two phases
+** Have each device with an input change re-calculate its output,
+** Propagate those outputs to the connected inputs.
+  A single event (switch move, clock tick) can trigger the loop to run multiple
+times as the circuit stabilizes.
+One stabilized, the "run" is complete.
+* It is very easy to get the system into an unstable state
+where the logic engine loops infinitely within a single event.
 For example, wire two NAND gates into an SR latch and connect a switch to both
 the S and R inputs.
 Then just move the switch to 1.
-This will trigger infinite oscillation.
+This will trigger infinite looping (oscillation) in the logic engine.
+Note that there is a configurable limit to this looping ("max_propagate_cycles")
+that defaults to 50.
 But in real life it is almost impossible for two independent events to happen at
 exactly the same time, and an SR latch will behave properly if there is even the
 slightest difference in event arrival time.
-My solution is to have external events (each switch movement) run the engine
-before the clock tick.
+My solution is to have external events (each switch movement, each clock transition)
+run the engine; i.e. you'll only have one external event per run of the engine.
 The user still has a responsibility to avoid bad designs (like connecting both
 S and R inputs to the same switch - it makes no sense - instead use two
 switches; moving the first will run the engine and moving the second will run

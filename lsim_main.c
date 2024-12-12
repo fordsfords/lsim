@@ -19,8 +19,6 @@
 #include <pthread.h>
 #endif
 #include "err.h"
-#include "hmap.h"
-#include "cfg.h"
 #include "lsim.h"
 #include "lsim_cmd.h"
 
@@ -60,7 +58,7 @@ void help() {
 ERR_F parse_cmdline(int argc, char **argv) {
   int opt;
 
-  /* Since this is Unix and Windows, don't use getopts(). */
+  /* To be both Unix and Windows friendly, don't use getopt. */
   for (opt = 1; opt < argc; opt++) {
     if (strcmp(argv[opt], "-h") == 0) {
       help();  exit(0);

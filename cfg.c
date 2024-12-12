@@ -46,14 +46,34 @@ char *cfg_trim(char *in_str) {
 }  /* cfg_trim */
 
 
-ERR_F cfg_create(cfg_t **rtn_cfg) {
-  err_t *err;
+ERR_F cfg_key_valid(char *key) {
+  ERR_ASSRT(key, CFG_ERR_INTERNAL);
 
+  /* Validate first character (cannot be digit). */
+  if (!(isalpha(*key) || *key == '_' || *key == '-')) {
+    ERR_THROW(CFG_ERR_BADKEY, "invalid key '%s'", key);
+  }
+
+  /* Validate rest of characters. */
+  key++;
+  while (*key != '\0') {
+    if (!(isalnum(*key) || *key == '_' || *key == '-')) {
+      ERR_THROW(CFG_ERR_BADKEY, "invalid key '%s'", key);
+    }
+    key++;
+  }
+
+  return ERR_OK;
+}  /* cfg_key_valid */
+
+
+ERR_F cfg_create(cfg_t **rtn_cfg) {
   cfg_t *cfg;
   ERR_ASSRT(cfg = calloc(1, sizeof(cfg_t)), CFG_ERR_NOMEM);
 
   ERR(hmap_create(&(cfg->option_vals), CFG_OPTION_MAP_SIZE));
 
+  err_t *err;
   err = hmap_create(&(cfg->option_locations), CFG_OPTION_MAP_SIZE);
   if (err) {
     ERR(hmap_delete(cfg->option_vals));
@@ -68,6 +88,7 @@ ERR_F cfg_create(cfg_t **rtn_cfg) {
 ERR_F cfg_delete(cfg_t *cfg) {
   hmap_entry_t *entry;
 
+  /* Free the option values. */
   entry = NULL;  /* Start at beginning. */
   do {
     ERR(hmap_next(cfg->option_vals, &entry));
@@ -78,6 +99,7 @@ ERR_F cfg_delete(cfg_t *cfg) {
   } while (entry);
   ERR(hmap_delete(cfg->option_vals));
 
+  /* Free the option locations. */
   entry = NULL;  /* Start at beginning. */
   do {
     ERR(hmap_next(cfg->option_locations, &entry));
@@ -87,6 +109,8 @@ ERR_F cfg_delete(cfg_t *cfg) {
     }
   } while (entry);
   ERR(hmap_delete(cfg->option_locations));
+
+  free(cfg);
 
   return ERR_OK;
 }  /* cfg_delete */
@@ -99,18 +123,19 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
   switch (mode) {  /* Check for valid mode. */
   case CFG_MODE_UPDATE: break;
   case CFG_MODE_ADD: break;
-  default: ERR_THROW(CFG_ERR_PARAM, "mode");
+  default: ERR_THROW(CFG_ERR_PARAM, "unrecognized mode %d", mode);
   }
 
-  ERR(err_strdup(&local_iline, iline));  /* Need local copy because strtok modifies string. */
+  ERR(err_strdup(&local_iline, iline));  /* Need local copy because we modify string. */
 
-  /* Strip (optional) comment from iline. */
+  /* Strip any comment from iline. */
   char *hash = strchr(local_iline, '#');
   if (hash) { *hash = '\0'; }
 
   /* Skip blank lines. */
   char *trimmed_iline = cfg_trim(local_iline);  /* Trim whitespace. */
   if (*trimmed_iline == '\0') {
+    free(local_iline);
     return ERR_OK;
   }
 
@@ -120,6 +145,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
   *equals = '\0';  /* Split into two strings. */
 
   char *key = cfg_trim(trimmed_iline);
+  ERR(cfg_key_valid(key));
   size_t key_len = strlen(key);
   ERR_ASSRT(key_len > 0, CFG_ERR_NOKEY);
   /* See if key already exists. */
@@ -145,6 +171,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
     }
     break;
   default:
+    free(local_iline);  /* Clean up local copy. */
     ERR_THROW(CFG_ERR_INTERNAL, "mode");
   }
 
@@ -166,7 +193,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
 
 
 ERR_F cfg_parse_file(cfg_t *cfg, int mode, const char *filename) {
-  char iline[1024];
+  char iline[CFG_MAX_LINE_LEN + 3];  /* Room for cr/lf/null. */
   FILE *file_fp;
 
   ERR_ASSRT(cfg, CFG_ERR_PARAM);
@@ -179,15 +206,19 @@ ERR_F cfg_parse_file(cfg_t *cfg, int mode, const char *filename) {
   ERR_ASSRT(file_fp, CFG_ERR_BADFILE);
 
   int line_num = 0;
-  err_t *err = ERR_OK;
+  err_t *parse_err = ERR_OK;
   while (fgets(iline, sizeof(iline), file_fp)) {
     line_num++;
     size_t len = strlen(iline);
-    ERR_ASSRT(len < sizeof(iline) - 1, CFG_ERR_LINETOOLONG);  /* Line too long. */
+    ERR_ASSRT(len <= CFG_MAX_LINE_LEN, CFG_ERR_LINETOOLONG);
 
-    err = cfg_parse_line(cfg, mode, iline, filename, line_num);
-    if (err) { break; }
+    parse_err = cfg_parse_line(cfg, mode, iline, filename, line_num);
+    if (parse_err) { break; }
   }  /* while */
+  int save_errno = errno;
+  if (ferror(file_fp)) {
+    ERR_THROW(CFG_ERR_READ_ERROR, "Error reading file %s: %s", filename, strerror(save_errno));
+  }
 
   if (strcmp(filename, "-") == 0) {
     /* Don't close stdin. */
@@ -195,8 +226,8 @@ ERR_F cfg_parse_file(cfg_t *cfg, int mode, const char *filename) {
     fclose(file_fp);
   }
 
-  if (err) {
-    ERR_RETHROW(err, err->code);
+  if (parse_err) {
+    ERR_RETHROW(parse_err, parse_err->code);
   }
   return ERR_OK;
 }  /* cfg_parse_file */
@@ -284,4 +315,4 @@ ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
   free(local_val_str);  /* Clean up local copy. */
   *rtn_value = value;
   return ERR_OK;
-}  /* cfg_get_int_val */
+}  /* cfg_get_long_val */

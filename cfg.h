@@ -28,6 +28,9 @@ struct cfg_s {
 #define CFG_MODE_ADD 1
 #define CFG_MODE_UPDATE 2
 
+/* Maximum length of configuration line content (not including CR, LF, null). */
+#define CFG_MAX_LINE_LEN 1000  
+
 #ifdef CFG_C
 #  define ERR_CODE(err__code) ERR_API char *err__code = #err__code
 #else
@@ -37,7 +40,9 @@ struct cfg_s {
 ERR_CODE(CFG_ERR_INTERNAL);
 ERR_CODE(CFG_ERR_PARAM);
 ERR_CODE(CFG_ERR_NOMEM);
+ERR_CODE(CFG_ERR_BADKEY);
 ERR_CODE(CFG_ERR_BADFILE);
+ERR_CODE(CFG_ERR_READ_ERROR);
 ERR_CODE(CFG_ERR_LINETOOLONG);
 ERR_CODE(CFG_ERR_NOEQUALS);
 ERR_CODE(CFG_ERR_NOKEY);

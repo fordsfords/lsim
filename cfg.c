@@ -25,20 +25,6 @@
 #define CFG_OPTION_MAP_SIZE 1009
 
 
-ERR_F cfg_strdup(char **dst_str, const char *src_str) {
-  ERR_ASSRT(src_str, CFG_ERR_PARAM);
-  ERR_ASSRT(dst_str, CFG_ERR_PARAM);
-
-  size_t l = strlen(src_str) + 1;
-  *dst_str = malloc(l);
-  ERR_ASSRT(*dst_str, CFG_ERR_NOMEM);
-
-  memcpy(*dst_str, src_str, l);
-
-  return ERR_OK;
-}  /* cfg_strdup */
-
-
 char *cfg_trim(char *in_str) {
   /* Skip over initial whitespace. */
   char *first_nonspace = in_str;
@@ -116,7 +102,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
   default: ERR_THROW(CFG_ERR_PARAM, "mode");
   }
 
-  ERR(cfg_strdup(&local_iline, iline));  /* Need local copy because strtoc modifies string. */
+  ERR(err_strdup(&local_iline, iline));  /* Need local copy because strtok modifies string. */
 
   /* Strip (optional) comment from iline. */
   char *hash = strchr(local_iline, '#');
@@ -165,7 +151,7 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
   /* Get value into its own mem segment to store in hash. */
   char *value = equals + 1;
   value = cfg_trim(value);
-  ERR(cfg_strdup(&value, value));
+  ERR(err_strdup(&value, value));
 
   ERR(hmap_write(cfg->option_vals, key, key_len, value));
 
@@ -286,7 +272,7 @@ ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
   ERR(hmap_lookup(cfg->option_vals, key, strlen(key), (void **)&val_str));
 
   char *local_val_str;  /* Local copy to remove spaces. */
-  ERR(cfg_strdup(&local_val_str, val_str));
+  ERR(err_strdup(&local_val_str, val_str));
 
   cfg_remove_spaces(local_val_str);
   err = cfg_atol(local_val_str, &value);

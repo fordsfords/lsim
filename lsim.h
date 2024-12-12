@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include "err.h"
 #include "hmap.h"
+#include "cfg.h"
 #include "lsim_dev.h"
 
 #ifdef __cplusplus

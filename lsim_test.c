@@ -399,7 +399,7 @@ void test5() {
   E(lsim_cmd_line(lsim, "m;swd;0;"));
   ASSRT(ledq_dev->led.in_terminal->state == 1);
   ASSRT(ledQ_dev->led.in_terminal->state == 0);
-  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
   ASSRT(ledq_dev->led.in_terminal->state == 0);
   ASSRT(ledQ_dev->led.in_terminal->state == 1);
   E(lsim_cmd_line(lsim, "m;swS;0;"));

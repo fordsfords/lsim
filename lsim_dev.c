@@ -453,6 +453,7 @@ ERR_F lsim_dev_clk_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     }
     dev->clk.q_terminal->state = 0;
     dev->clk.Q_terminal->state = 0;
+    lsim->total_ticks = 0;
   }
   else {  /* Not reset. */
     int new_state = lsim->total_ticks % 2;  /* Clock changes with each tick. */

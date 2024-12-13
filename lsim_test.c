@@ -117,7 +117,7 @@ void test1() {
   E(lsim_cmd_line(lsim, "d;nand;MyNand;2;"));
 
   lsim_dev_t *nand_dev;
-  E(hmap_lookup(lsim->devs, "MyNand", strlen("MyNand"), (void **)&nand_dev));
+  E(hmap_slookup(lsim->devs, "MyNand", (void **)&nand_dev));
   ASSRT(nand_dev);
   ASSRT(nand_dev->type == LSIM_DEV_TYPE_NAND);
   ASSRT(nand_dev->nand.num_inputs == 2);
@@ -127,14 +127,14 @@ void test1() {
   ASSRT(nand_dev->nand.in_terminals[1].state == 0);
 
   lsim_dev_t *vcc_dev;
-  E(hmap_lookup(lsim->devs, "MyVcc", strlen("MyVcc"), (void **)&vcc_dev));
+  E(hmap_slookup(lsim->devs, "MyVcc", (void **)&vcc_dev));
   ASSRT(vcc_dev);
   ASSRT(vcc_dev->type == LSIM_DEV_TYPE_VCC);
   ASSRT(vcc_dev->vcc.out_terminal->state == 0);
   ASSRT(vcc_dev->vcc.out_terminal->in_terminal_list == NULL);
 
   lsim_dev_t *vcc2_dev;
-  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&vcc2_dev));
+  E(hmap_slookup(lsim->devs, "-My_Vcc2", (void **)&vcc2_dev));
   ASSRT(vcc2_dev);
   ASSRT(vcc2_dev->type == LSIM_DEV_TYPE_VCC);
   ASSRT(vcc2_dev->vcc.out_terminal->state == 0);
@@ -143,7 +143,7 @@ void test1() {
   E(lsim_cmd_line(lsim, "c;-My_Vcc2;o0;MyNand;i0;"));
 
   lsim_dev_t *tmp_dev;
-  E(hmap_lookup(lsim->devs, "-My_Vcc2", strlen("-My_Vcc2"), (void **)&tmp_dev));
+  E(hmap_slookup(lsim->devs, "-My_Vcc2", (void **)&tmp_dev));
   ASSRT(tmp_dev == vcc2_dev);
   ASSRT(vcc2_dev->type == LSIM_DEV_TYPE_VCC);
   ASSRT(vcc2_dev->vcc.out_terminal->state == 0);
@@ -172,7 +172,7 @@ void test1() {
   E(lsim_cmd_line(lsim, "t;1;"));
 
   lsim_dev_t *led_dev;
-  E(hmap_lookup(lsim->devs, "my_led", strlen("my_led"), (void **)&led_dev));
+  E(hmap_slookup(lsim->devs, "my_led", (void **)&led_dev));
   ASSRT(led_dev);
   ASSRT(led_dev->type == LSIM_DEV_TYPE_LED);
   ASSRT(led_dev->led.illuminated == 0);
@@ -195,15 +195,15 @@ void test1() {
   E(lsim_cmd_line(lsim, "c;Reset_sw;o0;my_clk;R0;"));
 
   lsim_dev_t *qled_dev;
-  E(hmap_lookup(lsim->devs, "qled", strlen("qled"), (void **)&qled_dev));
+  E(hmap_slookup(lsim->devs, "qled", (void **)&qled_dev));
   ASSRT(qled_dev);
   ASSRT(qled_dev->led.illuminated == 0);
   lsim_dev_t *Qled_dev;
-  E(hmap_lookup(lsim->devs, "Qled", strlen("Qled"), (void **)&Qled_dev));
+  E(hmap_slookup(lsim->devs, "Qled", (void **)&Qled_dev));
   ASSRT(Qled_dev);
   ASSRT(Qled_dev->led.illuminated == 0);
   lsim_dev_t *clk_dev;
-  E(hmap_lookup(lsim->devs, "my_clk", strlen("my_clk"), (void **)&clk_dev));
+  E(hmap_slookup(lsim->devs, "my_clk", (void **)&clk_dev));
   ASSRT(clk_dev);
 
   E(lsim_cmd_line(lsim, "t;1;"));
@@ -236,11 +236,11 @@ void test2() {
   E(lsim_cmd_line(lsim, "i;srlatch.lsim;"));
 
   lsim_dev_t *nand1_dev;
-  E(hmap_lookup(lsim->devs, "nand1", strlen("nand1"), (void **)&nand1_dev));
+  E(hmap_slookup(lsim->devs, "nand1", (void **)&nand1_dev));
   ASSRT(nand1_dev->nand.out_terminal->state == 1);
 
   lsim_dev_t *nand2_dev;
-  E(hmap_lookup(lsim->devs, "nand2", strlen("nand2"), (void **)&nand2_dev));
+  E(hmap_slookup(lsim->devs, "nand2", (void **)&nand2_dev));
   ASSRT(nand2_dev->nand.out_terminal->state == 0);
 
   E(lsim_delete(lsim));
@@ -272,11 +272,11 @@ void test3() {
   E(lsim_cmd_line(lsim, "t;2;"));
 
   lsim_dev_t *ledq_dev;
-  E(hmap_lookup(lsim->devs, "ledq", strlen("ledq"), (void **)&ledq_dev));
+  E(hmap_slookup(lsim->devs, "ledq", (void **)&ledq_dev));
   ASSRT(ledq_dev->led.in_terminal->state == 1);
 
   lsim_dev_t *ledQ_dev;
-  E(hmap_lookup(lsim->devs, "ledQ", strlen("ledQ"), (void **)&ledQ_dev));
+  E(hmap_slookup(lsim->devs, "ledQ", (void **)&ledQ_dev));
   ASSRT(ledQ_dev->led.in_terminal->state == 0);
 
   E(lsim_delete(lsim));
@@ -304,9 +304,9 @@ void test4() {
   E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
 
   lsim_dev_t *ledq_dev;
-  E(hmap_lookup(lsim->devs, "ledq", strlen("ledq"), (void **)&ledq_dev));
+  E(hmap_slookup(lsim->devs, "ledq", (void **)&ledq_dev));
   lsim_dev_t *ledQ_dev;
-  E(hmap_lookup(lsim->devs, "ledQ", strlen("ledQ"), (void **)&ledQ_dev));
+  E(hmap_slookup(lsim->devs, "ledQ", (void **)&ledQ_dev));
 
   E(lsim_cmd_line(lsim, "p;"));  /* Power-up. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);
@@ -374,9 +374,9 @@ void test5() {
   E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
 
   lsim_dev_t *ledq_dev;
-  E(hmap_lookup(lsim->devs, "ledq", strlen("ledq"), (void **)&ledq_dev));
+  E(hmap_slookup(lsim->devs, "ledq", (void **)&ledq_dev));
   lsim_dev_t *ledQ_dev;
-  E(hmap_lookup(lsim->devs, "ledQ", strlen("ledQ"), (void **)&ledQ_dev));
+  E(hmap_slookup(lsim->devs, "ledQ", (void **)&ledQ_dev));
 
   E(lsim_cmd_line(lsim, "p;"));  /* Power-up. */
   ASSRT(ledq_dev->led.in_terminal->state == 0);

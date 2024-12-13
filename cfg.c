@@ -146,10 +146,9 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
 
   char *key = cfg_trim(trimmed_iline);
   ERR(cfg_key_valid(key));
-  size_t key_len = strlen(key);
-  ERR_ASSRT(key_len > 0, CFG_ERR_NOKEY);
+  ERR_ASSRT(strlen(key) > 0, CFG_ERR_NOKEY);
   /* See if key already exists. */
-  err = hmap_lookup(cfg->option_vals, key, key_len, NULL);
+  err = hmap_slookup(cfg->option_vals, key, NULL);
   if (err && err->code != HMAP_ERR_NOTFOUND) { /* An unexpected error. */
     free(local_iline);  /* Clean up local copy. */
     ERR_RETHROW(err, err->code);
@@ -180,12 +179,12 @@ ERR_F cfg_parse_line(cfg_t *cfg, int mode, const char *iline, const char *filena
   value = cfg_trim(value);
   ERR(err_strdup(&value, value));
 
-  ERR(hmap_write(cfg->option_vals, key, key_len, value));
+  ERR(hmap_swrite(cfg->option_vals, key, value));
 
   /* Remember location for this option. */
   char *location;
   ERR(err_asprintf(&location, "%s:%d", filename, line_num));
-  ERR(hmap_write(cfg->option_locations, key, key_len, location));
+  ERR(hmap_swrite(cfg->option_locations, key, location));
 
   free(local_iline);  /* Clean up local copy. */
   return ERR_OK;
@@ -253,7 +252,7 @@ ERR_F cfg_parse_string_list(cfg_t *cfg, int mode, char **string_list) {
 ERR_F cfg_get_str_val(cfg_t *cfg, const char *key, char **rtn_value) {
   char *val_str;
 
-  ERR(hmap_lookup(cfg->option_vals, key, strlen(key), (void **)&val_str));
+  ERR(hmap_slookup(cfg->option_vals, key, (void **)&val_str));
 
   *rtn_value = val_str;
   return ERR_OK;
@@ -300,7 +299,7 @@ ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
   err_t *err;
 
   char *val_str;
-  ERR(hmap_lookup(cfg->option_vals, key, strlen(key), (void **)&val_str));
+  ERR(hmap_slookup(cfg->option_vals, key, (void **)&val_str));
 
   char *local_val_str;  /* Local copy to remove spaces. */
   ERR(err_strdup(&local_val_str, val_str));

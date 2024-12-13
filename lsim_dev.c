@@ -136,7 +136,7 @@ ERR_F lsim_dev_gnd_delete(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   lsim_dev_t *dev;
@@ -154,7 +154,7 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_gnd_propagate_outputs;
   dev->delete = lsim_dev_gnd_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   return ERR_OK;
 }  /* lsim_dev_gnd_create */
@@ -252,7 +252,7 @@ ERR_F lsim_dev_vcc_delete(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   lsim_dev_t *dev;
@@ -270,7 +270,7 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_vcc_propagate_outputs;
   dev->delete = lsim_dev_vcc_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   return ERR_OK;
 }  /* lsim_dev_vcc_create */
@@ -368,7 +368,7 @@ ERR_F lsim_dev_swtch_delete(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   lsim_dev_t *dev;
@@ -387,7 +387,7 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
   dev->propagate_outputs = lsim_dev_swtch_propagate_outputs;
   dev->delete = lsim_dev_swtch_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   return ERR_OK;
 }  /* lsim_dev_swtch_create */
@@ -529,7 +529,7 @@ ERR_F lsim_dev_clk_delete(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_clk_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   ERR_ASSRT(lsim->active_clk_dev == NULL, LSIM_ERR_COMMAND);  /* Can't have multiple clocks. */
@@ -553,7 +553,7 @@ ERR_F lsim_dev_clk_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_clk_propagate_outputs;
   dev->delete = lsim_dev_clk_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   lsim->active_clk_dev = dev;  /* Make clock visible to lsim_dev_tick. */
 
@@ -636,7 +636,7 @@ ERR_F lsim_dev_led_delete(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   lsim_dev_t *dev;
@@ -654,7 +654,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_led_propagate_outputs;
   dev->delete = lsim_dev_led_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   return ERR_OK;
 }  /* lsim_dev_led_create */
@@ -782,7 +782,7 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
 
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   lsim_dev_t *dev;
@@ -808,7 +808,7 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
   dev->propagate_outputs = lsim_dev_nand_propagate_outputs;
   dev->delete = lsim_dev_nand_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   return ERR_OK;
 }  /* lsim_dev_nand_create */
@@ -888,7 +888,7 @@ ERR_F lsim_dev_srlatch_delete(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   lsim_dev_t *dev;
@@ -900,13 +900,13 @@ ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
   ERR(err_asprintf(&nand_q_name, "%s.nand_q", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_q_name, 2));
   lsim_dev_t *nand_q_dev;
-  ERR(hmap_lookup(lsim->devs, nand_q_name, strlen(nand_q_name), (void**)&nand_q_dev));
+  ERR(hmap_slookup(lsim->devs, nand_q_name, (void**)&nand_q_dev));
 
   char *nand_Q_name;
   ERR(err_asprintf(&nand_Q_name, "%s.nand_Q", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_Q_name, 2));
   lsim_dev_t *nand_Q_dev;
-  ERR(hmap_lookup(lsim->devs, nand_Q_name, strlen(nand_Q_name), (void**)&nand_Q_dev));
+  ERR(hmap_slookup(lsim->devs, nand_Q_name, (void**)&nand_Q_dev));
 
   /* Make connections. */
   ERR(lsim_dev_connect(lsim, nand_q_name, "o0", nand_Q_name, "i1"));
@@ -926,7 +926,7 @@ ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_srlatch_propagate_outputs;
   dev->delete = lsim_dev_srlatch_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   free(nand_q_name);
   free(nand_Q_name);
@@ -1015,7 +1015,7 @@ ERR_F lsim_dev_dlatch_delete(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
-  err = hmap_lookup(lsim->devs, dev_name, strlen(dev_name), NULL);
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
   ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
 
   lsim_dev_t *dev;
@@ -1027,37 +1027,37 @@ ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   ERR(err_asprintf(&nand_q_name, "%s.nand_q", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_q_name, 3));
   lsim_dev_t *nand_q_dev;
-  ERR(hmap_lookup(lsim->devs, nand_q_name, strlen(nand_q_name), (void**)&nand_q_dev));
+  ERR(hmap_slookup(lsim->devs, nand_q_name, (void**)&nand_q_dev));
 
   char *nand_Q_name;
   ERR(err_asprintf(&nand_Q_name, "%s.nand_Q", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_Q_name, 3));
   lsim_dev_t *nand_Q_dev;
-  ERR(hmap_lookup(lsim->devs, nand_Q_name, strlen(nand_Q_name), (void**)&nand_Q_dev));
+  ERR(hmap_slookup(lsim->devs, nand_Q_name, (void**)&nand_Q_dev));
 
   char *nand_a_name;
   ERR(err_asprintf(&nand_a_name, "%s.nand_a", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_a_name, 3));
   lsim_dev_t *nand_a_dev;
-  ERR(hmap_lookup(lsim->devs, nand_a_name, strlen(nand_a_name), (void**)&nand_a_dev));
+  ERR(hmap_slookup(lsim->devs, nand_a_name, (void**)&nand_a_dev));
 
   char *nand_b_name;
   ERR(err_asprintf(&nand_b_name, "%s.nand_b", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_b_name, 3));
   lsim_dev_t *nand_b_dev;
-  ERR(hmap_lookup(lsim->devs, nand_b_name, strlen(nand_b_name), (void**)&nand_b_dev));
+  ERR(hmap_slookup(lsim->devs, nand_b_name, (void**)&nand_b_dev));
 
   char *nand_c_name;
   ERR(err_asprintf(&nand_c_name, "%s.nand_c", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_c_name, 3));
   lsim_dev_t *nand_c_dev;
-  ERR(hmap_lookup(lsim->devs, nand_c_name, strlen(nand_c_name), (void**)&nand_c_dev));
+  ERR(hmap_slookup(lsim->devs, nand_c_name, (void**)&nand_c_dev));
 
   char *nand_d_name;
   ERR(err_asprintf(&nand_d_name, "%s.nand_d", dev_name));
   ERR(lsim_dev_nand_create(lsim, nand_d_name, 3));
   lsim_dev_t *nand_d_dev;
-  ERR(hmap_lookup(lsim->devs, nand_d_name, strlen(nand_d_name), (void**)&nand_d_dev));
+  ERR(hmap_slookup(lsim->devs, nand_d_name, (void**)&nand_d_dev));
 
   /* Make connections. */
   ERR(lsim_dev_connect(lsim, nand_q_name, "o0", nand_Q_name, "i2"));
@@ -1099,7 +1099,7 @@ ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_dlatch_propagate_outputs;
   dev->delete = lsim_dev_dlatch_delete;
 
-  ERR(hmap_write(lsim->devs, dev_name, strlen(dev_name), dev));
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   free(nand_q_name);  free(nand_Q_name);
   free(nand_a_name);  free(nand_b_name);
@@ -1114,9 +1114,9 @@ ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
 
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id) {
   lsim_dev_t *src_dev;
-  ERR(hmap_lookup(lsim->devs, src_dev_name, strlen(src_dev_name), (void**)&src_dev));
+  ERR(hmap_slookup(lsim->devs, src_dev_name, (void**)&src_dev));
   lsim_dev_t *dst_dev;
-  ERR(hmap_lookup(lsim->devs, dst_dev_name, strlen(dst_dev_name), (void**)&dst_dev));
+  ERR(hmap_slookup(lsim->devs, dst_dev_name, (void**)&dst_dev));
 
   lsim_dev_out_terminal_t *src_out_terminal;
   ERR(src_dev->get_out_terminal(lsim, src_dev, src_out_id, &src_out_terminal));
@@ -1259,7 +1259,7 @@ ERR_F lsim_dev_power(lsim_t *lsim) {
 
 ERR_F lsim_dev_move(lsim_t *lsim, const char *dev_name, long new_state) {
   lsim_dev_t *dev;
-  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
+  ERR(hmap_slookup(lsim->devs, dev_name, (void**)&dev));
 
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_COMMAND);
 
@@ -1296,7 +1296,7 @@ ERR_F lsim_dev_tick(lsim_t *lsim) {
 
 ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level) {
   lsim_dev_t *dev;
-  ERR(hmap_lookup(lsim->devs, dev_name, strlen(dev_name), (void**)&dev));
+  ERR(hmap_slookup(lsim->devs, dev_name, (void**)&dev));
 
   dev->watch_level = watch_level;
 

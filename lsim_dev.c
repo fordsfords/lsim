@@ -680,7 +680,7 @@ ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *i
 
   ERR_ASSRT(in_id[0] == 'i', LSIM_ERR_COMMAND);
   long input_num;
-  ERR(cfg_atol(in_id+1, &input_num));
+  ERR(err_atol(in_id+1, &input_num));
   if (input_num >= dev->nand.num_inputs) {  /* Use throw instead of assert for more useful error message. */
     ERR_THROW(LSIM_ERR_COMMAND, "input number %d larger than number of inputs %d", (int)input_num, dev->nand.num_inputs);
   }

@@ -107,7 +107,7 @@ ERR_F lsim_cmd_d_swtch(lsim_t *lsim, char *cmd_line) {
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
   long init_state;
-  ERR(cfg_atol(init_state_s, &init_state));
+  ERR(err_atol(init_state_s, &init_state));
   ERR_ASSRT(init_state == 0 || init_state == 1, LSIM_ERR_COMMAND);
 
   ERR(lsim_dev_swtch_create(lsim, dev_name, (int)init_state));
@@ -178,7 +178,7 @@ ERR_F lsim_cmd_d_nand(lsim_t *lsim, char *cmd_line) {
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
   long num_inputs;
-  ERR(cfg_atol(num_inputs_s, &num_inputs));
+  ERR(err_atol(num_inputs_s, &num_inputs));
   ERR_ASSRT(num_inputs > 0, LSIM_ERR_COMMAND);
 
   ERR(lsim_dev_nand_create(lsim, dev_name, num_inputs));
@@ -346,7 +346,7 @@ ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
   long new_state;
-  ERR(cfg_atol(new_state_s, &new_state));
+  ERR(err_atol(new_state_s, &new_state));
   ERR_ASSRT(new_state == 0 || new_state == 1, LSIM_ERR_COMMAND);
 
   ERR(lsim_dev_move(lsim, dev_name, new_state));
@@ -370,7 +370,7 @@ ERR_F lsim_cmd_t(lsim_t *lsim, char *cmd_line) {
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
   long num_ticks;
-  ERR(cfg_atol(num_ticks_s, &num_ticks));
+  ERR(err_atol(num_ticks_s, &num_ticks));
   ERR_ASSRT(num_ticks > 0, LSIM_ERR_COMMAND);
 
   err_t *err;
@@ -401,7 +401,7 @@ ERR_F lsim_cmd_v(lsim_t *lsim, char *cmd_line) {
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
   long verbosity_level;
-  ERR(cfg_atol(verbosity_level_s, &verbosity_level));
+  ERR(err_atol(verbosity_level_s, &verbosity_level));
   ERR_ASSRT(verbosity_level >= 0 && verbosity_level <= 2, LSIM_ERR_COMMAND);
   lsim->verbosity_level = (int)verbosity_level;
 
@@ -449,7 +449,7 @@ ERR_F lsim_cmd_w(lsim_t *lsim, char *cmd_line) {
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
   long watch_level;
-  ERR(cfg_atol(watch_level_s, &watch_level));
+  ERR(err_atol(watch_level_s, &watch_level));
   ERR_ASSRT(watch_level >= 0 || watch_level <= 2, LSIM_ERR_COMMAND);
 
   ERR(lsim_dev_watch(lsim, dev_name, (int)watch_level));

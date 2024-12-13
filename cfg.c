@@ -273,27 +273,6 @@ void cfg_remove_spaces(char *in_str) {
 }  /* cfg_remove_spaces */
 
 
-ERR_F cfg_atol(const char *in_str, long *rtn_value) {
-  int base = 10;
-
-  if (in_str[0] == '0' && (in_str[1] == 'x' || in_str[1] == 'X')) {
-    base = 16;
-    in_str += 2;  /* Step past the "0x". */
-  }
-
-  errno = 0;  /* Best practice when using strtol. */
-  char *p = NULL;
-  long value = strtol(in_str, &p, base);
-  /* Check for error. */
-  if (errno != 0 || p == in_str || p == NULL || *p != '\0') {
-    ERR_THROW(CFG_ERR_BAD_NUMBER, in_str);
-  }
-
-  *rtn_value = value;
-  return ERR_OK;
-}  /* cfg_atol */
-
-
 ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
   long value;
   err_t *err;
@@ -305,7 +284,7 @@ ERR_F cfg_get_long_val(cfg_t *cfg, const char *key, long *rtn_value) {
   ERR(err_strdup(&local_val_str, val_str));
 
   cfg_remove_spaces(local_val_str);
-  err = cfg_atol(local_val_str, &value);
+  err = err_atol(local_val_str, &value);
   if (err) {
     free(local_val_str);
     ERR_RETHROW(err, err->code);

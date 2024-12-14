@@ -38,7 +38,7 @@ error_level = 2
 
 Then specify the file on the lsim command line using the "-c" option. For example:
 ```
-./lsim -c mycfg.txt
+./lsim_main -c mycfg.txt
 ```
 
 ## Design Notes

@@ -15,7 +15,31 @@ Logic simulator.
 
 ## Introduction
 
-tbd.
+I learned many years ago that any logic circuit can be made with only
+[NAND gates](https://en.wikipedia.org/wiki/NAND_gate).
+Strictly speaking, this isn't quite true.
+You can't make an LED out of NAND gates, or an input switch,
+or even a constant 0 source (a.k.a. "gnd") or constant 1 ("vcc").
+Although even I would say, "yeah ... but ... those are different!".
+
+So with some obvious exception, theoretically you could build a full
+turing-complete CPU with only NAND gates.
+
+I wanted to prove this to myself.
+
+But actually trying to build a CPU out of hundreds (thousands?) of
+[7400 chips](https://en.wikipedia.org/wiki/7400-series_integrated_circuits)
+brings to mind rats nests of
+[wire-wrap boards](https://www.edn.com/wp-content/uploads/contenteetimes-images-edn-tales-tales-wrapped-z80-computer-backplane-1977.png),
+broken wires, out-of-control capacitances, and kilowatts of power consumption. 
+And as it turns out, wire wrapping is
+[not even a thing anymore](https://www.reddit.com/r/electronics/comments/i2mqub/comment/g0apze8/).
+
+So, being the ultimate DIY software developer,
+I decided to write my own digital logic simulator and use it to execute a
+NAND-based CPU of my own design.
+
+This project is just the simulator, not the CPU design.
 
 Thanks to Claude.ai for some help with the code and much help with the doc.
 See https://blog.geeky-boy.com/2024/12/claude-as-coders-assistant.html for details.

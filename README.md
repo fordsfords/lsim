@@ -17,6 +17,9 @@ Logic simulator.
 
 tbd.
 
+Thanks to Claude.ai for some help with the code and much help with the doc.
+See https://blog.geeky-boy.com/2024/12/claude-as-coders-assistant.html for details.
+
 ## Configuration
 
 There are a few configurable parameters for lsim (defaults shown in [square brackets]):

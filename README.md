@@ -64,8 +64,8 @@ the circuit.
 I.e. "t;1000;" should simulate 1000 timer ticks without any mallocs/frees,
 hashes, or any other time-consuming operations.
 * A single "run" of the logic engine consists of a loop containing two phases
-** Have each device with an input change re-calculate its output,
-** Propagate those outputs to the connected inputs.
+  * Have each device with an input change re-calculate its output,
+  * Propagate those outputs to the connected inputs.
   A single event (switch move, clock tick) can trigger the loop to run multiple
 times as the circuit stabilizes.
 One stabilized, the "run" is complete.

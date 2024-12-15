@@ -44,13 +44,25 @@ This project is just the simulator, not the CPU design.
 Thanks to Claude.ai for some help with the code and much help with the doc.
 See https://blog.geeky-boy.com/2024/12/claude-as-coders-assistant.html for details.
 
+### Composite Devices
+
+"Wait a minute!" I can hear you saying, "Your simulator has SR latches and D latches!
+Your CPU is no going to be only NAND gates!"
+I commend your observance, and challenge your conclusion.
+My command language does indeed let you define SR and D latches, but it
+simply responds by inserting properly-wired NAND gates.
+I.e. if you actually look at the circuit, it is only NAND gates,
+with no simulation-time allowances being given to the higher-level device.
+Once the circuit is read in, the only way you can "see" the composite
+devices is by the naming conventions.
+
 ## Configuration
 
 There are a few configurable parameters for lsim (defaults shown in [square brackets]):
-  * device_hash_buckets - set to a prime number somewhat larger than the
+  * **device_hash_buckets** - set to a prime number somewhat larger than the
   total number of logic devices in your circuit [10007]
-  * max_propagate_cycles - prevent logic engine from infinite looping [50]
-  * error_level - how to react if an error is detected: 0=abort, 1=exit(1),
+  * **max_propagate_cycles** - prevent logic engine from infinite looping [50]
+  * **error_level** - how to react if an error is detected: 0=abort, 1=exit(1),
   2=warn and continue [0].
 
 To set one or more configs, create a file. For example:

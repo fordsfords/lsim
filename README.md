@@ -4,6 +4,7 @@ Logic simulator.
 <!-- mdtoc-start -->
 &bull; [lsim](#lsim)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Introduction](#introduction)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Composite Devices](#composite-devices)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Configuration](#configuration)  
 &bull; [Format:](#format)  
 &bull; [config_name = value](#config_name--value)  

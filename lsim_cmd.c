@@ -18,6 +18,7 @@
 #include "cfg.h"
 #include "lsim.h"
 #include "lsim_dev.h"
+#include "lsim_devices.h"
 #include "lsim_cmd.h"
 
 

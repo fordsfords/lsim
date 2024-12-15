@@ -23,6 +23,7 @@
 #include "lsim.h"
 #include "lsim_dev.h"
 #include "lsim_cmd.h"
+#include "lsim_devices.h"
 
 #if defined(_WIN32)
 #define MY_SLEEP_MS(msleep_msecs) Sleep(msleep_msecs)

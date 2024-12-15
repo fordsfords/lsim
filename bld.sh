@@ -14,8 +14,8 @@ echo "Building code"
 
 rm -f lsim
 
-gcc -std=c11 -Wall -Wextra -pedantic -Werror -g -o lsim_test lsim_test.c lsim.c lsim_cmd.c lsim_dev.c err.c hmap.c cfg.c; if [ $? -ne 0 ]; then exit 1; fi
+gcc -std=c11 -Wall -Wextra -pedantic -Werror -g -o lsim_test lsim_test.c lsim.c lsim_cmd.c lsim_dev.c devices/*.c err.c hmap.c cfg.c; if [ $? -ne 0 ]; then exit 1; fi
 
-gcc -std=c11 -Wall -Wextra -pedantic -Werror -g -o lsim_main lsim_main.c lsim.c lsim_cmd.c lsim_dev.c err.c hmap.c cfg.c; if [ $? -ne 0 ]; then exit 1; fi
+gcc -std=c11 -Wall -Wextra -pedantic -Werror -g -o lsim_main lsim_main.c lsim.c lsim_cmd.c lsim_dev.c devices/*.c err.c hmap.c cfg.c; if [ $? -ne 0 ]; then exit 1; fi
 
 echo "Build successful"

@@ -40,6 +40,10 @@ ERR_CODE(LSIM_ERR_MAXLOOPS);
 #undef ERR_CODE
 
 
+/* Forward declarations. */
+typedef struct lsim_s lsim_t;
+
+
 /* Full definitions. */
 
 struct lsim_s {
@@ -54,7 +58,6 @@ struct lsim_s {
   int quit;
 };
 
-ERR_F lsim_strdup(char **dst_str, const char *src_str);
 ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name);
 ERR_F lsim_delete(lsim_t *lsim);
 

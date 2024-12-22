@@ -26,7 +26,7 @@ ERR_F lsim_dev_nand_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->nand.out_terminal;
+  *out_terminal = dev->nand.o_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_nand_get_out_terminal */
@@ -43,7 +43,7 @@ ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *i
     ERR_THROW(LSIM_ERR_COMMAND, "input number %d larger than number of inputs %d", (int)input_num, dev->nand.num_inputs);
   }
 
-  *in_terminal = &dev->nand.in_terminals[input_num];
+  *in_terminal = dev->nand.i_terminals[input_num];
 
   return ERR_OK;
 }  /* lsim_dev_nand_get_in_terminal */
@@ -52,11 +52,11 @@ ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *i
 ERR_F lsim_dev_nand_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  dev->nand.out_terminal->state = 0;
+  dev->nand.o_terminal->state = 0;
 
   int in_index;
   for (in_index = 0; in_index < dev->nand.num_inputs; in_index++) {
-    dev->nand.in_terminals[in_index].state = 0;
+    dev->nand.i_terminals[in_index]->state = 0;
   }
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
@@ -71,10 +71,10 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   int input_index;
   for (input_index = 0; input_index < dev->nand.num_inputs; input_index++) {
     /* Check for floating inputs. */
-    if (dev->nand.in_terminals[input_index].driving_out_terminal == NULL) {
+    if (dev->nand.i_terminals[input_index]->driving_out_terminal == NULL) {
       ERR_THROW(LSIM_ERR_COMMAND, "Nand %s: input i%d is floating", dev->name, input_index);
     }
-    if (dev->nand.in_terminals[input_index].state == 0) {
+    if (dev->nand.i_terminals[input_index]->state == 0) {
       /* At least one input is 0; output is 1. */
       new_output = 1;
       break;
@@ -83,8 +83,8 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 
   /* See if output changed. */
   int out_changed = 0;
-  if (dev->nand.out_terminal->state != new_output) {
-    dev->nand.out_terminal->state = new_output;
+  if (dev->nand.o_terminal->state != new_output) {
+    dev->nand.o_terminal->state = new_output;
     out_changed = 1;
   }
   if (out_changed) {
@@ -96,7 +96,7 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     this_verbosity_level = lsim->verbosity_level;
   }
   if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
-    printf("  nand %s: o0=%d\n", dev->name, dev->nand.out_terminal->state);
+    printf("  nand %s: o0=%d\n", dev->name, dev->nand.o_terminal->state);
   }
 
   return ERR_OK;
@@ -106,8 +106,8 @@ ERR_F lsim_dev_nand_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_nand_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  int out_state = dev->nand.out_terminal->state;
-  lsim_dev_in_terminal_t *dst_in_terminal = dev->nand.out_terminal->in_terminal_list;
+  int out_state = dev->nand.o_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->nand.o_terminal->in_terminal_list;
 
   while (dst_in_terminal) {
     if (dst_in_terminal->state != out_state) {
@@ -128,8 +128,13 @@ ERR_F lsim_dev_nand_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  free(dev->nand.out_terminal);
-  free(dev->nand.in_terminals);
+  free(dev->nand.o_terminal);
+
+  int i;
+  for (i = 0; i < dev->nand.num_inputs; i++) {
+    free(dev->nand.i_terminals[i]);
+  }
+  free(dev->nand.i_terminals);
 
   return ERR_OK;
 }  /* lsim_dev_nand_delete */
@@ -148,14 +153,15 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *dev_name, long num_inputs) {
   ERR(err_strdup(&(dev->name), dev_name));
   dev->type = LSIM_DEV_TYPE_NAND;
 
-  ERR(err_calloc((void **)&(dev->nand.out_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
-  dev->nand.out_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->nand.o_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->nand.o_terminal->dev = dev;
   dev->nand.num_inputs = num_inputs;
-  ERR(err_calloc((void **)&(dev->nand.in_terminals), num_inputs, sizeof(lsim_dev_in_terminal_t)));
+  ERR(err_calloc((void **)&(dev->nand.i_terminals), num_inputs, sizeof(lsim_dev_in_terminal_t *)));
 
   int in_index;
   for (in_index = 0; in_index < dev->nand.num_inputs; in_index++) {
-    dev->nand.in_terminals[in_index].dev = dev;
+    ERR(err_calloc((void **)&dev->nand.i_terminals[in_index], 1, sizeof(lsim_dev_in_terminal_t)));
+    dev->nand.i_terminals[in_index]->dev = dev;
   }
 
   /* Type-specific methods (inheritance). */

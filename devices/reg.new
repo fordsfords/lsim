@@ -1,0 +1,130 @@
+ERR_F lsim_dev_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
+
+  // Parse qN or QN where N is a bit number
+  char type = out_id[0];
+  ERR_ASSRT(type == 'q' || type == 'Q', LSIM_ERR_COMMAND);
+  long bit_num;
+  ERR(err_atol(out_id + 1, &bit_num));
+  ERR_ASSRT(bit_num >= 0 && bit_num < dev->reg.num_bits, LSIM_ERR_COMMAND);
+
+  if (type == 'q') {
+    *out_terminal = dev->reg.q_terminals[bit_num];
+  }
+  else {  // type == 'Q'
+    *out_terminal = dev->reg.Q_terminals[bit_num];
+  }
+
+  return ERR_OK;
+}
+
+ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
+
+  if (strcmp(in_id, "c0") == 0) {
+    *in_terminal = dev->reg.c_terminal;
+  }
+  else if (strcmp(in_id, "R0") == 0) {
+    *in_terminal = dev->reg.R_terminal;
+  }
+  else {
+    // Must be dN where N is a bit number
+    ERR_ASSRT(in_id[0] == 'd', LSIM_ERR_COMMAND);
+    long bit_num;
+    ERR(err_atol(in_id + 1, &bit_num));
+    ERR_ASSRT(bit_num >= 0 && bit_num < dev->reg.num_bits, LSIM_ERR_COMMAND);
+    *in_terminal = dev->reg.d_terminals[bit_num];
+  }
+
+  return ERR_OK;
+}
+
+ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
+  ERR_ASSRT(num_bits >= 1, LSIM_ERR_PARAM);
+
+  /* Make sure name doesn't already exist. */
+  err_t *err;
+  err = hmap_slookup(lsim->devs, dev_name, NULL);
+  ERR_ASSRT(err && err->code == HMAP_ERR_NOTFOUND, LSIM_ERR_EXIST);
+
+  lsim_dev_t *dev;
+  ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
+  ERR(err_strdup(&(dev->name), dev_name));
+  dev->type = LSIM_DEV_TYPE_REG;
+  dev->reg.num_bits = num_bits;
+
+  // Allocate arrays for the terminals
+  ERR(err_calloc((void **)&dev->reg.q_terminals, num_bits, sizeof(lsim_dev_out_terminal_t *)));
+  ERR(err_calloc((void **)&dev->reg.Q_terminals, num_bits, sizeof(lsim_dev_out_terminal_t *)));
+  ERR(err_calloc((void **)&dev->reg.d_terminals, num_bits, sizeof(lsim_dev_in_terminal_t *)));
+
+  char *vcc_name;
+  ERR(err_asprintf(&vcc_name, "%s.vcc", dev_name));
+  ERR(lsim_dev_vcc_create(lsim, vcc_name));
+  lsim_dev_t *vcc_dev;
+  ERR(hmap_slookup(lsim->devs, vcc_name, (void **)&vcc_dev));
+
+  /* Create N D-latches. */
+  lsim_dev_in_terminal_t *prev_c_terminal = NULL;  // For chaining clock inputs
+  lsim_dev_in_terminal_t *prev_R_terminal = NULL;  // For chaining reset inputs
+  
+  for (int i = 0; i < num_bits; i++) {
+    char *dlatch_name;
+    ERR(err_asprintf(&dlatch_name, "%s.dlatch%d", dev_name, i));
+    ERR(lsim_dev_dlatch_create(lsim, dlatch_name));
+    lsim_dev_t *dlatch_dev;
+    ERR(hmap_slookup(lsim->devs, dlatch_name, (void **)&dlatch_dev));
+
+    // Connect Set input to VCC (always 1)
+    ERR(lsim_dev_connect(lsim, vcc_name, "o0", dlatch_name, "S0"));
+
+    // Save the terminals
+    dev->reg.q_terminals[i] = dlatch_dev->dlatch.q_terminal;
+    dev->reg.Q_terminals[i] = dlatch_dev->dlatch.Q_terminal;
+    dev->reg.d_terminals[i] = dlatch_dev->dlatch.d_terminal;
+
+    // Chain clock and reset inputs
+    if (last_c_terminal == NULL) {
+      // First D-latch - these become the register's external terminals
+      dev->reg.c_terminal = dlatch_dev->dlatch.c_terminal;
+      dev->reg.R_terminal = dlatch_dev->dlatch.R_terminal;
+    }
+    else {
+      // Chain to previous D-latch
+      last_c_terminal->next_in_terminal = dlatch_dev->dlatch.c_terminal;
+      last_R_terminal->next_in_terminal = dlatch_dev->dlatch.R_terminal;
+    }
+    last_c_terminal = dlatch_dev->dlatch.c_terminal;
+    last_R_terminal = dlatch_dev->dlatch.R_terminal;
+
+    free(dlatch_name);
+  }
+
+  /* Type-specific methods (inheritance). */
+  dev->get_out_terminal = lsim_dev_reg_get_out_terminal;
+  dev->get_in_terminal = lsim_dev_reg_get_in_terminal;
+  dev->power = lsim_dev_reg_power;
+  dev->run_logic = lsim_dev_reg_run_logic;
+  dev->propagate_outputs = lsim_dev_reg_propagate_outputs;
+  dev->delete = lsim_dev_reg_delete;
+
+  ERR(hmap_swrite(lsim->devs, dev_name, dev));
+
+  free(vcc_name);
+
+  return ERR_OK;
+}
+
+// Modified delete function to handle the arrays
+ERR_F lsim_dev_reg_delete(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
+
+  free(dev->reg.q_terminals);
+  free(dev->reg.Q_terminals);
+  free(dev->reg.d_terminals);
+
+  return ERR_OK;
+}

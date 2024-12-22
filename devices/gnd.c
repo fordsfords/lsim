@@ -26,7 +26,7 @@ ERR_F lsim_dev_gnd_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->gnd.out_terminal;
+  *out_terminal = dev->gnd.o_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_gnd_get_out_terminal */
@@ -45,7 +45,7 @@ ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 ERR_F lsim_dev_gnd_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-  dev->gnd.out_terminal->state = 0;
+  dev->gnd.o_terminal->state = 0;
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
@@ -56,8 +56,8 @@ ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
   int out_changed = 0;
-  if (dev->gnd.out_terminal->state == 1) {
-    dev->gnd.out_terminal->state = 0;
+  if (dev->gnd.o_terminal->state == 1) {
+    dev->gnd.o_terminal->state = 0;
     out_changed = 1;
   }
   if (out_changed) {
@@ -69,7 +69,7 @@ ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     this_verbosity_level = lsim->verbosity_level;
   }
   if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
-    printf("  gnd %s: o0=%d\n", dev->name, dev->gnd.out_terminal->state);
+    printf("  gnd %s: o0=%d\n", dev->name, dev->gnd.o_terminal->state);
   }
 
   return ERR_OK;
@@ -79,8 +79,8 @@ ERR_F lsim_dev_gnd_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_gnd_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-  int out_state = dev->gnd.out_terminal->state;
-  lsim_dev_in_terminal_t *dst_in_terminal = dev->gnd.out_terminal->in_terminal_list;
+  int out_state = dev->gnd.o_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->gnd.o_terminal->in_terminal_list;
 
   while (dst_in_terminal) {
     if (dst_in_terminal->state != out_state) {
@@ -101,7 +101,7 @@ ERR_F lsim_dev_gnd_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-  free(dev->gnd.out_terminal);
+  free(dev->gnd.o_terminal);
 
   return ERR_OK;
 }  /* lsim_dev_gnd_delete */
@@ -117,8 +117,8 @@ ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *dev_name) {
   ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
   ERR(err_strdup(&(dev->name), dev_name));
   dev->type = LSIM_DEV_TYPE_GND;
-  ERR(err_calloc((void **)&(dev->gnd.out_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
-  dev->gnd.out_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->gnd.o_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->gnd.o_terminal->dev = dev;
 
   /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_gnd_get_out_terminal;

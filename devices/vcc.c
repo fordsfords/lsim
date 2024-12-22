@@ -26,7 +26,7 @@ ERR_F lsim_dev_vcc_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->vcc.out_terminal;
+  *out_terminal = dev->vcc.o_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_vcc_get_out_terminal */
@@ -45,7 +45,7 @@ ERR_F lsim_dev_vcc_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 ERR_F lsim_dev_vcc_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
-  dev->vcc.out_terminal->state = 0;  /* Starts out 0, "run_logic" sets it to 1. */
+  dev->vcc.o_terminal->state = 0;  /* Starts out 0, "run_logic" sets it to 1. */
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
@@ -56,8 +56,8 @@ ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
   int out_changed = 0;
-  if (dev->vcc.out_terminal->state == 0) {
-    dev->vcc.out_terminal->state = 1;
+  if (dev->vcc.o_terminal->state == 0) {
+    dev->vcc.o_terminal->state = 1;
     out_changed = 1;
   }
   if (out_changed) {
@@ -69,7 +69,7 @@ ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     this_verbosity_level = lsim->verbosity_level;
   }
   if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
-    printf("  vcc %s: o0=%d\n", dev->name, dev->vcc.out_terminal->state);
+    printf("  vcc %s: o0=%d\n", dev->name, dev->vcc.o_terminal->state);
   }
 
   return ERR_OK;
@@ -79,8 +79,8 @@ ERR_F lsim_dev_vcc_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_vcc_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
-  int out_state = dev->vcc.out_terminal->state;
-  lsim_dev_in_terminal_t *dst_in_terminal = dev->vcc.out_terminal->in_terminal_list;
+  int out_state = dev->vcc.o_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->vcc.o_terminal->in_terminal_list;
 
   while (dst_in_terminal) {
     if (dst_in_terminal->state != out_state) {
@@ -101,7 +101,7 @@ ERR_F lsim_dev_vcc_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_VCC, LSIM_ERR_INTERNAL);
 
-  free(dev->vcc.out_terminal);
+  free(dev->vcc.o_terminal);
 
   return ERR_OK;
 }  /* lsim_dev_vcc_delete */
@@ -117,8 +117,8 @@ ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *dev_name) {
   ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
   ERR(err_strdup(&(dev->name), dev_name));
   dev->type = LSIM_DEV_TYPE_VCC;
-  ERR(err_calloc((void **)&(dev->vcc.out_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
-  dev->vcc.out_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->vcc.o_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->vcc.o_terminal->dev = dev;
 
   /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_vcc_get_out_terminal;

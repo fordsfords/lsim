@@ -189,7 +189,7 @@ ERR_F lsim_cmd_d_nand(lsim_t *lsim, char *cmd_line) {
 
 
 /* Define device "srlatch":
- * d;mem;dev_name;num_addr;num_data;
+ * d;srlatch;dev_name;
  * cmd_line points at dev_name. */
 ERR_F lsim_cmd_d_srlatch(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
@@ -210,7 +210,7 @@ ERR_F lsim_cmd_d_srlatch(lsim_t *lsim, char *cmd_line) {
 
 
 /* Define device "dlatch":
- * d;mem;dev_name;num_addr;num_data;
+ * d;dlatch;dev_name;
  * cmd_line points at dev_name. */
 ERR_F lsim_cmd_d_dlatch(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
@@ -228,6 +228,35 @@ ERR_F lsim_cmd_d_dlatch(lsim_t *lsim, char *cmd_line) {
 
   return ERR_OK;
 }  /* lsim_cmd_d_dlatch */
+
+
+/* Define device "reg":
+ * d;reg;dev_name;num_bits;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_d_reg(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  char *num_bits_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(num_bits_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long num_bits;
+  ERR(err_atol(num_bits_s, &num_bits));
+  ERR_ASSRT(num_bits > 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_reg_create(lsim, dev_name, num_bits));
+
+  return ERR_OK;
+}  /* lsim_cmd_d_reg */
 
 
 /* Define device:
@@ -265,6 +294,9 @@ ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
   }
   else if (strcmp(dev_type, "dlatch") == 0) {
     ERR(lsim_cmd_d_dlatch(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "reg") == 0) {
+    ERR(lsim_cmd_d_reg(lsim, next_field));
   }
 /*???
  *else if (strcmp(dev_type, "mem") == 0) {

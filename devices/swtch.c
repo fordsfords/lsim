@@ -26,7 +26,7 @@ ERR_F lsim_dev_swtch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char 
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->swtch.out_terminal;
+  *out_terminal = dev->swtch.o_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_swtch_get_out_terminal */
@@ -45,7 +45,7 @@ ERR_F lsim_dev_swtch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
 ERR_F lsim_dev_swtch_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
-  dev->swtch.out_terminal->state = 0;
+  dev->swtch.o_terminal->state = 0;
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
   return ERR_OK;
@@ -56,8 +56,8 @@ ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
   int out_changed = 0;
-  if (dev->swtch.out_terminal->state != dev->swtch.swtch_state) {
-    dev->swtch.out_terminal->state = dev->swtch.swtch_state;
+  if (dev->swtch.o_terminal->state != dev->swtch.swtch_state) {
+    dev->swtch.o_terminal->state = dev->swtch.swtch_state;
     out_changed = 1;
   }
   if (out_changed) {
@@ -69,7 +69,7 @@ ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     this_verbosity_level = lsim->verbosity_level;
   }
   if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
-    printf("  swtch %s: o0=%d\n", dev->name, dev->swtch.out_terminal->state);
+    printf("  swtch %s: o0=%d\n", dev->name, dev->swtch.o_terminal->state);
   }
 
   return ERR_OK;
@@ -79,8 +79,8 @@ ERR_F lsim_dev_swtch_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 ERR_F lsim_dev_swtch_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
-  int out_state = dev->swtch.out_terminal->state;
-  lsim_dev_in_terminal_t *dst_in_terminal = dev->swtch.out_terminal->in_terminal_list;
+  int out_state = dev->swtch.o_terminal->state;
+  lsim_dev_in_terminal_t *dst_in_terminal = dev->swtch.o_terminal->in_terminal_list;
 
   while (dst_in_terminal) {
     if (dst_in_terminal->state != out_state) {
@@ -101,7 +101,7 @@ ERR_F lsim_dev_swtch_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
-  free(dev->swtch.out_terminal);
+  free(dev->swtch.o_terminal);
 
   return ERR_OK;
 }  /* lsim_dev_swtch_delete */
@@ -117,8 +117,8 @@ ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *dev_name, int init_state) {
   ERR(err_calloc((void **)&dev, 1, sizeof(lsim_dev_t)));
   ERR(err_strdup(&(dev->name), dev_name));
   dev->type = LSIM_DEV_TYPE_SWTCH;
-  ERR(err_calloc((void **)&(dev->swtch.out_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
-  dev->swtch.out_terminal->dev = dev;
+  ERR(err_calloc((void **)&(dev->swtch.o_terminal), 1, sizeof(lsim_dev_out_terminal_t)));
+  dev->swtch.o_terminal->dev = dev;
   dev->swtch.swtch_state = init_state;
 
   /* Type-specific methods (inheritance). */

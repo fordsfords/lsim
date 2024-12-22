@@ -28,7 +28,8 @@ extern "C" {
 #define LSIM_DEV_TYPE_NAND 6
 #define LSIM_DEV_TYPE_SRLATCH 7
 #define LSIM_DEV_TYPE_DLATCH 8
-#define LSIM_DEV_TYPE_MEM 9
+#define LSIM_DEV_TYPE_REG 9
+#define LSIM_DEV_TYPE_MEM 10
 
 
 /* Forward declarations. */
@@ -40,38 +41,39 @@ typedef struct lsim_dev_led_s lsim_dev_led_t;
 typedef struct lsim_dev_nand_s lsim_dev_nand_t;
 typedef struct lsim_dev_srlatch_s lsim_dev_srlatch_t;
 typedef struct lsim_dev_dlatch_s lsim_dev_dlatch_t;
+typedef struct lsim_dev_reg_s lsim_dev_reg_t;
 typedef struct lsim_dev_mem_s lsim_dev_mem_t;
 typedef struct lsim_dev_s lsim_dev_t;
 
 
 struct lsim_dev_gnd_s {
-  lsim_dev_out_terminal_t *out_terminal;
+  lsim_dev_out_terminal_t *o_terminal;
 };
 
 struct lsim_dev_vcc_s {
-  lsim_dev_out_terminal_t *out_terminal;
+  lsim_dev_out_terminal_t *o_terminal;
 };
 
 struct lsim_dev_swtch_s {
   int swtch_state;
-  lsim_dev_out_terminal_t *out_terminal;
+  lsim_dev_out_terminal_t *o_terminal;
 };
 
 struct lsim_dev_clk_s {
-  lsim_dev_in_terminal_t *Reset_terminal;
+  lsim_dev_in_terminal_t *R_terminal;
   lsim_dev_out_terminal_t *q_terminal;
   lsim_dev_out_terminal_t *Q_terminal;
 };
 
 struct lsim_dev_led_s {
   int illuminated;
-  lsim_dev_in_terminal_t *in_terminal;
+  lsim_dev_in_terminal_t *i_terminal;
 };
 
 struct lsim_dev_nand_s {
-  lsim_dev_out_terminal_t *out_terminal;   /* Allocated output terminal (one). */
+  lsim_dev_out_terminal_t *o_terminal;   /* Allocated output terminal (one). */
   long num_inputs;
-  lsim_dev_in_terminal_t *in_terminals;  /* Allocated array of input terminals. */
+  lsim_dev_in_terminal_t **i_terminals;  /* Allocated array of input terminal ptrs. */
 };
 
 struct lsim_dev_srlatch_s {
@@ -90,11 +92,21 @@ struct lsim_dev_dlatch_s {
   lsim_dev_in_terminal_t *c_terminal;
 };
 
+struct lsim_dev_reg_s {
+  long num_bits;
+  lsim_dev_out_terminal_t **q_terminals;  /* Allocated array of output terminals. */
+  lsim_dev_out_terminal_t **Q_terminals;  /* Allocated array of inverted output terminals. */
+  lsim_dev_in_terminal_t **d_terminals;  /* Allocated array of input terminals. */
+  lsim_dev_in_terminal_t *R_terminal;
+  lsim_dev_in_terminal_t *c_terminal;
+};
+
 struct lsim_dev_mem_s {
   long num_outputs;
-  lsim_dev_out_terminal_t *out_terminals;  /* Allocated array of output terminals. */
+  lsim_dev_out_terminal_t **o_terminals;  /* Allocated array of output terminal ptrs. */
   long num_inputs;
-  lsim_dev_out_terminal_t *in_terminals;  /* Allocated array of input terminals. */
+  lsim_dev_in_terminal_t **i_terminals;  /* Allocated array of input terminal ptrs. */
+  lsim_dev_in_terminal_t **a_terminals;  /* Allocated array of address terminal ptrs. */
 };
 
 
@@ -115,6 +127,7 @@ struct lsim_dev_s {
     lsim_dev_nand_t nand;
     lsim_dev_srlatch_t srlatch;
     lsim_dev_dlatch_t dlatch;
+    lsim_dev_reg_t reg;
     lsim_dev_mem_t mem;
   };
   /* Type-specific methods (inheritance). */
@@ -135,6 +148,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
 ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *name);
+ERR_F lsim_dev_reg_create(lsim_t *lsim, char *name, long num_bits);
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);
 ERR_F lsim_dev_power(lsim_t *lsim);
 ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);

@@ -18,6 +18,7 @@
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
         "clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling"
     ],
+    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 2, ColumnLimit: 0}",
     "files.associations": {
         "hmap.h": "c",
         "err.h": "c"

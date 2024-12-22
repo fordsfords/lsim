@@ -157,22 +157,20 @@ ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_a_name, "i1"));
 
   /* Chain "External" inputs for "set". */
-  nand_q_dev->nand.in_terminals[0].next_in_terminal = &nand_a_dev->nand.in_terminals[0];
+  nand_q_dev->nand.i_terminals[0]->next_in_terminal = nand_a_dev->nand.i_terminals[0];
   /* Chain "External" inputs for "reset". */
-  nand_Q_dev->nand.in_terminals[0].next_in_terminal = &nand_d_dev->nand.in_terminals[1];
-  nand_d_dev->nand.in_terminals[1].next_in_terminal = &nand_b_dev->nand.in_terminals[1];
+  nand_Q_dev->nand.i_terminals[0]->next_in_terminal = nand_d_dev->nand.i_terminals[1];
+  nand_d_dev->nand.i_terminals[1]->next_in_terminal = nand_b_dev->nand.i_terminals[1];
   /* Chain "External" inputs for "clock". */
-  nand_c_dev->nand.in_terminals[0].next_in_terminal = &nand_b_dev->nand.in_terminals[0];
+  nand_c_dev->nand.i_terminals[0]->next_in_terminal = nand_b_dev->nand.i_terminals[0];
 
-  /* Save the "external" terminals. */
-  dev->dlatch.q_terminal = nand_q_dev->nand.out_terminal;
-  dev->dlatch.Q_terminal = nand_Q_dev->nand.out_terminal;
-  dev->dlatch.S_terminal = &nand_q_dev->nand.in_terminals[0];
-  dev->dlatch.R_terminal = &nand_Q_dev->nand.in_terminals[0];
-  dev->dlatch.d_terminal = &nand_d_dev->nand.in_terminals[0];
-  dev->dlatch.c_terminal = &nand_c_dev->nand.in_terminals[0];
-
-  /* Need to chain internal inputs onto the "external" inputs. */
+  /* Save references to the "external" terminals. */
+  dev->dlatch.q_terminal = nand_q_dev->nand.o_terminal;
+  dev->dlatch.Q_terminal = nand_Q_dev->nand.o_terminal;
+  dev->dlatch.S_terminal = nand_q_dev->nand.i_terminals[0];
+  dev->dlatch.R_terminal = nand_Q_dev->nand.i_terminals[0];
+  dev->dlatch.d_terminal = nand_d_dev->nand.i_terminals[0];
+  dev->dlatch.c_terminal = nand_c_dev->nand.i_terminals[0];
 
   /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_dlatch_get_out_terminal;
@@ -182,6 +180,7 @@ ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_dlatch_propagate_outputs;
   dev->delete = lsim_dev_dlatch_delete;
 
+  /* Write the dlatch dev. */
   ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   free(nand_q_name);  free(nand_Q_name);

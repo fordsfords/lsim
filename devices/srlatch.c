@@ -117,10 +117,10 @@ ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
   ERR(lsim_dev_connect(lsim, nand_Q_name, "o0", nand_q_name, "i1"));
 
   /* Save the "external" terminals. */
-  dev->srlatch.q_terminal = nand_q_dev->nand.out_terminal;
-  dev->srlatch.Q_terminal = nand_Q_dev->nand.out_terminal;
-  dev->srlatch.S_terminal = &nand_q_dev->nand.in_terminals[0];
-  dev->srlatch.R_terminal = &nand_Q_dev->nand.in_terminals[0];
+  dev->srlatch.q_terminal = nand_q_dev->nand.o_terminal;
+  dev->srlatch.Q_terminal = nand_Q_dev->nand.o_terminal;
+  dev->srlatch.S_terminal = nand_q_dev->nand.i_terminals[0];
+  dev->srlatch.R_terminal = nand_Q_dev->nand.i_terminals[0];
 
   /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_srlatch_get_out_terminal;
@@ -130,6 +130,7 @@ ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *dev_name) {
   dev->propagate_outputs = lsim_dev_srlatch_propagate_outputs;
   dev->delete = lsim_dev_srlatch_delete;
 
+  /* Write the srlatch dev. */
   ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   free(nand_q_name);

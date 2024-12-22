@@ -103,6 +103,9 @@ ERR_F lsim_dev_swtch_delete(lsim_t *lsim, lsim_dev_t *dev) {
 
   free(dev->swtch.o_terminal);
 
+  free(dev->name);
+  free(dev);
+
   return ERR_OK;
 }  /* lsim_dev_swtch_delete */
 

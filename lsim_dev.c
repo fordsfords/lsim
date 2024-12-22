@@ -81,8 +81,6 @@ ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_o
 
 ERR_F lsim_dev_delete(lsim_t *lsim, lsim_dev_t *dev) {
   ERR(dev->delete(lsim, dev));
-  free(dev->name);
-  free(dev);
 
   return ERR_OK;
 }  /* lsim_dev_delete */

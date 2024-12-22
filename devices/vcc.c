@@ -103,6 +103,9 @@ ERR_F lsim_dev_vcc_delete(lsim_t *lsim, lsim_dev_t *dev) {
 
   free(dev->vcc.o_terminal);
 
+  free(dev->name);
+  free(dev);
+
   return ERR_OK;
 }  /* lsim_dev_vcc_delete */
 

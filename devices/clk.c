@@ -147,6 +147,9 @@ ERR_F lsim_dev_clk_delete(lsim_t *lsim, lsim_dev_t *dev) {
   free(dev->clk.Q_terminal);
   free(dev->clk.R_terminal);
 
+  free(dev->name);
+  free(dev);
+
   return ERR_OK;
 }  /* lsim_dev_clk_delete */
 

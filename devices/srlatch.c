@@ -85,6 +85,9 @@ ERR_F lsim_dev_srlatch_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SRLATCH, LSIM_ERR_INTERNAL);
 
+  free(dev->name);
+  free(dev);
+
   return ERR_OK;
 }  /* lsim_dev_srlatch_delete */
 

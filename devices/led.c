@@ -86,6 +86,9 @@ ERR_F lsim_dev_led_delete(lsim_t *lsim, lsim_dev_t *dev) {
 
   free(dev->led.i_terminal);
 
+  free(dev->name);
+  free(dev);
+
   return ERR_OK;
 }  /* lsim_dev_led_delete */
 

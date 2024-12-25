@@ -47,9 +47,10 @@ struct lsim_dev_in_terminal_s {
 };
 
 
+ERR_F lsim_dev_in_chain_add(lsim_dev_in_terminal_t **head, lsim_dev_in_terminal_t *in_terminal, lsim_dev_out_terminal_t *driving_out_terminal);
 ERR_F lsim_dev_out_changed(lsim_t *lsim, lsim_dev_t *dev);
 ERR_F lsim_dev_in_changed(lsim_t *lsim, lsim_dev_t *dev);
-ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);
+ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id, int bit_offset);
 ERR_F lsim_dev_power(lsim_t *lsim);
 ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);

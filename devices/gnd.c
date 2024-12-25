@@ -21,10 +21,11 @@
 #include "../lsim_devices.h"
 
 
-ERR_F lsim_dev_gnd_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+ERR_F lsim_dev_gnd_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
   ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
   *out_terminal = dev->gnd.o_terminal;
 
@@ -32,8 +33,8 @@ ERR_F lsim_dev_gnd_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
 }  /* lsim_dev_gnd_get_out_terminal */
 
 
-ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
-  (void)lsim;  (void)in_id;  (void)in_terminal;
+ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
+  (void)lsim;  (void)in_id;  (void)in_terminal;  (void)bit_offset;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
   ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input state for gnd, which has no inputs");

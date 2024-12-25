@@ -259,6 +259,35 @@ ERR_F lsim_cmd_d_reg(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_d_reg */
 
 
+/* Define device "panel":
+ * d;panel;dev_name;num_bits;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_d_panel(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  char *num_bits_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(num_bits_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long num_bits;
+  ERR(err_atol(num_bits_s, &num_bits));
+  ERR_ASSRT(num_bits > 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_panel_create(lsim, dev_name, num_bits));
+
+  return ERR_OK;
+}  /* lsim_cmd_d_panel */
+
+
 /* Define device:
  * d;dev_type;...
  * cmd_line points at dev_type. */
@@ -297,6 +326,9 @@ ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
   }
   else if (strcmp(dev_type, "reg") == 0) {
     ERR(lsim_cmd_d_reg(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "panel") == 0) {
+    ERR(lsim_cmd_d_panel(lsim, next_field));
   }
 /*???
  *else if (strcmp(dev_type, "mem") == 0) {
@@ -339,10 +371,55 @@ ERR_F lsim_cmd_c(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_connect(lsim, src_dev_name, src_output_id, dst_dev_name, dst_input_id));
+  ERR(lsim_dev_connect(lsim, src_dev_name, src_output_id, dst_dev_name, dst_input_id, 0));
 
   return ERR_OK;
 }  /* lsim_cmd_c */
+
+
+/* Bus connection:
+ * b;src_dev_name;src_output_id;dst_dev_name;dst_input_id;num_bits;
+ * cmd_line points at src_dev_name. */
+ERR_F lsim_cmd_b(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *src_dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(src_dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(src_dev_name));
+
+  char *src_output_id = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(src_output_id, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+
+  char *dst_dev_name = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(dst_dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dst_dev_name));
+
+  char *dst_input_id = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(dst_input_id, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+
+  char *num_bits_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(num_bits_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long num_bits;
+  ERR(err_atol(num_bits_s, &num_bits));
+  ERR_ASSRT(num_bits > 0, LSIM_ERR_COMMAND);
+
+  int i;
+  for (i = 0; i < num_bits; i++) {
+    ERR(lsim_dev_connect(lsim, src_dev_name, src_output_id, dst_dev_name, dst_input_id, i));
+  }
+
+  return ERR_OK;
+}  /* lsim_cmd_b */
 
 
 /* Reset:
@@ -368,7 +445,8 @@ ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
   char *dev_name = cmd_line;
   ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';
-  ERR(lsim_valid_name(dev_name));
+  /* Don't call lsim_valid_name(dev_name); user needs to be able to use
+   * switch component within a panel. */
 
   char *new_state_s = semi_colon + 1;
   ERR_ASSRT(semi_colon = strchr(new_state_s, ';'), LSIM_ERR_COMMAND);
@@ -532,6 +610,9 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   }
   else if (strstr(local_cmd_line, "c;") == local_cmd_line) {
     err = lsim_cmd_c(lsim, &local_cmd_line[2]);
+  }
+  else if (strstr(local_cmd_line, "b;") == local_cmd_line) {
+    err = lsim_cmd_b(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "p;") == local_cmd_line) {
     err = lsim_cmd_p(lsim, &local_cmd_line[2]);

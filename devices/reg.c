@@ -21,14 +21,15 @@
 #include "../lsim_devices.h"
 
 
-ERR_F lsim_dev_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+ERR_F lsim_dev_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
   long bit_num;
   ERR(err_atol(out_id+1, &bit_num));
+  bit_num += bit_offset;
   if (bit_num >= dev->reg.num_bits) {  /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "output bit number %ld larger than number of bits %d", bit_num, dev->reg.num_bits);
+    ERR_THROW(LSIM_ERR_COMMAND, "output bit number %ld plus offset %d larger than number of bits %d", bit_num, dev->reg.num_bits);
   }
   if (out_id[0] == 'q') {
     *out_terminal = dev->reg.q_terminals[bit_num];
@@ -44,7 +45,7 @@ ERR_F lsim_dev_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
 }  /* lsim_dev_reg_get_out_terminal */
 
 
-ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
@@ -57,6 +58,7 @@ ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
   else {
     long bit_num;
     ERR(err_atol(in_id + 1, &bit_num));
+    bit_num += bit_offset;
     if (bit_num >= dev->reg.num_bits) {
       /* Use throw instead of assert for more useful error message. */
       ERR_THROW(LSIM_ERR_COMMAND, "input bit number %ld larger than number of bits %d", bit_num, dev->reg.num_bits);
@@ -64,7 +66,7 @@ ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
     if (in_id[0] == 'd') {
       *in_terminal = dev->reg.d_terminals[bit_num];
     } else {
-      ERR_THROW(LSIM_ERR_COMMAND, "Invalid reg output ID %s", in_id);
+      ERR_THROW(LSIM_ERR_COMMAND, "Invalid reg input ID %s", in_id);
     }
   }
 
@@ -75,6 +77,9 @@ ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 ERR_F lsim_dev_reg_power(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
+
+  /* This is a composite device. The underlying devices will be
+   * processed on their own. Nothing to be done here. */
 
   return ERR_OK;
 }  /* lsim_dev_reg_power */
@@ -135,10 +140,6 @@ ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
   lsim_dev_t *vcc_dev;
   ERR(hmap_slookup(lsim->devs, vcc_name, (void **)&vcc_dev));
 
-  /* For chaining external inputs. */
-  lsim_dev_in_terminal_t *prev_c_terminal = NULL;
-  lsim_dev_in_terminal_t *prev_R_terminal = NULL;
-  
   /* Create N D-latches. */
   int i;
   for (i = 0; i < num_bits; i++) {
@@ -149,26 +150,16 @@ ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
     ERR(hmap_slookup(lsim->devs, dlatch_name, (void **)&dlatch_dev));
 
     /* Set input not needed; connect to VCC. */
-    ERR(lsim_dev_connect(lsim, vcc_name, "o0", dlatch_name, "S0"));
+    ERR(lsim_dev_connect(lsim, vcc_name, "o0", dlatch_name, "S0", 0));
 
-    /* Save the terminals. */
+    /* Save the "external" terminals. */
     dev->reg.q_terminals[i] = dlatch_dev->dlatch.q_terminal;
     dev->reg.Q_terminals[i] = dlatch_dev->dlatch.Q_terminal;
     dev->reg.d_terminals[i] = dlatch_dev->dlatch.d_terminal;
 
     /* Chain "External" inputs for clock and reset. */
-    if (prev_c_terminal == NULL) {
-      /* First D-latch - these become the register's external terminals. */
-      dev->reg.c_terminal = dlatch_dev->dlatch.c_terminal;
-      dev->reg.R_terminal = dlatch_dev->dlatch.R_terminal;
-    }
-    else {
-      /* Chain to previous D-latch. */
-      prev_c_terminal->next_in_terminal = dlatch_dev->dlatch.c_terminal;
-      prev_R_terminal->next_in_terminal = dlatch_dev->dlatch.R_terminal;
-    }
-    prev_c_terminal = dlatch_dev->dlatch.c_terminal;
-    prev_R_terminal = dlatch_dev->dlatch.R_terminal;
+    ERR(lsim_dev_in_chain_add(&dev->reg.c_terminal, dlatch_dev->dlatch.c_terminal, NULL));
+    ERR(lsim_dev_in_chain_add(&dev->reg.R_terminal, dlatch_dev->dlatch.R_terminal, NULL));
 
     free(dlatch_name);
   }

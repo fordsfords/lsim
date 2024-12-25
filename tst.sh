@@ -70,3 +70,11 @@ if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
   egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
   OK
 fi
+
+T=6
+if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
+  TEST
+  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
+  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
+  OK
+fi

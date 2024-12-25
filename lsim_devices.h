@@ -29,7 +29,8 @@ extern "C" {
 #define LSIM_DEV_TYPE_SRLATCH 7
 #define LSIM_DEV_TYPE_DLATCH 8
 #define LSIM_DEV_TYPE_REG 9
-#define LSIM_DEV_TYPE_MEM 10
+#define LSIM_DEV_TYPE_PANEL 10
+#define LSIM_DEV_TYPE_MEM 11
 
 
 /* Forward declarations. */
@@ -42,6 +43,7 @@ typedef struct lsim_dev_nand_s lsim_dev_nand_t;
 typedef struct lsim_dev_srlatch_s lsim_dev_srlatch_t;
 typedef struct lsim_dev_dlatch_s lsim_dev_dlatch_t;
 typedef struct lsim_dev_reg_s lsim_dev_reg_t;
+typedef struct lsim_dev_panel_s lsim_dev_panel_t;
 typedef struct lsim_dev_mem_s lsim_dev_mem_t;
 typedef struct lsim_dev_s lsim_dev_t;
 
@@ -101,6 +103,12 @@ struct lsim_dev_reg_s {
   lsim_dev_in_terminal_t *c_terminal;
 };
 
+struct lsim_dev_panel_s {
+  long num_bits;
+  lsim_dev_out_terminal_t **o_terminals;  /* Allocated array of output terminals. */
+  lsim_dev_in_terminal_t **i_terminals;  /* Allocated array of input terminals. */
+};
+
 struct lsim_dev_mem_s {
   long num_outputs;
   lsim_dev_out_terminal_t **o_terminals;  /* Allocated array of output terminal ptrs. */
@@ -128,11 +136,12 @@ struct lsim_dev_s {
     lsim_dev_srlatch_t srlatch;
     lsim_dev_dlatch_t dlatch;
     lsim_dev_reg_t reg;
+    lsim_dev_panel_t panel;
     lsim_dev_mem_t mem;
   };
   /* Type-specific methods (inheritance). */
-  ERR_F (*get_out_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal);
-  ERR_F (*get_in_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal);
+  ERR_F (*get_out_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset);
+  ERR_F (*get_in_terminal)(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset);
   ERR_F (*power)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*run_logic)(lsim_t *lsim, lsim_dev_t *dev);
   ERR_F (*propagate_outputs)(lsim_t *lsim, lsim_dev_t *dev);
@@ -149,14 +158,7 @@ ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
 ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_reg_create(lsim_t *lsim, char *name, long num_bits);
-ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id);
-ERR_F lsim_dev_power(lsim_t *lsim);
-ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);
-ERR_F lsim_dev_run_logic(lsim_t *lsim);
-ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);
-ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level);
-ERR_F lsim_dev_tick(lsim_t *lsim);
-ERR_F lsim_dev_delete_all(lsim_t *lsim);
+ERR_F lsim_dev_panel_create(lsim_t *lsim, char *name, long num_bits);
 
 #ifdef __cplusplus
 }

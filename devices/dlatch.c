@@ -21,10 +21,11 @@
 #include "../lsim_devices.h"
 
 
-ERR_F lsim_dev_dlatch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+ERR_F lsim_dev_dlatch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
 
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
   if (strcmp(out_id, "q0") == 0) {
     *out_terminal = dev->dlatch.q_terminal;
   }
@@ -37,10 +38,11 @@ ERR_F lsim_dev_dlatch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char
 }  /* lsim_dev_dlatch_get_out_terminal */
 
 
-ERR_F lsim_dev_dlatch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+ERR_F lsim_dev_dlatch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
 
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
   if (strcmp(in_id, "S0") == 0) {
     *in_terminal = dev->dlatch.S_terminal;
   }
@@ -62,6 +64,9 @@ ERR_F lsim_dev_dlatch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char 
 ERR_F lsim_dev_dlatch_power(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DLATCH, LSIM_ERR_INTERNAL);
+
+  /* This is a composite device. The underlying devices will be
+   * processed on their own. Nothing to be done here. */
 
   return ERR_OK;
 }  /* lsim_dev_dlatch_power */
@@ -98,6 +103,8 @@ ERR_F lsim_dev_dlatch_delete(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_dlatch_delete */
 
 
+/* The dlatch is a bit complex. Refer to the schematic:
+ * https://raw.githubusercontent.com/fordsfords/lsim/refs/heads/main/dlatch.svg */
 ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   /* Make sure name doesn't already exist. */
   err_t *err;
@@ -146,34 +153,31 @@ ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *dev_name) {
   ERR(hmap_slookup(lsim->devs, nand_d_name, (void**)&nand_d_dev));
 
   /* Make connections. */
-  ERR(lsim_dev_connect(lsim, nand_q_name, "o0", nand_Q_name, "i2"));
-  ERR(lsim_dev_connect(lsim, nand_Q_name, "o0", nand_q_name, "i2"));
+  ERR(lsim_dev_connect(lsim, nand_q_name, "o0", nand_Q_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_Q_name, "o0", nand_q_name, "i2", 0));
 
-  ERR(lsim_dev_connect(lsim, nand_a_name, "o0", nand_b_name, "i2"));
-  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_a_name, "i2"));
-  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_c_name, "i1"));
-  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_q_name, "i1"));
+  ERR(lsim_dev_connect(lsim, nand_a_name, "o0", nand_b_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_a_name, "i2", 0));
+  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_c_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_q_name, "i1", 0));
 
-  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_d_name, "i2"));
-  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_Q_name, "i1"));
-  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_c_name, "i2"));
-  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_a_name, "i1"));
+  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_d_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_Q_name, "i1", 0));
+  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_c_name, "i2", 0));
+  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_a_name, "i1", 0));
 
-  /* Chain "External" inputs for "set". */
-  nand_q_dev->nand.i_terminals[0]->next_in_terminal = nand_a_dev->nand.i_terminals[0];
-  /* Chain "External" inputs for "reset". */
-  nand_Q_dev->nand.i_terminals[0]->next_in_terminal = nand_d_dev->nand.i_terminals[1];
-  nand_d_dev->nand.i_terminals[1]->next_in_terminal = nand_b_dev->nand.i_terminals[1];
-  /* Chain "External" inputs for "clock". */
-  nand_c_dev->nand.i_terminals[0]->next_in_terminal = nand_b_dev->nand.i_terminals[0];
-
-  /* Save references to the "external" terminals. */
+  /* Save references to the "external" output terminals. */
   dev->dlatch.q_terminal = nand_q_dev->nand.o_terminal;
   dev->dlatch.Q_terminal = nand_Q_dev->nand.o_terminal;
-  dev->dlatch.S_terminal = nand_q_dev->nand.i_terminals[0];
-  dev->dlatch.R_terminal = nand_Q_dev->nand.i_terminals[0];
-  dev->dlatch.d_terminal = nand_d_dev->nand.i_terminals[0];
-  dev->dlatch.c_terminal = nand_c_dev->nand.i_terminals[0];
+  /* Save references to the "external" input terminals. */
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.S_terminal, nand_a_dev->nand.i_terminals[0], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.S_terminal, nand_q_dev->nand.i_terminals[0], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.c_terminal, nand_b_dev->nand.i_terminals[1], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.c_terminal, nand_c_dev->nand.i_terminals[1], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.d_terminal, nand_d_dev->nand.i_terminals[1], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.R_terminal, nand_b_dev->nand.i_terminals[2], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.R_terminal, nand_d_dev->nand.i_terminals[2], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->dlatch.R_terminal, nand_Q_dev->nand.i_terminals[2], NULL));
 
   /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_dev_dlatch_get_out_terminal;

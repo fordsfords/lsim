@@ -21,26 +21,28 @@
 #include "../lsim_devices.h"
 
 
-ERR_F lsim_dev_nand_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal) {
+ERR_F lsim_dev_nand_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
   *out_terminal = dev->nand.o_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_nand_get_out_terminal */
 
 
-ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal) {
+ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(in_id[0] == 'i', LSIM_ERR_COMMAND);
   long input_num;
   ERR(err_atol(in_id+1, &input_num));
+  input_num += bit_offset;
   if (input_num >= dev->nand.num_inputs) {  /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "input number %d larger than number of inputs %d", (int)input_num, dev->nand.num_inputs);
+    ERR_THROW(LSIM_ERR_COMMAND, "input number %d plus bit offset %d larger than number of inputs %d", (int)input_num, bit_offset, dev->nand.num_inputs);
   }
 
   *in_terminal = dev->nand.i_terminals[input_num];

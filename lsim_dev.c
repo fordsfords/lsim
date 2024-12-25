@@ -21,6 +21,26 @@
 #include "lsim_devices.h"
 
 
+ERR_F lsim_dev_in_chain_add(lsim_dev_in_terminal_t **head, lsim_dev_in_terminal_t *in_terminal, lsim_dev_out_terminal_t *driving_out_terminal) {
+  ERR_ASSRT(in_terminal, LSIM_ERR_INTERNAL);
+
+  /* Assume in_terminal is a sub-chain. Find its tail.
+   * Update driving_out_terminal as we go. */
+  lsim_dev_in_terminal_t *in_tail = in_terminal;
+  while (in_tail->next_in_terminal) {
+    in_tail->driving_out_terminal = driving_out_terminal;
+    in_tail = in_tail->next_in_terminal;
+  }
+  in_tail->driving_out_terminal = driving_out_terminal;
+
+  /* Insert chain at head. */
+  in_tail->next_in_terminal = *head;
+  *head = in_terminal;
+
+  return ERR_OK;
+}  /* lsim_dev_in_chain_add */
+
+
 ERR_F lsim_dev_out_changed(lsim_t *lsim, lsim_dev_t *dev) {
   /* If not already on the output changed list, add it. */
   if (! dev->out_changed) {
@@ -45,35 +65,27 @@ ERR_F lsim_dev_in_changed(lsim_t *lsim, lsim_dev_t *dev) {
 }  /* lsim_dev_in_changed */
 
 
-ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id) {
+ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id, int bit_offset) {
   lsim_dev_t *src_dev;
   ERR(hmap_slookup(lsim->devs, src_dev_name, (void**)&src_dev));
   lsim_dev_t *dst_dev;
   ERR(hmap_slookup(lsim->devs, dst_dev_name, (void**)&dst_dev));
 
   lsim_dev_out_terminal_t *src_out_terminal;
-  ERR(src_dev->get_out_terminal(lsim, src_dev, src_out_id, &src_out_terminal));
+  ERR(src_dev->get_out_terminal(lsim, src_dev, src_out_id, &src_out_terminal, bit_offset));
   lsim_dev_in_terminal_t *dst_in_terminal;
-  ERR(dst_dev->get_in_terminal(lsim, dst_dev, dst_in_id, &dst_in_terminal));
+  ERR(dst_dev->get_in_terminal(lsim, dst_dev, dst_in_id, &dst_in_terminal, bit_offset));
 
   /* Can't have two outputs driving the same input. */
   if (dst_in_terminal->driving_out_terminal != NULL) {
     ERR_THROW(LSIM_ERR_COMMAND, "Can't connect %s;%s to %s;%s, it's already connected to %s",
               src_dev->name, src_out_id, dst_dev->name, dst_in_id, dst_in_terminal->driving_out_terminal->dev->name);
   }
+  /* Make sure two outputs aren't driving the same input. */
   ERR_ASSRT(dst_in_terminal->driving_out_terminal == NULL, LSIM_ERR_COMMAND);
 
   /* This input might be the head of a chain of inputs that need to be connected to this output. */
-  lsim_dev_in_terminal_t *next_in_terminal;
-  do {
-    next_in_terminal = dst_in_terminal->next_in_terminal;
-    dst_in_terminal->driving_out_terminal = src_out_terminal;
-    /* Link this terminal into the output list. */
-    dst_in_terminal->next_in_terminal = src_out_terminal->in_terminal_list;
-    src_out_terminal->in_terminal_list = dst_in_terminal;
-    /* Next input terminal in this chain. */
-    dst_in_terminal = next_in_terminal;
-  } while (dst_in_terminal);
+  ERR(lsim_dev_in_chain_add(&src_out_terminal->in_terminal_list, dst_in_terminal, src_out_terminal));
 
   return ERR_OK;
 }  /* lsim_dev_connect */

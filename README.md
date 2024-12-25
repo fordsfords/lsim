@@ -142,12 +142,15 @@ d;swtch;dev_name;init_state;
 d;led;dev_name;
 d;clk;dev_name;
 d;nand;dev_name;num_inputs;
-d;srlatch;dev_name;
-d;dlatch;dev_name;
-d;mem;dev_name;num_addr;num_data;  - not yet implemented.
+d;srlatch;dev_name;                # composite of nands
+d;dlatch;dev_name;                 # composite of nands
+d;reg;dev_name;num_bits;           # composite of dlatchs.
+d;panel;dev_name;num_bits;         # composite of switches and LEDs
+d;mem;dev_name;num_addr;num_data;  # not yet implemented.
 
 # Connect devices.
 c;src_dev_name;src_output_id;dst_dev_name;dst_input_id;
+b;src_dev_name;src_output_id;dst_dev_name;dst_input_id;num_bits;
 
 # Include.
 i;filename;

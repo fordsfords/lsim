@@ -411,6 +411,85 @@ void test5() {
 }  /* test5 */
 
 
+void test6() {
+  lsim_t *lsim;
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "d;panel;pan1;3;"));
+
+  err_t *err;
+  err = lsim_cmd_line(lsim, "c;pan1;o3;pan1;i3;");
+  ASSRT(err);
+  ASSRT(err->code == LSIM_ERR_COMMAND);
+
+  E(lsim_cmd_line(lsim, "d;reg;reg1;4;"));  /* one more than panel. */
+  E(lsim_cmd_line(lsim, "d;led;led_reg0;"));  /* one more than panel. */
+  E(lsim_cmd_line(lsim, "d;swtch;swR;0;"));
+  E(lsim_cmd_line(lsim, "d;clk;clk1;"));
+  E(lsim_cmd_line(lsim, "c;swR;o0;reg1;R0;"));
+  E(lsim_cmd_line(lsim, "c;swR;o0;reg1;d0;"));
+  E(lsim_cmd_line(lsim, "c;swR;o0;clk1;R0;"));
+  E(lsim_cmd_line(lsim, "c;clk1;q0;reg1;c0;"));
+  E(lsim_cmd_line(lsim, "b;pan1;o0;reg1;d1;3;"));  /* Bus. */
+  E(lsim_cmd_line(lsim, "c;reg1;q0;led_reg0;i0;"));
+  E(lsim_cmd_line(lsim, "b;reg1;q1;pan1;i0;3;"));  /* Bus. */
+
+  lsim_dev_t *led_reg0_dev;
+  E(hmap_slookup(lsim->devs, "led_reg0", (void **)&led_reg0_dev));
+  lsim_dev_t *led0_dev;
+  E(hmap_slookup(lsim->devs, "pan1.led.0", (void **)&led0_dev));
+  lsim_dev_t *led1_dev;
+  E(hmap_slookup(lsim->devs, "pan1.led.1", (void **)&led1_dev));
+  lsim_dev_t *led2_dev;
+  E(hmap_slookup(lsim->devs, "pan1.led.2", (void **)&led2_dev));
+
+  /* E(lsim_cmd_line(lsim, "v;1;")); */  /* Trace. */
+  E(lsim_cmd_line(lsim, "p;"));  /* Power-up. */
+
+  E(lsim_cmd_line(lsim, "t;2;"));      /* Allow reset to settle. */
+
+  ASSRT(led_reg0_dev->led.illuminated == 0);
+  ASSRT(led0_dev->led.illuminated == 0);
+  ASSRT(led1_dev->led.illuminated == 0);
+  ASSRT(led2_dev->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;swR;1;"));  /* not reset. */
+  E(lsim_cmd_line(lsim, "t;2;"));      /* Allow reset to settle. */
+
+  ASSRT(led_reg0_dev->led.illuminated == 1);
+  ASSRT(led0_dev->led.illuminated == 0);
+  ASSRT(led1_dev->led.illuminated == 0);
+  ASSRT(led2_dev->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;pan1.swtch.0;1;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
+
+  ASSRT(led_reg0_dev->led.illuminated == 1);
+  ASSRT(led0_dev->led.illuminated == 1);
+  ASSRT(led1_dev->led.illuminated == 0);
+  ASSRT(led2_dev->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;pan1.swtch.1;1;"));
+  E(lsim_cmd_line(lsim, "t;2;"));
+
+  ASSRT(led_reg0_dev->led.illuminated == 1);
+  ASSRT(led0_dev->led.illuminated == 1);
+  ASSRT(led1_dev->led.illuminated == 1);
+  ASSRT(led2_dev->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;pan1.swtch.2;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
+
+  ASSRT(led_reg0_dev->led.illuminated == 1);
+  ASSRT(led0_dev->led.illuminated == 1);
+  ASSRT(led1_dev->led.illuminated == 1);
+  ASSRT(led2_dev->led.illuminated == 1);
+
+  E(lsim_delete(lsim));
+}  /* test6 */
+
+
 int main(int argc, char **argv) {
   parse_cmdline(argc, argv);
 
@@ -436,6 +515,11 @@ int main(int argc, char **argv) {
 
   if (o_testnum == 0 || o_testnum == 5) {
     test5();
+    printf("test5: success\n");
+  }
+
+  if (o_testnum == 0 || o_testnum == 6) {
+    test6();
     printf("test5: success\n");
   }
 

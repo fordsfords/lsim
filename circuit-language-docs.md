@@ -14,10 +14,20 @@ d;gnd;ground1;
 
 The command above creates a ground component named "ground1".
 
+Some commands require that you specify an input_id or an output_id.
+This is a name that specifies a specific digital in/out terminal for the
+device, and consists of a single letter followed by a number.
+By convention, if the letter is upper-case, the sense of that in/out is
+inverted (active low).
+For example, an SR Latch has outputs "q0" and "Q0" (not-q).
+
 ## Available Commands
 
 ### d - Define Device
 Creates a new logic device. Format: `d;device_type;device_name;[parameters...]`
+
+Note the convention that an upper-case letter represents "active-low" or inverted.
+I.e. a dlatch's "R0" input asserts the reset on value 0.
 
 Supported device types:
 
@@ -56,7 +66,7 @@ Supported device types:
   * Alternates between 0 and 1 on each tick when not reset
   * A clock is not necessary and can be omitted from a simple circuit. However, no more than one clock is allowed.
 
-* `srlatch` - SR Latch
+* `srlatch` - SR Latch (composite device)
   * Format: `d;srlatch;name;`
   * Inputs:
     * `S0` (Set)
@@ -65,7 +75,7 @@ Supported device types:
     * `q0` (normal output)
     * `Q0` (inverted output)
 
-* `dlatch` - D Latch
+* `dlatch` - D Latch (composite device)
   * Format: `d;dlatch;name;`
   * Inputs:
     * `d0` (Data)
@@ -76,7 +86,22 @@ Supported device types:
     * `q0` (normal output)
     * `Q0` (inverted output)
 
-Note the convention that upper-case letters represent "active-low" or inverted. I.e. a dlatch's "R0" input asserts the reset on value 0.
+* `reg` - register (composite device)
+  * Format: `d;reg;name;num_bits;`
+  * Inputs:
+    * `d0`-`dn` (Data inputs, with 0 <= `n` < num_bits)
+    * `c0` (Clock)
+    * `R0` (Reset)
+  * Outputs:
+    * `q0`-`qn` (normal data outputs, with 0 <= `n` < num_bits)
+    * `Q0`-`Qn` (inverted data outputs, with 0 <= `n` < num_bits)
+
+* `panel` - collection of switches and LEDs.
+  * Format: `d;panel;name;num_bits;`
+  * Inputs:
+    * `i0`-`in` (LED inputs, with 0 <= `n` < num_bits)
+  * Outputs:
+    * `o0`-`on` (switch outputs, with 0 <= `n` < num_bits)
 
 ### c - Connect
 Connects an output from one device to an input of another device.
@@ -86,6 +111,17 @@ Format: `c;source_device;source_output;destination_device;destination_input;`
 Example:
 ```
 c;clock1;q0;nand1;i0;
+```
+
+### b - Bus
+Connects multiple output bits of a multi-output device to
+corresponding input bits of a multi-input device.
+
+Format: `c;source_device;source_output;destination_device;destination_input;num_bits`
+
+Example:
+```
+c;panel1;o0;reg1;d0;8;
 ```
 
 ### p - Power On

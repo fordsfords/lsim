@@ -471,8 +471,52 @@ ERR_F lsim_cmd_power(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_power */
 
 
+/* Loadmem:
+ * l;mem_device_name;addr;val;... (up to 32 values)
+ * cmd_line points past first semi-colon. */
+ERR_F lsim_cmd_loadmem(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  /* Don't call lsim_valid_name(dev_name); user needs to be able to use
+   * switch component within a panel. */
+
+  char *addr_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(addr_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+  long addr;
+  ERR(err_atol(addr_s, &addr));
+
+  /* Loop till end of line. */
+  char *end_field = semi_colon + 1;
+  int num_words = 0;
+# define LOADMEM_MAX_WORDS 64
+  uint64_t words[LOADMEM_MAX_WORDS];
+  while (strlen(end_field) != 0) {
+    ERR_ASSRT(num_words < LOADMEM_MAX_WORDS, LSIM_ERR_COMMAND);
+
+    /* Not end of line yet, convert value. */
+    char *val_s = end_field;
+    ERR_ASSRT(semi_colon = strchr(val_s, ';'), LSIM_ERR_COMMAND);
+    *semi_colon = '\0'; /* Overwrite semicolon. */
+    long val;
+    ERR(err_atol(val_s, &val));
+    words[num_words] = (uint64_t)val;
+    num_words++;
+
+    end_field = semi_colon + 1;
+  }
+
+  ERR(lsim_dev_loadmem(lsim, dev_name, addr, num_words, words));
+
+  return ERR_OK;
+}  /* lsim_cmd_loadmem */
+
+
 /* Move:
- * m;device_name;new_state;
+ * m;swtch_device_name;new_state;
  * cmd_line points past first semi-colon. */
 ERR_F lsim_cmd_movesw(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
@@ -640,20 +684,29 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   local_cmd_line[last_c + 1] = '\0';
 
   err_t *err;
-  if (strstr(local_cmd_line, "d;") == local_cmd_line) {
-    err = lsim_cmd_define(lsim, &local_cmd_line[2]);
+  if (strstr(local_cmd_line, "b;") == local_cmd_line) {
+    err = lsim_cmd_busconn(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "c;") == local_cmd_line) {
     err = lsim_cmd_connect(lsim, &local_cmd_line[2]);
   }
-  else if (strstr(local_cmd_line, "b;") == local_cmd_line) {
-    err = lsim_cmd_busconn(lsim, &local_cmd_line[2]);
+  else if (strstr(local_cmd_line, "d;") == local_cmd_line) {
+    err = lsim_cmd_define(lsim, &local_cmd_line[2]);
+  }
+  else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
+    err = lsim_cmd_include(lsim, &local_cmd_line[2]);
+  }
+  else if (strstr(local_cmd_line, "l;") == local_cmd_line) {
+    err = lsim_cmd_loadmem(lsim, &local_cmd_line[2]);
+  }
+  else if (strstr(local_cmd_line, "m;") == local_cmd_line) {
+    err = lsim_cmd_movesw(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "p;") == local_cmd_line) {
     err = lsim_cmd_power(lsim, &local_cmd_line[2]);
   }
-  else if (strstr(local_cmd_line, "m;") == local_cmd_line) {
-    err = lsim_cmd_movesw(lsim, &local_cmd_line[2]);
+  else if (strstr(local_cmd_line, "q;") == local_cmd_line) {
+    err = lsim_cmd_quit(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
     err = lsim_cmd_tick(lsim, &local_cmd_line[2]);
@@ -661,14 +714,8 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
   else if (strstr(local_cmd_line, "v;") == local_cmd_line) {
     err = lsim_cmd_verbosity(lsim, &local_cmd_line[2]);
   }
-  else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
-    err = lsim_cmd_include(lsim, &local_cmd_line[2]);
-  }
   else if (strstr(local_cmd_line, "w;") == local_cmd_line) {
     err = lsim_cmd_watchdev(lsim, &local_cmd_line[2]);
-  }
-  else if (strstr(local_cmd_line, "q;") == local_cmd_line) {
-    err = lsim_cmd_quit(lsim, &local_cmd_line[2]);
   }
   else {
     free(local_cmd_line);

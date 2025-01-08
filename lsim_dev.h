@@ -52,6 +52,7 @@ ERR_F lsim_dev_out_changed(lsim_t *lsim, lsim_dev_t *dev);
 ERR_F lsim_dev_in_changed(lsim_t *lsim, lsim_dev_t *dev);
 ERR_F lsim_dev_connect(lsim_t *lsim, const char *src_dev_name, const char *src_out_id, const char *dst_dev_name, const char *dst_in_id, int bit_offset);
 ERR_F lsim_dev_power(lsim_t *lsim);
+ERR_F lsim_dev_loadmem(lsim_t *lsim, const char *name, long addr, int num_words, uint64_t *words);
 ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);

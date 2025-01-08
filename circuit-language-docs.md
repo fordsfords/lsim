@@ -94,6 +94,7 @@ Supported device types:
   * Outputs:
     * `q0` (normal output)
     * `Q0` (inverted output)
+  * Composite device, see [dlatch.svg](dlatch.svg)
 
 * `reg` - register (composite device)
   * Format: `d;reg;name;num_bits;`
@@ -137,6 +138,17 @@ c;panel1;o0;reg1;d0;8;
 Initializes and powers on the circuit. Must be called after defining all devices and connections.
 
 Format: `p;`
+
+### l - load memory
+Loads a mem device with values.
+
+Format: `l;mem_name;addr;val;...` (up to 64 vals)
+
+Example:
+```
+l;mem1;0;0x01;0x02;0x03;0x04;
+l;mem1;0x4;5;6;7;8;9;10;11;
+```
 
 ### m - Move (Set) Switch
 Changes the state of a switch.  Also runs the logic engine to propogate the state change through the circuit (does not represent a clock tick).

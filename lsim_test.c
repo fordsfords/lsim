@@ -537,6 +537,17 @@ void test7() {
   ASSRT(mem_dev->mem.words[6] == 0);
   ASSRT(mem_dev->mem.words[7] == 0);
 
+  E(lsim_cmd_line(lsim, "l;mem1;1;0xb;"));
+  E(lsim_cmd_line(lsim, "l;mem1;0x3;4;5;6;"));
+  ASSRT(mem_dev->mem.words[0] == 0);
+  ASSRT(mem_dev->mem.words[1] == 0x0b);
+  ASSRT(mem_dev->mem.words[2] == 4);
+  ASSRT(mem_dev->mem.words[3] == 4);
+  ASSRT(mem_dev->mem.words[4] == 5);
+  ASSRT(mem_dev->mem.words[5] == 6);
+  ASSRT(mem_dev->mem.words[6] == 0);
+  ASSRT(mem_dev->mem.words[7] == 0);
+
   E(lsim_delete(lsim));
 }  /* test7 */
 

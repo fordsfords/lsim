@@ -200,6 +200,21 @@ ERR_F lsim_dev_power(lsim_t *lsim) {
 }  /* lsim_dev_power */
 
 
+ERR_F lsim_dev_loadmem(lsim_t *lsim, const char *dev_name, long addr, int num_words, uint64_t *words) {
+  lsim_dev_t *dev;
+  ERR(hmap_slookup(lsim->devs, dev_name, (void**)&dev));
+
+  ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_COMMAND);
+
+  int i;
+  for (i = 0; i < num_words; i++) {
+    dev->mem.words[addr + i] = words[i];
+  }
+
+  return ERR_OK;
+}  /* lsim_dev_loadmem */
+
+
 ERR_F lsim_dev_move(lsim_t *lsim, const char *dev_name, long new_state) {
   lsim_dev_t *dev;
   ERR(hmap_slookup(lsim->devs, dev_name, (void**)&dev));

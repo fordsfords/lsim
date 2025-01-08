@@ -49,7 +49,7 @@ ERR_F lsim_valid_name(const char *name) {
 /* Define device "gnd":
  * d;gnd;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_gnd(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_gnd(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -64,13 +64,13 @@ ERR_F lsim_cmd_d_gnd(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_gnd_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_d_gnd */
+}  /* lsim_cmd_define_gnd */
 
 
 /* Define device "vcc":
  * d;vcc;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_vcc(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_vcc(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -85,13 +85,13 @@ ERR_F lsim_cmd_d_vcc(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_vcc_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_d_vcc */
+}  /* lsim_cmd_define_vcc */
 
 
 /* Define device "swtch":
  * d;swtch;dev_name;init_state;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_swtch(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_swtch(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -114,13 +114,13 @@ ERR_F lsim_cmd_d_swtch(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_swtch_create(lsim, dev_name, (int)init_state));
 
   return ERR_OK;
-}  /* lsim_cmd_d_swtch */
+}  /* lsim_cmd_define_swtch */
 
 
 /* Define device "clk":
  * d;clk;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_clk(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_clk(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -135,13 +135,13 @@ ERR_F lsim_cmd_d_clk(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_clk_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_d_clk */
+}  /* lsim_cmd_define_clk */
 
 
 /* Define device "led":
  * d;led;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_led(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_led(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -156,13 +156,13 @@ ERR_F lsim_cmd_d_led(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_led_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_d_led */
+}  /* lsim_cmd_define_led */
 
 
 /* Define device "nand":
  * d;nand;dev_name;num_addr;num_data;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_nand(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_nand(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -185,13 +185,13 @@ ERR_F lsim_cmd_d_nand(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_nand_create(lsim, dev_name, num_inputs));
 
   return ERR_OK;
-}  /* lsim_cmd_d_nand */
+}  /* lsim_cmd_define_nand */
 
 
 /* Define device "mem":
  * d;mem;dev_name;num_addr;num_data;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_mem(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_mem(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -222,13 +222,13 @@ ERR_F lsim_cmd_d_mem(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_mem_create(lsim, dev_name, num_addr, num_data));
 
   return ERR_OK;
-}  /* lsim_cmd_d_mem */
+}  /* lsim_cmd_define_mem */
 
 
 /* Define device "srlatch":
  * d;srlatch;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_srlatch(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_srlatch(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -243,13 +243,13 @@ ERR_F lsim_cmd_d_srlatch(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_srlatch_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_d_srlatch */
+}  /* lsim_cmd_define_srlatch */
 
 
 /* Define device "dlatch":
  * d;dlatch;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_dlatch(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_dlatch(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -264,13 +264,13 @@ ERR_F lsim_cmd_d_dlatch(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_dlatch_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_d_dlatch */
+}  /* lsim_cmd_define_dlatch */
 
 
 /* Define device "reg":
  * d;reg;dev_name;num_bits;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_reg(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_reg(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -293,13 +293,13 @@ ERR_F lsim_cmd_d_reg(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_reg_create(lsim, dev_name, num_bits));
 
   return ERR_OK;
-}  /* lsim_cmd_d_reg */
+}  /* lsim_cmd_define_reg */
 
 
 /* Define device "panel":
  * d;panel;dev_name;num_bits;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_d_panel(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_panel(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -322,13 +322,13 @@ ERR_F lsim_cmd_d_panel(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_panel_create(lsim, dev_name, num_bits));
 
   return ERR_OK;
-}  /* lsim_cmd_d_panel */
+}  /* lsim_cmd_define_panel */
 
 
 /* Define device:
  * d;dev_type;...
  * cmd_line points at dev_type. */
-ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_type = cmd_line;
@@ -338,50 +338,50 @@ ERR_F lsim_cmd_d(lsim_t *lsim, char *cmd_line) {
   char *next_field = semi_colon + 1;
 
   if (strcmp(dev_type, "gnd") == 0) {
-    ERR(lsim_cmd_d_gnd(lsim, next_field));
+    ERR(lsim_cmd_define_gnd(lsim, next_field));
   }
   else if (strcmp(dev_type, "vcc") == 0) {
-    ERR(lsim_cmd_d_vcc(lsim, next_field));
+    ERR(lsim_cmd_define_vcc(lsim, next_field));
   }
   else if (strcmp(dev_type, "swtch") == 0) {
-    ERR(lsim_cmd_d_swtch(lsim, next_field));
+    ERR(lsim_cmd_define_swtch(lsim, next_field));
   }
   else if (strcmp(dev_type, "clk") == 0) {
-    ERR(lsim_cmd_d_clk(lsim, next_field));
+    ERR(lsim_cmd_define_clk(lsim, next_field));
   }
   else if (strcmp(dev_type, "led") == 0) {
-    ERR(lsim_cmd_d_led(lsim, next_field));
+    ERR(lsim_cmd_define_led(lsim, next_field));
   }
   else if (strcmp(dev_type, "nand") == 0) {
-    ERR(lsim_cmd_d_nand(lsim, next_field));
+    ERR(lsim_cmd_define_nand(lsim, next_field));
   }
   else if (strcmp(dev_type, "mem") == 0) {
-    ERR(lsim_cmd_d_mem(lsim, next_field));
+    ERR(lsim_cmd_define_mem(lsim, next_field));
   }
   else if (strcmp(dev_type, "srlatch") == 0) {
-    ERR(lsim_cmd_d_srlatch(lsim, next_field));
+    ERR(lsim_cmd_define_srlatch(lsim, next_field));
   }
   else if (strcmp(dev_type, "dlatch") == 0) {
-    ERR(lsim_cmd_d_dlatch(lsim, next_field));
+    ERR(lsim_cmd_define_dlatch(lsim, next_field));
   }
   else if (strcmp(dev_type, "reg") == 0) {
-    ERR(lsim_cmd_d_reg(lsim, next_field));
+    ERR(lsim_cmd_define_reg(lsim, next_field));
   }
   else if (strcmp(dev_type, "panel") == 0) {
-    ERR(lsim_cmd_d_panel(lsim, next_field));
+    ERR(lsim_cmd_define_panel(lsim, next_field));
   }
   else {
     ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized device type '%s'", dev_type);
   }
 
   return ERR_OK;
-}  /* lsim_cmd_d */
+}  /* lsim_cmd_define */
 
 
 /* Define connection:
  * c;src_dev_name;src_output_id;dst_dev_name;dst_input_id;
  * cmd_line points at src_dev_name. */
-ERR_F lsim_cmd_c(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_connect(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *src_dev_name = cmd_line;
@@ -409,13 +409,13 @@ ERR_F lsim_cmd_c(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_connect(lsim, src_dev_name, src_output_id, dst_dev_name, dst_input_id, 0));
 
   return ERR_OK;
-}  /* lsim_cmd_c */
+}  /* lsim_cmd_connect */
 
 
 /* Bus connection:
  * b;src_dev_name;src_output_id;dst_dev_name;dst_input_id;num_bits;
  * cmd_line points at src_dev_name. */
-ERR_F lsim_cmd_b(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_busconn(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *src_dev_name = cmd_line;
@@ -454,13 +454,13 @@ ERR_F lsim_cmd_b(lsim_t *lsim, char *cmd_line) {
   }
 
   return ERR_OK;
-}  /* lsim_cmd_b */
+}  /* lsim_cmd_busconn */
 
 
 /* Reset:
  * r;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_p(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_power(lsim_t *lsim, char *cmd_line) {
   /* Make sure we're at end of line. */
   char *end_field = cmd_line;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
@@ -468,13 +468,13 @@ ERR_F lsim_cmd_p(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_power(lsim));
 
   return ERR_OK;
-}  /* lsim_cmd_p */
+}  /* lsim_cmd_power */
 
 
 /* Move:
  * m;device_name;new_state;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_movesw(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -498,13 +498,13 @@ ERR_F lsim_cmd_m(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_move(lsim, dev_name, new_state));
 
   return ERR_OK;
-}  /* lsim_cmd_m */
+}  /* lsim_cmd_movesw */
 
 
 /* tick:
  * t;num_ticks;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_t(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_tick(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *num_ticks_s = cmd_line;
@@ -529,13 +529,13 @@ ERR_F lsim_cmd_t(lsim_t *lsim, char *cmd_line) {
   }
 
   return ERR_OK;
-}  /* lsim_cmd_t */
+}  /* lsim_cmd_tick */
 
 
 /* verbosity:
  * v;verbosity_level;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_v(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_verbosity(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *verbosity_level_s = cmd_line;
@@ -552,13 +552,13 @@ ERR_F lsim_cmd_v(lsim_t *lsim, char *cmd_line) {
   lsim->verbosity_level = (int)verbosity_level;
 
   return ERR_OK;
-}  /* lsim_cmd_v */
+}  /* lsim_cmd_verbosity */
 
 
 /* include:
  * i;filename;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_i(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_include(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *filename = cmd_line;
@@ -572,13 +572,13 @@ ERR_F lsim_cmd_i(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_cmd_file(lsim, filename));
 
   return ERR_OK;
-}  /* lsim_cmd_i */
+}  /* lsim_cmd_include */
 
 
 /* Watch:
  * w;device_name;watch_level;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_w(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_watchdev(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -601,13 +601,13 @@ ERR_F lsim_cmd_w(lsim_t *lsim, char *cmd_line) {
   ERR(lsim_dev_watch(lsim, dev_name, (int)watch_level));
 
   return ERR_OK;
-}  /* lsim_cmd_w */
+}  /* lsim_cmd_watchdev */
 
 
 /* Quit:
  * q;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_q(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_quit(lsim_t *lsim, char *cmd_line) {
   /* Make sure we're at end of line. */
   char *end_field = cmd_line;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
@@ -615,7 +615,7 @@ ERR_F lsim_cmd_q(lsim_t *lsim, char *cmd_line) {
   lsim->quit = 1;
 
   return ERR_OK;
-}  /* lsim_cmd_q */
+}  /* lsim_cmd_quit */
 
 
 /*******************************************************************************/
@@ -641,34 +641,34 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
 
   err_t *err;
   if (strstr(local_cmd_line, "d;") == local_cmd_line) {
-    err = lsim_cmd_d(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_define(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "c;") == local_cmd_line) {
-    err = lsim_cmd_c(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_connect(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "b;") == local_cmd_line) {
-    err = lsim_cmd_b(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_busconn(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "p;") == local_cmd_line) {
-    err = lsim_cmd_p(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_power(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "m;") == local_cmd_line) {
-    err = lsim_cmd_m(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_movesw(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
-    err = lsim_cmd_t(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_tick(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "v;") == local_cmd_line) {
-    err = lsim_cmd_v(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_verbosity(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "i;") == local_cmd_line) {
-    err = lsim_cmd_i(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_include(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "w;") == local_cmd_line) {
-    err = lsim_cmd_w(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_watchdev(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "q;") == local_cmd_line) {
-    err = lsim_cmd_q(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_quit(lsim, &local_cmd_line[2]);
   }
   else {
     free(local_cmd_line);

@@ -3,6 +3,7 @@ Logic simulator.
 
 <!-- mdtoc-start -->
 &bull; [lsim](#lsim)  
+&bull; [WORK IN PROGRESS](#work-in-progress)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Introduction](#introduction)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Composite Devices](#composite-devices)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Configuration](#configuration)  
@@ -13,6 +14,19 @@ Logic simulator.
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [License](#license)  
 <!-- TOC created by '../mdtoc/mdtoc.pl README.md' (see https://github.com/fordsfords/mdtoc) -->
 <!-- mdtoc-end -->
+
+# WORK IN PROGRESS
+
+This project is undergoing rapid evolution.
+If you are interested in making use of it,
+I recommend waiting until March or April 2025,
+by which time it should have stabilized somewhat.
+Or contact me and we can collaborate.
+
+FYI - I can't imagine anybody being that interested in this project.
+There are much better hardware simulators out there;
+I wrote my own just as a hobby project.
+But, hey, if you're genuinely interested, let me know.
 
 ## Introduction
 
@@ -91,7 +105,7 @@ An sr-latch with active-low set and reset labels its inputs S and R.
 (I thought about underscore for not, "_q" for not-Q, but it would have
 complicated the code more.)
 * I wanted a absolute minimum of different logic devices.
-So some devices, like srlatch and dlatch, are composit devices;
+So some devices, like srlatch and dlatch, are composite devices;
 defining a dlatch actually generates 6 nand gates wired as a
 [classical d flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop).
 Note that it names the internal gates with a period (.) so that the name won't

@@ -5,11 +5,16 @@
     "cSpell.words": [
         "ABRT",
         "dlatch",
+        "dlatchs",
         "hmap",
         "ledq",
         "lsim",
+        "mallocs",
         "mesg",
+        "movesw",
+        "mycfg",
         "nand",
+        "nands",
         "qled",
         "srlatch",
         "swtch"

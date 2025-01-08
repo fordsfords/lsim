@@ -29,7 +29,8 @@ ERR_F lsim_dev_panel_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char 
   ERR(err_atol(out_id+1, &bit_num));
   bit_num += bit_offset;
   if (bit_num >= dev->panel.num_bits) {  /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "output bit number %ld larger than number of bits %d", bit_num, dev->panel.num_bits);
+    ERR_THROW(LSIM_ERR_COMMAND, "panel %s output %s plus offset %d larger than last bit %d",
+              dev->name, out_id, bit_offset, dev->panel.num_bits-1);
   }
   if (out_id[0] == 'o') {
     *out_terminal = dev->panel.o_terminals[bit_num];
@@ -51,7 +52,8 @@ ERR_F lsim_dev_panel_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
   bit_num += bit_offset;
   if (bit_num >= dev->panel.num_bits) {
     /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "input bit number %ld larger than number of bits %d", bit_num, dev->panel.num_bits);
+    ERR_THROW(LSIM_ERR_COMMAND, "panel %s input %s plus offset %d larger than last bit %d",
+              dev->name, in_id, bit_offset, dev->panel.num_bits-1);
   }
   if (in_id[0] == 'i') {
     *in_terminal = dev->panel.i_terminals[bit_num];

@@ -490,6 +490,57 @@ void test6() {
 }  /* test6 */
 
 
+void test7() {
+  lsim_t *lsim;
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
+
+  E(lsim_cmd_line(lsim, "d;mem;mem1;4;3;"));  /* 3 data bits, 4 address bits. */
+  E(lsim_cmd_line(lsim, "d;panel;d_pan;3;"));
+  E(lsim_cmd_line(lsim, "d;panel;a_pan;4;"));
+  E(lsim_cmd_line(lsim, "d;swtch;w_sw;0;"));
+
+  E(lsim_cmd_line(lsim, "b;d_pan;o0;mem1;i0;3;"));
+  E(lsim_cmd_line(lsim, "b;mem1;o0;d_pan;i0;3;"));
+  E(lsim_cmd_line(lsim, "b;a_pan;o0;mem1;a0;4;"));
+  E(lsim_cmd_line(lsim, "b;a_pan;o0;a_pan;i0;4;"));  /* Leds just match switches. */
+  E(lsim_cmd_line(lsim, "c;w_sw;o0;mem1;w0;"));
+
+  E(lsim_cmd_line(lsim, "p;"));  /* Power up. */
+  E(lsim_cmd_line(lsim, "t;2;"));
+
+  E(lsim_cmd_line(lsim, "m;a_pan.swtch.1;1;"));  /* Memory location 2. */
+  E(lsim_cmd_line(lsim, "m;d_pan.swtch.2;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "m;w_sw;1;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "m;w_sw;0;"));
+  E(lsim_cmd_line(lsim, "t;1;"));
+
+  E(lsim_cmd_line(lsim, "m;a_pan.swtch.1;0;"));  /* Memory location 0. */
+  E(lsim_cmd_line(lsim, "t;1;"));
+  E(lsim_cmd_line(lsim, "m;a_pan.swtch.1;1;"));  /* Memory location 2. */
+  E(lsim_cmd_line(lsim, "t;1;"));
+
+  lsim_dev_t *mem_dev;
+  E(hmap_slookup(lsim->devs, "mem1", (void **)&mem_dev));
+  ASSRT(mem_dev);
+  ASSRT(mem_dev->type == LSIM_DEV_TYPE_MEM);
+  ASSRT(mem_dev->mem.words[0] == 0);
+  ASSRT(mem_dev->mem.words[1] == 0);
+  ASSRT(mem_dev->mem.words[2] == 4);
+  ASSRT(mem_dev->mem.words[3] == 0);
+  ASSRT(mem_dev->mem.words[4] == 0);
+  ASSRT(mem_dev->mem.words[5] == 0);
+  ASSRT(mem_dev->mem.words[6] == 0);
+  ASSRT(mem_dev->mem.words[7] == 0);
+
+  E(lsim_delete(lsim));
+}  /* test7 */
+
+
 int main(int argc, char **argv) {
   parse_cmdline(argc, argv);
 
@@ -520,7 +571,12 @@ int main(int argc, char **argv) {
 
   if (o_testnum == 0 || o_testnum == 6) {
     test6();
-    printf("test5: success\n");
+    printf("test6: success\n");
+  }
+
+  if (o_testnum == 0 || o_testnum == 7) {
+    test7();
+    printf("test7: success\n");
   }
 
   return 0;

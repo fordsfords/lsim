@@ -1,0 +1,922 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Digital by H.Neemann -->
+
+<!-- created: Wed Jul 28 19:57:17 CEST 2021 -->
+
+<svg
+   width="160.2mm"
+   height="61.599998mm"
+   viewBox="354 108 1068 410.66666"
+   version="1.1"
+   id="svg76"
+   sodipodi:docname="faddr.svg"
+   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs76" />
+  <sodipodi:namedview
+     id="namedview76"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="2.2164222"
+     inkscape:cx="198.96931"
+     inkscape:cy="108.7338"
+     inkscape:window-width="1440"
+     inkscape:window-height="878"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg76" />
+  <path
+     d="m 620,320 v 160 h 580"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path1"
+     style="stroke-linecap:square" />
+  <path
+     d="m 620,240 v 80 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path2"
+     style="stroke-linecap:square" />
+  <path
+     d="m 1020,260 h 20 V 160 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path3"
+     style="stroke-linecap:square" />
+  <path
+     d="m 1300,260 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path4"
+     style="stroke-linecap:square" />
+  <path
+     d="m 440,200 h 40 v -80 h 160"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path5"
+     style="stroke-linecap:square" />
+  <path
+     d="m 480,280 v 80 h 160"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path6"
+     style="stroke-linecap:square" />
+  <path
+     d="m 1300,460 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path7"
+     style="stroke-linecap:square" />
+  <path
+     d="m 740,140 h 20 v 80 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path8"
+     style="stroke-linecap:square" />
+  <path
+     d="m 1160,140 h 20 v 100 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path9"
+     style="stroke-linecap:square" />
+  <path
+     d="m 440,400 h 460 160"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path10"
+     style="stroke-linecap:square" />
+  <path
+     d="m 600,240 h 20 v -80 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path11"
+     style="stroke-linecap:square" />
+  <path
+     d="m 880,240 h 20 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path12"
+     style="stroke-linecap:square" />
+  <path
+     d="m 740,340 h 20 v -80 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path13"
+     style="stroke-linecap:square" />
+  <path
+     d="M 900,240 V 120 h 160"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path14"
+     style="stroke-linecap:square" />
+  <path
+     d="m 440,280 h 40 v -20 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path15"
+     style="stroke-linecap:square" />
+  <path
+     d="M 900,400 V 280 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path16"
+     style="stroke-linecap:square" />
+  <path
+     d="m 1160,380 h 20 V 280 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path17"
+     style="stroke-linecap:square" />
+  <path
+     d="m 480,200 v 20 h 20"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path18"
+     style="stroke-linecap:square" />
+  <path
+     d="m 1060,360 h -20 v 80 h 160"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path19"
+     style="stroke-linecap:square" />
+  <path
+     d="M 1040,260 V 360"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path20"
+     style="stroke-linecap:square" />
+  <g
+     id="g27"
+     style="stroke-linecap:square">
+    <circle
+       cx="620"
+       cy="320"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle20" />
+    <circle
+       cx="1040"
+       cy="260"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle21" />
+    <circle
+       cx="480"
+       cy="200"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle22" />
+    <circle
+       cx="1040"
+       cy="360"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle23" />
+    <circle
+       cx="900"
+       cy="400"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle24" />
+    <circle
+       cx="620"
+       cy="240"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle25" />
+    <circle
+       cx="900"
+       cy="240"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle26" />
+    <circle
+       cx="480"
+       cy="280"
+       r="4"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle27" />
+  </g>
+  <path
+     d="m 409,185 h 30 v 30 h -30 z"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path27"
+     style="stroke-linecap:square" />
+  <circle
+     cx="424"
+     cy="200"
+     r="9"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="circle28"
+     style="stroke-linecap:square" />
+  <text
+     text-anchor="end"
+     x="395"
+     y="209"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text28"><tspan
+       sodipodi:role="line"
+       id="tspan81"
+       x="395"
+       y="209">a</tspan></text>
+  <circle
+     cx="440"
+     cy="200"
+     r="2"
+     stroke="#000000"
+     stroke-width="4"
+     fill="#000000"
+     id="circle29"
+     style="stroke-linecap:square" />
+  <path
+     d="m 409,265 h 30 v 30 h -30 z"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path29"
+     style="stroke-linecap:square" />
+  <circle
+     cx="424"
+     cy="280"
+     r="9"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="circle30"
+     style="stroke-linecap:square" />
+  <text
+     text-anchor="end"
+     x="395"
+     y="289"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text30"><tspan
+       sodipodi:role="line"
+       id="tspan82"
+       x="395"
+       y="289">b</tspan></text>
+  <circle
+     cx="440"
+     cy="280"
+     r="2"
+     stroke="#000000"
+     stroke-width="4"
+     fill="#000000"
+     id="circle31"
+     style="stroke-linecap:square" />
+  <path
+     d="m 409,385 h 30 v 30 h -30 z"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="path31"
+     style="stroke-linecap:square" />
+  <circle
+     cx="424"
+     cy="400"
+     r="9"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="circle32"
+     style="stroke-linecap:square" />
+  <text
+     text-anchor="end"
+     x="395"
+     y="409"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33"><tspan
+       sodipodi:role="line"
+       id="tspan83"
+       x="395"
+       y="409">i</tspan></text>
+  <circle
+     cx="440"
+     cy="400"
+     r="2"
+     stroke="#000000"
+     stroke-width="4"
+     fill="#000000"
+     id="circle33"
+     style="stroke-linecap:square" />
+  <g
+     id="g34"
+     style="stroke-linecap:square" />
+  <circle
+     cx="1336"
+     cy="260"
+     r="9"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="circle34"
+     style="stroke-linecap:square" />
+  <circle
+     cx="1336"
+     cy="260"
+     r="15"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="circle35"
+     style="stroke-linecap:square" />
+  <text
+     text-anchor="start"
+     x="1365"
+     y="269"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:start;fill:#000000;stroke-linecap:square"
+     id="text35"><tspan
+       sodipodi:role="line"
+       id="tspan85"
+       x="1365"
+       y="269">s</tspan></text>
+  <circle
+     cx="1320"
+     cy="260"
+     r="2"
+     stroke="#000000"
+     stroke-width="4"
+     fill="#000000"
+     id="circle36"
+     style="stroke-linecap:square" />
+  <circle
+     cx="1336"
+     cy="460"
+     r="9"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="circle37"
+     style="stroke-linecap:square" />
+  <circle
+     cx="1336"
+     cy="460"
+     r="15"
+     stroke="#000000"
+     stroke-width="4"
+     fill="none"
+     id="circle38"
+     style="stroke-linecap:square" />
+  <text
+     text-anchor="start"
+     x="1365"
+     y="469"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:start;fill:#000000;stroke-linecap:square"
+     id="text39"><tspan
+       sodipodi:role="line"
+       id="tspan84"
+       x="1365"
+       y="469">o</tspan></text>
+  <circle
+     cx="1320"
+     cy="460"
+     r="2"
+     stroke="#000000"
+     stroke-width="4"
+     fill="#000000"
+     id="circle39"
+     style="stroke-linecap:square" />
+  <g
+     id="g43"
+     style="stroke-linecap:square">
+    <path
+       d="m 550,270 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path39" />
+    <circle
+       cx="590"
+       cy="240"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle40" />
+    <circle
+       cx="500"
+       cy="220"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle41" />
+    <circle
+       cx="500"
+       cy="260"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle42" />
+    <circle
+       cx="600"
+       cy="240"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle43" />
+  </g>
+  <g
+     id="g47"
+     style="stroke-linecap:square">
+    <path
+       d="m 690,170 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path43" />
+    <circle
+       cx="730"
+       cy="140"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle44" />
+    <circle
+       cx="640"
+       cy="120"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle45" />
+    <circle
+       cx="640"
+       cy="160"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle46" />
+    <circle
+       cx="740"
+       cy="140"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle47" />
+  </g>
+  <g
+     id="g51"
+     style="stroke-linecap:square">
+    <path
+       d="m 690,370 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path47" />
+    <circle
+       cx="730"
+       cy="340"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle48" />
+    <circle
+       cx="640"
+       cy="320"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle49" />
+    <circle
+       cx="640"
+       cy="360"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle50" />
+    <circle
+       cx="740"
+       cy="340"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle51" />
+  </g>
+  <g
+     id="g55"
+     style="stroke-linecap:square">
+    <path
+       d="m 830,270 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path51" />
+    <circle
+       cx="870"
+       cy="240"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle52" />
+    <circle
+       cx="780"
+       cy="220"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle53" />
+    <circle
+       cx="780"
+       cy="260"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle54" />
+    <circle
+       cx="880"
+       cy="240"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle55" />
+  </g>
+  <g
+     id="g59"
+     style="stroke-linecap:square">
+    <path
+       d="m 970,290 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path55" />
+    <circle
+       cx="1010"
+       cy="260"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle56" />
+    <circle
+       cx="920"
+       cy="240"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle57" />
+    <circle
+       cx="920"
+       cy="280"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle58" />
+    <circle
+       cx="1020"
+       cy="260"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle59" />
+  </g>
+  <g
+     id="g63"
+     style="stroke-linecap:square">
+    <path
+       d="m 1110,410 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path59" />
+    <circle
+       cx="1150"
+       cy="380"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle60" />
+    <circle
+       cx="1060"
+       cy="360"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle61" />
+    <circle
+       cx="1060"
+       cy="400"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle62" />
+    <circle
+       cx="1160"
+       cy="380"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle63" />
+  </g>
+  <g
+     id="g67"
+     style="stroke-linecap:square">
+    <path
+       d="m 1110,170 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path63" />
+    <circle
+       cx="1150"
+       cy="140"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle64" />
+    <circle
+       cx="1060"
+       cy="120"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle65" />
+    <circle
+       cx="1060"
+       cy="160"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle66" />
+    <circle
+       cx="1160"
+       cy="140"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle67" />
+  </g>
+  <g
+     id="g71"
+     style="stroke-linecap:square">
+    <path
+       d="m 1250,290 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path67" />
+    <circle
+       cx="1290"
+       cy="260"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle68" />
+    <circle
+       cx="1200"
+       cy="240"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle69" />
+    <circle
+       cx="1200"
+       cy="280"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle70" />
+    <circle
+       cx="1300"
+       cy="260"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle71" />
+  </g>
+  <g
+     id="g75"
+     style="stroke-linecap:square">
+    <path
+       d="m 1250,490 h -49 v -60 h 49 c 10,0 30,10 29,30 0,20 -19,30 -29,30 z"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="path71" />
+    <circle
+       cx="1290"
+       cy="460"
+       r="9"
+       stroke="#000000"
+       stroke-width="4"
+       fill="none"
+       id="circle72" />
+    <circle
+       cx="1200"
+       cy="440"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle73" />
+    <circle
+       cx="1200"
+       cy="480"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle74" />
+    <circle
+       cx="1300"
+       cy="460"
+       r="2"
+       stroke="#000000"
+       stroke-width="4"
+       fill="#000000"
+       id="circle75" />
+  </g>
+  <text
+     text-anchor="end"
+     x="1151.5862"
+     y="509.28946"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0"><tspan
+       sodipodi:role="line"
+       id="tspan79"
+       x="1151.5862"
+       y="509.28946">Original image by Trex4321 - Own work, CC0. https://commons.wikimedia.org/w/index.php?curid=107959849</tspan></text>
+  <text
+     text-anchor="end"
+     x="563.13257"
+     y="242.96753"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8"><tspan
+       sodipodi:role="line"
+       id="tspan94"
+       x="563.13257"
+       y="242.96753">nand_1</tspan></text>
+  <text
+     text-anchor="end"
+     x="705.52393"
+     y="145.74545"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-2"><tspan
+       sodipodi:role="line"
+       id="tspan92"
+       x="705.52393"
+       y="145.74545">nand_2</tspan></text>
+  <text
+     text-anchor="end"
+     x="702.43591"
+     y="345.77112"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-5"><tspan
+       sodipodi:role="line"
+       id="tspan93"
+       x="702.43591"
+       y="345.77112">nand_3</tspan></text>
+  <text
+     text-anchor="end"
+     x="846.0708"
+     y="245.94266"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-1"><tspan
+       sodipodi:role="line"
+       id="tspan91"
+       x="846.0708"
+       y="245.94266">nand_4</tspan></text>
+  <text
+     text-anchor="end"
+     x="982.81671"
+     y="266.19449"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-11"><tspan
+       sodipodi:role="line"
+       id="tspan95"
+       x="982.81671"
+       y="266.19449">nand_5</tspan></text>
+  <text
+     text-anchor="end"
+     x="1122.6927"
+     y="143.168"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-7"><tspan
+       sodipodi:role="line"
+       id="tspan96"
+       x="1122.6927"
+       y="143.168">nand_6</tspan></text>
+  <text
+     text-anchor="end"
+     x="1126.4996"
+     y="385.06958"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-14"><tspan
+       sodipodi:role="line"
+       id="tspan97"
+       x="1126.4996"
+       y="385.06958">nand_7</tspan></text>
+  <text
+     text-anchor="end"
+     x="1263.1029"
+     y="263.9498"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-3"><tspan
+       sodipodi:role="line"
+       id="tspan87"
+       x="1263.1029"
+       y="263.9498">nand_s</tspan></text>
+  <text
+     text-anchor="end"
+     x="1266.2982"
+     y="464.89597"
+     fill="#000000"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-anchor:end;fill:#000000;stroke-linecap:square"
+     id="text33-0-8-16"><tspan
+       sodipodi:role="line"
+       id="tspan86"
+       x="1266.2982"
+       y="464.89597">nand_o</tspan></text>
+</svg>

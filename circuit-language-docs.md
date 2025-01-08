@@ -66,6 +66,15 @@ Supported device types:
   * Alternates between 0 and 1 on each tick when not reset
   * A clock is not necessary and can be omitted from a simple circuit. However, no more than one clock is allowed.
 
+* `mem` - memory device.
+  * Format: `d;mem;name;num_addr;num_data;`
+  * Inputs:
+    * `i0`-`in` (data inputs, with 0 <= `n` < num_data)
+    * `a0`-`an` (address inputs, with 0 <= `n` < num_addr)
+    * `w0` (write signal, level triggered)
+  * Outputs:
+    * `o0`-`on` (switch outputs, with 0 <= `n` < num_data)
+
 * `srlatch` - SR Latch (composite device)
   * Format: `d;srlatch;name;`
   * Inputs:

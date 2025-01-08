@@ -42,7 +42,8 @@ ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *i
   ERR(err_atol(in_id+1, &input_num));
   input_num += bit_offset;
   if (input_num >= dev->nand.num_inputs) {  /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "input number %d plus bit offset %d larger than number of inputs %d", (int)input_num, bit_offset, dev->nand.num_inputs);
+    ERR_THROW(LSIM_ERR_COMMAND, "nand %s input %s plus offset %d larger than last bit %d",
+              dev->name, in_id, bit_offset, dev->nand.num_inputs-1);
   }
 
   *in_terminal = dev->nand.i_terminals[input_num];

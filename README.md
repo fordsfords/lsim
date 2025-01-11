@@ -5,6 +5,7 @@ Logic simulator.
 &bull; [lsim](#lsim)  
 &bull; [WORK IN PROGRESS](#work-in-progress)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Introduction](#introduction)  
+&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Quick Start](#quick-start)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Composite Devices](#composite-devices)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Configuration](#configuration)  
 &bull; [Format:](#format)  
@@ -54,6 +55,21 @@ NAND-based CPU of my own design. This project is just the simulator, not the CPU
 
 Thanks to Claude.ai for some help with the code and much help with the doc.
 See https://blog.geeky-boy.com/2024/12/claude-as-coders-assistant.html for details.
+
+## Quick Start
+
+Want to take it for a spin?
+
+I haven't tried to build this under Windows, and I'm confident it would need
+lots of changes.
+So Linux it is:
+
+```
+./bld.sh
+./lsim_main sr.lsim
+```
+
+This will define and run a very simple shift register.
 
 ### Composite Devices
 

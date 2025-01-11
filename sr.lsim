@@ -40,6 +40,7 @@ c;nand2;o0;flipflop1;d0;
 c;nand2;o0;led1;i0;
 
 # v;1;
+w;clock;1;
 p;
 t;1;
 m;Rst;1;

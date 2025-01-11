@@ -142,28 +142,28 @@ ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
   lsim_dev_t *vcc_dev;
   ERR(hmap_slookup(lsim->devs, vcc_name, (void **)&vcc_dev));
 
-  /* Create N D-latches. */
+  /* Create N D-flipflops. */
   int i;
   for (i = 0; i < num_bits; i++) {
-    char *dlatch_name;
-    ERR(err_asprintf(&dlatch_name, "%s.dlatch.%d", dev_name, i));
-    ERR(lsim_dev_dlatch_create(lsim, dlatch_name));
-    lsim_dev_t *dlatch_dev;
-    ERR(hmap_slookup(lsim->devs, dlatch_name, (void **)&dlatch_dev));
+    char *dflipflop_name;
+    ERR(err_asprintf(&dflipflop_name, "%s.dflipflop.%d", dev_name, i));
+    ERR(lsim_dev_dflipflop_create(lsim, dflipflop_name));
+    lsim_dev_t *dflipflop_dev;
+    ERR(hmap_slookup(lsim->devs, dflipflop_name, (void **)&dflipflop_dev));
 
     /* Set input not needed; connect to VCC. */
-    ERR(lsim_dev_connect(lsim, vcc_name, "o0", dlatch_name, "S0", 0));
+    ERR(lsim_dev_connect(lsim, vcc_name, "o0", dflipflop_name, "S0", 0));
 
     /* Save the "external" terminals. */
-    dev->reg.q_terminals[i] = dlatch_dev->dlatch.q_terminal;
-    dev->reg.Q_terminals[i] = dlatch_dev->dlatch.Q_terminal;
-    dev->reg.d_terminals[i] = dlatch_dev->dlatch.d_terminal;
+    dev->reg.q_terminals[i] = dflipflop_dev->dflipflop.q_terminal;
+    dev->reg.Q_terminals[i] = dflipflop_dev->dflipflop.Q_terminal;
+    dev->reg.d_terminals[i] = dflipflop_dev->dflipflop.d_terminal;
 
     /* Chain "External" inputs for clock and reset. */
-    ERR(lsim_dev_in_chain_add(&dev->reg.c_terminal, dlatch_dev->dlatch.c_terminal, NULL));
-    ERR(lsim_dev_in_chain_add(&dev->reg.R_terminal, dlatch_dev->dlatch.R_terminal, NULL));
+    ERR(lsim_dev_in_chain_add(&dev->reg.c_terminal, dflipflop_dev->dflipflop.c_terminal, NULL));
+    ERR(lsim_dev_in_chain_add(&dev->reg.R_terminal, dflipflop_dev->dflipflop.R_terminal, NULL));
 
-    free(dlatch_name);
+    free(dflipflop_name);
   }
 
   /* Type-specific methods (inheritance). */

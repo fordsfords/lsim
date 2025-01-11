@@ -295,13 +295,13 @@ void test4() {
   E(lsim_cmd_line(lsim, "d;vcc;vcc;"));
   E(lsim_cmd_line(lsim, "d;led;ledq;"));
   E(lsim_cmd_line(lsim, "d;led;ledQ;"));
-  E(lsim_cmd_line(lsim, "d;dlatch;dlatch1;"));
-  E(lsim_cmd_line(lsim, "c;vcc;o0;dlatch1;S0;"));
-  E(lsim_cmd_line(lsim, "c;swd;o0;dlatch1;d0;"));
-  E(lsim_cmd_line(lsim, "c;swR;o0;dlatch1;R0;"));
-  E(lsim_cmd_line(lsim, "c;swc;o0;dlatch1;c0;"));
-  E(lsim_cmd_line(lsim, "c;dlatch1;q0;ledq;i0;"));
-  E(lsim_cmd_line(lsim, "c;dlatch1;Q0;ledQ;i0;"));
+  E(lsim_cmd_line(lsim, "d;dflipflop;dflipflop1;"));
+  E(lsim_cmd_line(lsim, "c;vcc;o0;dflipflop1;S0;"));
+  E(lsim_cmd_line(lsim, "c;swd;o0;dflipflop1;d0;"));
+  E(lsim_cmd_line(lsim, "c;swR;o0;dflipflop1;R0;"));
+  E(lsim_cmd_line(lsim, "c;swc;o0;dflipflop1;c0;"));
+  E(lsim_cmd_line(lsim, "c;dflipflop1;q0;ledq;i0;"));
+  E(lsim_cmd_line(lsim, "c;dflipflop1;Q0;ledQ;i0;"));
   E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
 
   lsim_dev_t *ledq_dev;
@@ -364,14 +364,14 @@ void test5() {
   E(lsim_cmd_line(lsim, "d;vcc;vcc;"));
   E(lsim_cmd_line(lsim, "d;led;ledq;"));
   E(lsim_cmd_line(lsim, "d;led;ledQ;"));
-  E(lsim_cmd_line(lsim, "d;dlatch;dlatch1;"));
-  E(lsim_cmd_line(lsim, "c;swS;o0;dlatch1;S0;"));
-  E(lsim_cmd_line(lsim, "c;swd;o0;dlatch1;d0;"));
-  E(lsim_cmd_line(lsim, "c;swR;o0;dlatch1;R0;"));
+  E(lsim_cmd_line(lsim, "d;dflipflop;dflipflop1;"));
+  E(lsim_cmd_line(lsim, "c;swS;o0;dflipflop1;S0;"));
+  E(lsim_cmd_line(lsim, "c;swd;o0;dflipflop1;d0;"));
+  E(lsim_cmd_line(lsim, "c;swR;o0;dflipflop1;R0;"));
   E(lsim_cmd_line(lsim, "c;swR;o0;clock;R0;"));
-  E(lsim_cmd_line(lsim, "c;clock;q0;dlatch1;c0;"));
-  E(lsim_cmd_line(lsim, "c;dlatch1;q0;ledq;i0;"));
-  E(lsim_cmd_line(lsim, "c;dlatch1;Q0;ledQ;i0;"));
+  E(lsim_cmd_line(lsim, "c;clock;q0;dflipflop1;c0;"));
+  E(lsim_cmd_line(lsim, "c;dflipflop1;q0;ledq;i0;"));
+  E(lsim_cmd_line(lsim, "c;dflipflop1;Q0;ledQ;i0;"));
   E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
 
   lsim_dev_t *ledq_dev;

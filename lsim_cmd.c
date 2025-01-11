@@ -246,10 +246,10 @@ ERR_F lsim_cmd_define_srlatch(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_define_srlatch */
 
 
-/* Define device "dlatch":
- * d;dlatch;dev_name;
+/* Define device "dflipflop":
+ * d;dflipflop;dev_name;
  * cmd_line points at dev_name. */
-ERR_F lsim_cmd_define_dlatch(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_define_dflipflop(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
   char *dev_name = cmd_line;
@@ -261,10 +261,10 @@ ERR_F lsim_cmd_define_dlatch(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_dlatch_create(lsim, dev_name));
+  ERR(lsim_dev_dflipflop_create(lsim, dev_name));
 
   return ERR_OK;
-}  /* lsim_cmd_define_dlatch */
+}  /* lsim_cmd_define_dflipflop */
 
 
 /* Define device "reg":
@@ -361,8 +361,8 @@ ERR_F lsim_cmd_define(lsim_t *lsim, char *cmd_line) {
   else if (strcmp(dev_type, "srlatch") == 0) {
     ERR(lsim_cmd_define_srlatch(lsim, next_field));
   }
-  else if (strcmp(dev_type, "dlatch") == 0) {
-    ERR(lsim_cmd_define_dlatch(lsim, next_field));
+  else if (strcmp(dev_type, "dflipflop") == 0) {
+    ERR(lsim_cmd_define_dflipflop(lsim, next_field));
   }
   else if (strcmp(dev_type, "reg") == 0) {
     ERR(lsim_cmd_define_reg(lsim, next_field));

@@ -5,28 +5,28 @@ d;led;led1;
 d;led;led2;
 d;led;led3;
 
-d;dlatch;latch1;
-c;Rst;o0;latch1;R0;
-c;vcc;o0;latch1;S0;
-c;latch1;q0;led1;i0;
-c;latch1;Q0;latch1;d0;
+d;dflipflop;flipflop1;
+c;Rst;o0;flipflop1;R0;
+c;vcc;o0;flipflop1;S0;
+c;flipflop1;q0;led1;i0;
+c;flipflop1;Q0;flipflop1;d0;
 
-d;dlatch;latch2;
-c;Rst;o0;latch2;R0;
-c;vcc;o0;latch2;S0;
-c;latch2;q0;led2;i0;
-c;latch2;Q0;latch2;d0;
+d;dflipflop;flipflop2;
+c;Rst;o0;flipflop2;R0;
+c;vcc;o0;flipflop2;S0;
+c;flipflop2;q0;led2;i0;
+c;flipflop2;Q0;flipflop2;d0;
 
-d;dlatch;latch3;
-c;Rst;o0;latch3;R0;
-c;vcc;o0;latch3;S0;
-c;latch3;q0;led3;i0;
-c;latch3;Q0;latch3;d0;
+d;dflipflop;flipflop3;
+c;Rst;o0;flipflop3;R0;
+c;vcc;o0;flipflop3;S0;
+c;flipflop3;q0;led3;i0;
+c;flipflop3;Q0;flipflop3;d0;
 
 d;clk;clock;
-c;clock;Q0;latch1;c0;
-c;latch1;Q0;latch2;c0;
-c;latch2;Q0;latch3;c0;
+c;clock;Q0;flipflop1;c0;
+c;flipflop1;Q0;flipflop2;c0;
+c;flipflop2;Q0;flipflop3;c0;
 c;Rst;o0;clock;R0;
 
 # v;1;

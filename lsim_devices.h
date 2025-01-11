@@ -28,7 +28,7 @@ extern "C" {
 #define LSIM_DEV_TYPE_NAND 6
 #define LSIM_DEV_TYPE_MEM 7
 #define LSIM_DEV_TYPE_SRLATCH 8
-#define LSIM_DEV_TYPE_DLATCH 9
+#define LSIM_DEV_TYPE_DFLIPFLOP 9
 #define LSIM_DEV_TYPE_REG 10
 #define LSIM_DEV_TYPE_PANEL 11
 
@@ -42,7 +42,7 @@ typedef struct lsim_dev_led_s lsim_dev_led_t;
 typedef struct lsim_dev_nand_s lsim_dev_nand_t;
 typedef struct lsim_dev_mem_s lsim_dev_mem_t;
 typedef struct lsim_dev_srlatch_s lsim_dev_srlatch_t;
-typedef struct lsim_dev_dlatch_s lsim_dev_dlatch_t;
+typedef struct lsim_dev_dflipflop_s lsim_dev_dflipflop_t;
 typedef struct lsim_dev_reg_s lsim_dev_reg_t;
 typedef struct lsim_dev_panel_s lsim_dev_panel_t;
 typedef struct lsim_dev_s lsim_dev_t;
@@ -96,7 +96,7 @@ struct lsim_dev_srlatch_s {
   lsim_dev_in_terminal_t *R_terminal;
 };
 
-struct lsim_dev_dlatch_s {
+struct lsim_dev_dflipflop_s {
   lsim_dev_out_terminal_t *q_terminal;
   lsim_dev_out_terminal_t *Q_terminal;
   lsim_dev_in_terminal_t *S_terminal;
@@ -138,7 +138,7 @@ struct lsim_dev_s {
     lsim_dev_nand_t nand;
     lsim_dev_mem_t mem;
     lsim_dev_srlatch_t srlatch;
-    lsim_dev_dlatch_t dlatch;
+    lsim_dev_dflipflop_t dflipflop;
     lsim_dev_reg_t reg;
     lsim_dev_panel_t panel;
   };
@@ -160,7 +160,7 @@ ERR_F lsim_dev_led_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_nand_create(lsim_t *lsim, char *name, long num_inputs);
 ERR_F lsim_dev_mem_create(lsim_t *lsim, char *dev_name, long num_addr, long num_data);
 ERR_F lsim_dev_srlatch_create(lsim_t *lsim, char *name);
-ERR_F lsim_dev_dlatch_create(lsim_t *lsim, char *name);
+ERR_F lsim_dev_dflipflop_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_reg_create(lsim_t *lsim, char *name, long num_bits);
 ERR_F lsim_dev_panel_create(lsim_t *lsim, char *name, long num_bits);
 

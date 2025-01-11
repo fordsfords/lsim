@@ -27,7 +27,7 @@ For example, an SR Latch has outputs "q0" and "Q0" (not-q).
 Creates a new logic device. Format: `d;device_type;device_name;[parameters...]`
 
 Note the convention that an upper-case letter represents "active-low" or inverted.
-I.e. a dlatch's "R0" input asserts the reset on value 0.
+I.e. a dflipflop's "R0" input asserts the reset on value 0.
 
 Supported device types:
 
@@ -84,8 +84,8 @@ Supported device types:
     * `q0` (normal output)
     * `Q0` (inverted output)
 
-* `dlatch` - D Latch (composite device)
-  * Format: `d;dlatch;name;`
+* `dflipflop` - D Flipflop (composite device)
+  * Format: `d;dflipflop;name;`
   * Inputs:
     * `d0` (Data)
     * `c0` (Clock)
@@ -94,7 +94,7 @@ Supported device types:
   * Outputs:
     * `q0` (normal output)
     * `Q0` (inverted output)
-  * Composite device, see [dlatch.svg](dlatch.svg)
+  * Composite device, see [dflipflop.svg](dflipflop.svg)
 
 * `reg` - register (composite device)
   * Format: `d;reg;name;num_bits;`

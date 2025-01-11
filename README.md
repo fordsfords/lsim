@@ -105,8 +105,8 @@ An sr-latch with active-low set and reset labels its inputs S and R.
 (I thought about underscore for not, "_q" for not-Q, but it would have
 complicated the code more.)
 * I wanted a absolute minimum of different logic devices.
-So some devices, like srlatch and dlatch, are composite devices;
-defining a dlatch actually generates 6 nand gates wired as a
+So some devices, like srlatch and dflipflop, are composite devices;
+defining a dflipflop actually generates 6 nand gates wired as a
 [classical d flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop).
 Note that it names the internal gates with a period (.) so that the name won't
 conflict with any user-chosen names (which can't have a period).
@@ -157,8 +157,8 @@ d;led;dev_name;
 d;clk;dev_name;
 d;nand;dev_name;num_inputs;
 d;srlatch;dev_name;                # composite of nands
-d;dlatch;dev_name;                 # composite of nands
-d;reg;dev_name;num_bits;           # composite of dlatchs.
+d;dflipflop;dev_name;              # composite of nands
+d;reg;dev_name;num_bits;           # composite of dflipflops.
 d;panel;dev_name;num_bits;         # composite of switches and LEDs
 d;mem;dev_name;num_addr;num_data;  # not yet implemented.
 

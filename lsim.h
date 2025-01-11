@@ -53,6 +53,7 @@ struct lsim_s {
   lsim_dev_t *in_changed_list;
   lsim_dev_t *active_clk_dev;  /* Used by lsim_dev_tick. */
   long total_ticks;
+  long total_steps;
   int power_on;
   int verbosity_level;
   int quit;

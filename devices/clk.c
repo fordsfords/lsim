@@ -52,12 +52,12 @@ ERR_F lsim_dev_clk_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
 
 
 ERR_F lsim_dev_clk_power(lsim_t *lsim, lsim_dev_t *dev) {
-  (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
   dev->clk.R_terminal->state = 0;
   dev->clk.q_terminal->state = 0;
   dev->clk.Q_terminal->state = 0;
+  lsim->total_ticks = 0;
   /* Don't add clk to in_changed list because the logic is run explicitly. */
 
   return ERR_OK;

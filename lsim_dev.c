@@ -99,7 +99,7 @@ ERR_F lsim_dev_delete(lsim_t *lsim, lsim_dev_t *dev) {
 
 
 ERR_F lsim_dev_delete_all(lsim_t *lsim) {
-  /* Step through entire hash map, starting with first entry. */
+  /* Loop through entire hash map, starting with first entry. */
   hmap_entry_t *dev_entry = NULL;
   do {
     ERR(hmap_next(lsim->devs, &dev_entry));
@@ -154,13 +154,18 @@ ERR_F lsim_dev_propagate_outputs(lsim_t *lsim) {
 }  /* lsim_dev_propagate_outputs */
 
 
-ERR_F lsim_dev_engine(lsim_t *lsim) {
+ERR_F lsim_dev_engine_run(lsim_t *lsim) {
   if (! lsim->power_on) {
     return ERR_OK;
   }
   long max_propagate_cycles;
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
   ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
+
+  if (lsim->verbosity_level > 0) {
+    printf(" Step %ld:\n", lsim->total_steps);
+  }
+  lsim->total_steps++;
 
   long cur_cycle = 0;
   /* Loop while the logic states are still stabilizing. Note that this can
@@ -176,13 +181,14 @@ ERR_F lsim_dev_engine(lsim_t *lsim) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_engine */
+}  /* lsim_dev_engine_run */
 
 
 ERR_F lsim_dev_power(lsim_t *lsim) {
   lsim->power_on = 1;
+  lsim->total_steps = 0;
 
-  /* Step through entire hash map, starting with first entry. */
+  /* Loop through entire hash map, starting with first entry. */
   hmap_entry_t *dev_entry = NULL;
   do {
     ERR(hmap_next(lsim->devs, &dev_entry));
@@ -194,7 +200,7 @@ ERR_F lsim_dev_power(lsim_t *lsim) {
     }
   } while (dev_entry);
 
-  ERR(lsim_dev_engine(lsim));
+  ERR(lsim_dev_engine_run(lsim));
 
   return ERR_OK;
 }  /* lsim_dev_power */
@@ -226,7 +232,7 @@ ERR_F lsim_dev_move(lsim_t *lsim, const char *dev_name, long new_state) {
     ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
   }
 
-  ERR(lsim_dev_engine(lsim));
+  ERR(lsim_dev_engine_run(lsim));
 
   return ERR_OK;
 }  /* lsim_dev_move */
@@ -236,17 +242,13 @@ ERR_F lsim_dev_tick(lsim_t *lsim) {
   long max_propagate_cycles;
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
   ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
+  ERR_ASSRT(lsim->active_clk_dev, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
 
   lsim->total_ticks++;
-  if (lsim->verbosity_level > 0) {
-    printf(" Tick %ld:\n", lsim->total_ticks);
-  }
 
-  if (lsim->active_clk_dev) {
-    ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
-  }
-
-  ERR(lsim_dev_engine(lsim));
+  ERR(lsim_dev_engine_run(lsim));
 
   return ERR_OK;
 }  /* lsim_dev_tick */

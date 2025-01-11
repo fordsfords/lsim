@@ -8,8 +8,6 @@ Logic simulator.
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Quick Start](#quick-start)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Composite Devices](#composite-devices)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Configuration](#configuration)  
-&bull; [Format:](#format)  
-&bull; [config_name = value](#config_name--value)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Design Notes](#design-notes)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Circuit Entry Language](#circuit-entry-language)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [License](#license)  
@@ -98,8 +96,6 @@ There are a few configurable parameters for lsim (defaults shown in [square brac
 
 To set one or more configs, create a file. For example:
 ```
-# Format:
-# config_name = value
 error_level = 2
 ```
 

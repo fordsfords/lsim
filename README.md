@@ -6,7 +6,7 @@ Logic simulator.
 &bull; [WORK IN PROGRESS](#work-in-progress)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Introduction](#introduction)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Quick Start](#quick-start)  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Composite Devices](#composite-devices)  
+&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Composite Devices](#composite-devices)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Configuration](#configuration)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Design Notes](#design-notes)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Circuit Entry Language](#circuit-entry-language)  
@@ -69,10 +69,10 @@ So Linux it is:
 
 This will define and run a very simple shift register.
 
-### Composite Devices
+## Composite Devices
 
 "Wait a minute!" I can hear you saying, "Your simulator has SR latches and D flipflops!
-Your CPU is no going to be only NAND gates!"
+I thought you said it would be only NAND gates!"
 I commend your observance, but challenge your conclusion.
 My command language does indeed let you define SR latches and D flipflops,
 but it simply responds by inserting properly-wired NAND gates.
@@ -84,6 +84,13 @@ One glaring exception is the "mem" device.
 Although it is perfectly possible to design RAM memory as NAND gates,
 the sheer number of them would slow the simulation down to a crawl.
 So I did NOT make "mem" a composite, it is a fundamental device.
+
+The clock is another exception. I guess you could make a clock with only nand gates
+by stringing them together in a ring to make an oscillator.
+But that wouldn't serve my purpose in the simulator given my design
+(no infinite loops allowed).
+So I made the clock a fundamental device with an external input to
+run it in the form of the "tick" command.
 
 ## Configuration
 

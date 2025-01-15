@@ -31,6 +31,14 @@ I.e. a dflipflop's "R0" input asserts the reset on value 0.
 
 Supported device types:
 
+* `probe` - a sanity-checking "device" for testing/verifying a circuit.
+  * Format: `d;probe;name;flags;`
+  * Parameters:
+    * flags: (binary bit map) bit 1=rising edge control.
+  * Inputs: 
+    * `d0`: data signal - checked if it changes during the same step as control trigger.
+    * `c0`: control signal - checked for multiple changes.
+
 * `gnd` - Ground (logical 0)
   * Format: `d;gnd;name;`
   * Output: `o0` (always 0)
@@ -63,7 +71,7 @@ Supported device types:
   * Outputs: 
     * `q0` (normal output)
     * `Q0` (inverted output)
-  * Alternates between 0 and 1 on each tick when not reset
+  * Alternates between 0 and 1 on each ticklet when not reset
   * A clock is not necessary and can be omitted from a simple circuit. However, no more than one clock is allowed.
 
 * `mem` - memory device.
@@ -151,17 +159,17 @@ l;mem1;0x4;5;6;7;8;9;10;11;
 ```
 
 ### m - Move (Set) Switch
-Changes the state of a switch.  Also runs the logic engine to propogate the state change through the circuit (does not represent a clock tick).
+Changes the state of a switch.  Also runs the logic engine to propogate the state change through the circuit (does not represent a clock ticklet).
 
 Format: `m;switch_name;new_state;`
 
 Parameters:
 - new_state: 0 or 1
 
-### t - Tick
+### t - Ticklet
 Advances the simulation by the specified number of clock cycles.
 
-Format: `t;num_ticks;`
+Format: `t;num_ticklets;`
 
 ### v - Verbosity
 Sets the debug output level.
@@ -241,4 +249,4 @@ The simulator performs validation and will report errors for:
 - The simulator uses an event-driven architecture
 - Changes propagate through the circuit until stability is reached
 - A maximum propagation cycle limit prevents infinite oscillations
-- Clock devices are synchronized to the global tick counter
+- Clock devices are synchronized to the global ticklet counter

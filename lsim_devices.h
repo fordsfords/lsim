@@ -20,20 +20,22 @@
 extern "C" {
 #endif
 
-#define LSIM_DEV_TYPE_GND 1
-#define LSIM_DEV_TYPE_VCC 2
-#define LSIM_DEV_TYPE_SWTCH 3
-#define LSIM_DEV_TYPE_LED 4
-#define LSIM_DEV_TYPE_CLK 5
-#define LSIM_DEV_TYPE_NAND 6
-#define LSIM_DEV_TYPE_MEM 7
-#define LSIM_DEV_TYPE_SRLATCH 8
-#define LSIM_DEV_TYPE_DFLIPFLOP 9
-#define LSIM_DEV_TYPE_REG 10
-#define LSIM_DEV_TYPE_PANEL 11
+#define LSIM_DEV_TYPE_PROBE 1
+#define LSIM_DEV_TYPE_GND 2
+#define LSIM_DEV_TYPE_VCC 3
+#define LSIM_DEV_TYPE_SWTCH 4
+#define LSIM_DEV_TYPE_LED 5
+#define LSIM_DEV_TYPE_CLK 6
+#define LSIM_DEV_TYPE_NAND 7
+#define LSIM_DEV_TYPE_MEM 8
+#define LSIM_DEV_TYPE_SRLATCH 9
+#define LSIM_DEV_TYPE_DFLIPFLOP 10
+#define LSIM_DEV_TYPE_REG 11
+#define LSIM_DEV_TYPE_PANEL 12
 
 
 /* Forward declarations. */
+typedef struct lsim_dev_probe_s lsim_dev_probe_t;
 typedef struct lsim_dev_gnd_s lsim_dev_gnd_t;
 typedef struct lsim_dev_vcc_s lsim_dev_vcc_t;
 typedef struct lsim_dev_swtch_s lsim_dev_swtch_t;
@@ -47,6 +49,19 @@ typedef struct lsim_dev_reg_s lsim_dev_reg_t;
 typedef struct lsim_dev_panel_s lsim_dev_panel_t;
 typedef struct lsim_dev_s lsim_dev_t;
 
+
+#define LSIM_DEV_PROBE_FLAGS_RISING_EDGE 0x1
+struct lsim_dev_probe_s {
+  long flags;
+  long cur_step;
+  lsim_dev_in_terminal_t *d_terminal;
+  long prev_d_state;
+  long d_changes_in_step;
+  lsim_dev_in_terminal_t *c_terminal;
+  long prev_c_state;
+  long c_changes_in_step;
+  long c_triggers_in_step;
+};
 
 struct lsim_dev_gnd_s {
   lsim_dev_out_terminal_t *o_terminal;
@@ -69,6 +84,8 @@ struct lsim_dev_clk_s {
 
 struct lsim_dev_led_s {
   int illuminated;
+  long cur_step;
+  long changes_in_step;
   lsim_dev_in_terminal_t *i_terminal;
 };
 
@@ -130,6 +147,7 @@ struct lsim_dev_s {
   int type;  /* DEV_TYPE_... */
   int watch_level;  /* 0=none, 1=output change, 2=always print. */
   union {
+    lsim_dev_probe_t probe;
     lsim_dev_gnd_t gnd;
     lsim_dev_vcc_t vcc;
     lsim_dev_swtch_t swtch;
@@ -152,6 +170,7 @@ struct lsim_dev_s {
 };
 
 
+ERR_F lsim_dev_probe_create(lsim_t *lsim, char *name, long flags);
 ERR_F lsim_dev_gnd_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_vcc_create(lsim_t *lsim, char *name);
 ERR_F lsim_dev_swtch_create(lsim_t *lsim, char *name, int init_state);

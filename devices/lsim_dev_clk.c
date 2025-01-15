@@ -1,4 +1,4 @@
-/* lsim_clk.c */
+/* lsim_dev_clk.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,14 +25,15 @@ ERR_F lsim_dev_clk_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
   if (strcmp(out_id, "q0") == 0) {
+    ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND); /* No output array. */
     *out_terminal = dev->clk.q_terminal;
   }
   else if (strcmp(out_id, "Q0") == 0) {
+    ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND); /* No output array. */
     *out_terminal = dev->clk.Q_terminal;
   }
-  else { ERR_THROW(LSIM_ERR_COMMAND, "clk outputs are q0 and Q0, not '%s'", out_id); }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
 }  /* lsim_dev_clk_get_out_terminal */
@@ -42,22 +43,24 @@ ERR_F lsim_dev_clk_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  ERR_ASSRT(strcmp(in_id, "R0") == 0, LSIM_ERR_COMMAND);  /* Only one input. */
+  if (strcmp(in_id, "R0") == 0) {
+    ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND); /* No input array. */
+    *in_terminal = dev->clk.R_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized in_id '%s'", in_id);
 
-  *in_terminal = dev->clk.R_terminal;
 
   return ERR_OK;
 }  /* lsim_dev_clk_get_in_terminal */
 
 
 ERR_F lsim_dev_clk_power(lsim_t *lsim, lsim_dev_t *dev) {
+  (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_CLK, LSIM_ERR_INTERNAL);
 
   dev->clk.R_terminal->state = 0;
   dev->clk.q_terminal->state = 0;
   dev->clk.Q_terminal->state = 0;
-  lsim->total_ticks = 0;
   /* Don't add clk to in_changed list because the logic is run explicitly. */
 
   return ERR_OK;
@@ -80,10 +83,11 @@ ERR_F lsim_dev_clk_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     }
     dev->clk.q_terminal->state = 0;
     dev->clk.Q_terminal->state = 0;
-    lsim->total_ticks = 0;
+    lsim->cur_ticklet = -1;
   }
   else {  /* Not reset. */
-    int new_state = lsim->total_ticks % 2;  /* Clock changes with each tick. */
+    /* Before first "ticklet" command, cur_ticklet is -1. Clock output 0. */
+    int new_state = (lsim->cur_ticklet + 1) & 1;  /* Clock changes with each ticklet. */
     if (dev->clk.q_terminal->state != new_state || dev->clk.Q_terminal->state != (1 - new_state)) {
       out_changed = 1;
       dev->clk.q_terminal->state = new_state;
@@ -185,7 +189,7 @@ ERR_F lsim_dev_clk_create(lsim_t *lsim, char *dev_name) {
 
   ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
-  lsim->active_clk_dev = dev;  /* Make clock visible to lsim_dev_tick. */
+  lsim->active_clk_dev = dev;  /* Make clock visible to lsim_dev_ticklet(). */
 
   return ERR_OK;
 }  /* lsim_dev_clk_create */

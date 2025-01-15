@@ -162,19 +162,19 @@ ERR_F lsim_dev_engine_run(lsim_t *lsim) {
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
   ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
 
+  lsim->cur_step++;
   if (lsim->verbosity_level > 0) {
-    printf(" Step %ld:\n", lsim->total_steps);
+    printf(" Step %ld:\n", lsim->cur_step);
   }
-  lsim->total_steps++;
 
-  long cur_cycle = 0;
+  lsim->cur_cycle = 0;
   /* Loop while the logic states are still stabilizing. Note that this can
    * loop infinitely (e.g. a NAND oscillator), so the "max_propagate_cycles"
    * configuration parameter limits the loop count. */
   while (lsim->in_changed_list) {
-    cur_cycle++;
+    lsim->cur_cycle++;
     /* Prevent infinite loops. */
-    ERR_ASSRT(cur_cycle <= max_propagate_cycles, LSIM_ERR_MAXLOOPS);
+    ERR_ASSRT(lsim->cur_cycle <= max_propagate_cycles, LSIM_ERR_MAXLOOPS);
 
     ERR(lsim_dev_run_logic(lsim));
     ERR(lsim_dev_propagate_outputs(lsim));
@@ -186,7 +186,8 @@ ERR_F lsim_dev_engine_run(lsim_t *lsim) {
 
 ERR_F lsim_dev_power(lsim_t *lsim) {
   lsim->power_on = 1;
-  lsim->total_steps = 0;
+  lsim->cur_ticklet = -1;
+  lsim->cur_step = -1;
 
   /* Loop through entire hash map, starting with first entry. */
   hmap_entry_t *dev_entry = NULL;
@@ -238,20 +239,20 @@ ERR_F lsim_dev_move(lsim_t *lsim, const char *dev_name, long new_state) {
 }  /* lsim_dev_move */
 
 
-ERR_F lsim_dev_tick(lsim_t *lsim) {
+ERR_F lsim_dev_ticklet(lsim_t *lsim) {
   long max_propagate_cycles;
   ERR(cfg_get_long_val(lsim->cfg, "max_propagate_cycles", &max_propagate_cycles));
   ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
   ERR_ASSRT(lsim->active_clk_dev, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
+  lsim->cur_ticklet++;
 
-  lsim->total_ticks++;
+  ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
 
   ERR(lsim_dev_engine_run(lsim));
 
   return ERR_OK;
-}  /* lsim_dev_tick */
+}  /* lsim_dev_ticklet */
 
 
 ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level) {

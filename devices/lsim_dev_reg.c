@@ -1,4 +1,4 @@
-/* lsim_reg.c */
+/* lsim_dev_reg.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,22 +25,27 @@ ERR_F lsim_dev_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
-  long bit_num;
-  ERR(err_atol(out_id+1, &bit_num));
-  bit_num += bit_offset;
-  if (bit_num >= dev->reg.num_bits) {  /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "reg %s output %s plus offset %d larger than last bit %d",
-              dev->name, out_id, bit_offset, dev->reg.num_bits-1);
-  }
   if (out_id[0] == 'q') {
+    long bit_num;
+    ERR(err_atol(out_id + 1, &bit_num));
+    bit_num += bit_offset;
+    if (bit_num >= dev->reg.num_bits) { /* Use throw instead of assert for more useful error message. */
+      ERR_THROW(LSIM_ERR_COMMAND, "reg %s output %s plus offset %d larger than last bit %d",
+                dev->name, out_id, bit_offset, dev->reg.num_bits - 1);
+    }
     *out_terminal = dev->reg.q_terminals[bit_num];
   }
   else if (out_id[0] == 'Q') {
+    long bit_num;
+    ERR(err_atol(out_id + 1, &bit_num));
+    bit_num += bit_offset;
+    if (bit_num >= dev->reg.num_bits) { /* Use throw instead of assert for more useful error message. */
+      ERR_THROW(LSIM_ERR_COMMAND, "reg %s output %s plus offset %d larger than last bit %d",
+                dev->name, out_id, bit_offset, dev->reg.num_bits - 1);
+    }
     *out_terminal = dev->reg.Q_terminals[bit_num];
   }
-  else {
-    ERR_THROW(LSIM_ERR_COMMAND, "Invalid reg output ID %s", out_id);
-  }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
 }  /* lsim_dev_reg_get_out_terminal */

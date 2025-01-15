@@ -1,4 +1,4 @@
-/* lsim_srlatch.c */
+/* lsim_dev_srlatch.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -32,7 +32,7 @@ ERR_F lsim_dev_srlatch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const cha
   else if (strcmp(out_id, "Q0") == 0) {
     *out_terminal = dev->srlatch.Q_terminal;
   }
-  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized out_id '%s'", out_id);
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
 }  /* lsim_dev_srlatch_get_out_terminal */
@@ -49,7 +49,7 @@ ERR_F lsim_dev_srlatch_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char
   else if (strcmp(in_id, "R0") == 0) {
     *in_terminal = dev->srlatch.R_terminal;
   }
-  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized in_id '%s'", in_id);
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized in_id '%s'", in_id);
 
   return ERR_OK;
 }  /* lsim_dev_srlatch_get_in_terminal */

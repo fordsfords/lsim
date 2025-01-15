@@ -524,6 +524,85 @@ void test7() {
 }  /* test7 */
 
 
+/* Test8 is for the "probe" device. We want to detect glitches and data
+   changes during same step as control trigger. To make a glitch,
+   use a single-input NAND gate "nand1" connected to a switch. Add a dual-input
+   NAND "nand2" with its inputs connected to nand1's input and output. When the
+   switch is at 0, nand1 has a 0 input and a 1 output. So nand2 has a 1 output.
+   When the switch is moved to 1, the first cycle of the new step sees nand1's
+   input at a 1. It's output takes a cycle to flip. So for that first cycle,
+   both inputs of nand2 are 1, flipping its output to 0. But the next cycle of
+   the same step has nand1's output flipping to 0, which flips nand2's output
+   back to 0.  I.e. nand2's output glitches to 1 for a nand propagation delay.
+   The probe should detect and warn about this. */
+void test8() {
+  lsim_t *lsim;
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
+
+  E(lsim_cmd_line(lsim, "d;nand;nand1;1;"));
+  E(lsim_cmd_line(lsim, "d;nand;nand2;1;"));
+  E(lsim_cmd_line(lsim, "d;swtch;swtch;0;"));
+
+  E(lsim_cmd_line(lsim, "c;swtch;o0;nand1;i0;"));
+  E(lsim_cmd_line(lsim, "c;nand1;o0;nand2;i0;"));
+
+  E(lsim_cmd_line(lsim, "d;nand;nand3;2;"));
+  E(lsim_cmd_line(lsim, "c;swtch;o0;nand3;i0;"));
+  E(lsim_cmd_line(lsim, "c;nand1;o0;nand3;i1;"));
+
+  E(lsim_cmd_line(lsim, "d;probe;probe;0;"));
+  E(lsim_cmd_line(lsim, "d;gnd;gnd;"));
+  E(lsim_cmd_line(lsim, "c;gnd;o0;probe;d0;"));
+  E(lsim_cmd_line(lsim, "c;nand3;o0;probe;c0;"));
+
+  ASSRT(lsim->total_warnings == 0);
+
+  E(lsim_cmd_line(lsim, "p;"));  /* Power up. */
+
+  E(lsim_cmd_line(lsim, "m;swtch;1;"));  /* Power up. */
+  ASSRT(lsim->total_warnings == 1);
+  E(lsim_cmd_line(lsim, "m;swtch;0;"));  /* Power up. */
+  ASSRT(lsim->total_warnings == 1);
+
+  E(lsim_delete(lsim));
+
+  /****************************************************/
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "v;1;"));  /* Trace. */
+
+  E(lsim_cmd_line(lsim, "d;nand;nand1;1;"));
+  E(lsim_cmd_line(lsim, "d;nand;nand2;1;"));
+  E(lsim_cmd_line(lsim, "d;swtch;swtch;0;"));
+
+  E(lsim_cmd_line(lsim, "c;swtch;o0;nand1;i0;"));
+  E(lsim_cmd_line(lsim, "c;nand1;o0;nand2;i0;"));
+
+  E(lsim_cmd_line(lsim, "d;nand;nand3;2;"));
+  E(lsim_cmd_line(lsim, "c;swtch;o0;nand3;i0;"));
+  E(lsim_cmd_line(lsim, "c;nand1;o0;nand3;i1;"));
+
+  E(lsim_cmd_line(lsim, "d;probe;probe;1;"));
+  E(lsim_cmd_line(lsim, "c;swtch;o0;probe;d0;"));
+  E(lsim_cmd_line(lsim, "c;nand3;o0;probe;c0;"));
+
+  ASSRT(lsim->total_warnings == 0);
+
+  E(lsim_cmd_line(lsim, "p;"));  /* Power up. */
+
+  E(lsim_cmd_line(lsim, "m;swtch;1;"));  /* Power up. */
+  ASSRT(lsim->total_warnings == 2);
+  E(lsim_cmd_line(lsim, "m;swtch;0;"));  /* Power up. */
+  ASSRT(lsim->total_warnings == 2);
+
+  E(lsim_delete(lsim));
+}  /* test8 */
+
+
 int main(int argc, char **argv) {
   parse_cmdline(argc, argv);
 
@@ -560,6 +639,11 @@ int main(int argc, char **argv) {
   if (o_testnum == 0 || o_testnum == 7) {
     test7();
     printf("test7: success\n");
+  }
+
+  if (o_testnum == 0 || o_testnum == 8) {
+    test8();
+    printf("test8: success\n");
   }
 
   return 0;

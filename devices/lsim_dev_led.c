@@ -1,4 +1,4 @@
-/* lsim_led.c */
+/* lsim_dev_led.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,7 +25,7 @@ ERR_F lsim_dev_led_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   (void)lsim;  (void)out_id;  (void)out_terminal;  (void)bit_offset;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
-  ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get output state for led, which has no outputs");
+  ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get output for led, which has no outputs");
 
   return ERR_OK;
 }  /* lsim_dev_led_get_out_terminal */
@@ -35,9 +35,11 @@ ERR_F lsim_dev_led_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  ERR_ASSRT(strcmp(in_id, "i0") == 0, LSIM_ERR_COMMAND);  /* Only one input. */
-  *in_terminal = dev->led.i_terminal;
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* No input array. */
+  if (strcmp(in_id, "i0") == 0) {
+    *in_terminal = dev->led.i_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized in_id '%s'", in_id);
 
   return ERR_OK;
 }  /* lsim_dev_led_get_in_terminal */
@@ -47,6 +49,8 @@ ERR_F lsim_dev_led_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_LED, LSIM_ERR_INTERNAL);
 
   dev->led.illuminated = 0;
+  dev->led.cur_step = -1;
+  dev->led.changes_in_step = 0;
   dev->led.i_terminal->state = 0;
   ERR(lsim_dev_in_changed(lsim, dev));  /* Trigger to run the logic. */
 
@@ -62,9 +66,18 @@ ERR_F lsim_dev_led_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     ERR_THROW(LSIM_ERR_COMMAND, "Led %s: input i0 is floating", dev->name);
   }
 
+  /* Detect glitch-based flicker of LED (multiple transitions in same step).*/
+  if (lsim->cur_step != dev->led.cur_step) {
+    /* New step. */
+    dev->led.cur_step = lsim->cur_step;
+    dev->led.changes_in_step = 0;
+  }
   if (dev->led.i_terminal->state != dev->led.illuminated) {
     dev->led.illuminated = dev->led.i_terminal->state;
-    printf("Led %s: %s (tick %ld)\n", dev->name, dev->led.illuminated ? "on" : "off", lsim->total_ticks);
+    dev->led.changes_in_step++;
+    printf("Led %s: %s (ticklet %ld)%s\n",
+           dev->name, dev->led.illuminated ? "on" : "off", lsim->cur_ticklet,
+           (dev->led.changes_in_step > 1) ? " glitch" : "");
   }
 
   return ERR_OK;

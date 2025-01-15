@@ -1,4 +1,4 @@
-/* lsim_dflipflop.c */
+/* lsim_dev_dflipflop.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,14 +25,14 @@ ERR_F lsim_dev_dflipflop_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const c
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DFLIPFLOP, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* No output array. */
   if (strcmp(out_id, "q0") == 0) {
     *out_terminal = dev->dflipflop.q_terminal;
   }
   else if (strcmp(out_id, "Q0") == 0) {
     *out_terminal = dev->dflipflop.Q_terminal;
   }
-  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized out_id '%s'", out_id);
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
 }  /* lsim_dev_dflipflop_get_out_terminal */
@@ -42,7 +42,7 @@ ERR_F lsim_dev_dflipflop_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const ch
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_DFLIPFLOP, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* No input array. */
   if (strcmp(in_id, "S0") == 0) {
     *in_terminal = dev->dflipflop.S_terminal;
   }
@@ -55,7 +55,7 @@ ERR_F lsim_dev_dflipflop_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const ch
   else if (strcmp(in_id, "c0") == 0) {
     *in_terminal = dev->dflipflop.c_terminal;
   }
-  else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized in_id '%s'", in_id);
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized in_id '%s'", in_id);
 
   return ERR_OK;
 }  /* lsim_dev_dflipflop_get_in_terminal */

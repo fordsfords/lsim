@@ -1,4 +1,4 @@
-/* lsim_mem.c */
+/* lsim_dev_mem.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,19 +25,17 @@ ERR_F lsim_dev_mem_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
-  long bit_num;
-  ERR(err_atol(out_id+1, &bit_num));
-  bit_num += bit_offset;
-  if (bit_num >= dev->mem.num_data) {  /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "mem %s output %s plus offset %d larger than last bit %d",
-              dev->name, out_id, bit_offset, dev->mem.num_data-1);
-  }
   if (out_id[0] == 'o') {
+    long bit_num;
+    ERR(err_atol(out_id + 1, &bit_num));
+    bit_num += bit_offset;
+    if (bit_num >= dev->mem.num_data) { /* Use throw instead of assert for more useful error message. */
+      ERR_THROW(LSIM_ERR_COMMAND, "mem %s output %s plus offset %d larger than last bit %d",
+                dev->name, out_id, bit_offset, dev->mem.num_data - 1);
+    }
     *out_terminal = dev->mem.o_terminals[bit_num];
   }
-  else {
-    ERR_THROW(LSIM_ERR_COMMAND, "Invalid reg output ID %s", out_id);
-  }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
 }  /* lsim_dev_mem_get_out_terminal */
@@ -47,42 +45,31 @@ ERR_F lsim_dev_mem_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
-  switch (in_id[0]) {
-    case 'i': {
-      long input_num;
-      ERR(err_atol(in_id + 1, &input_num));
-      input_num += bit_offset;
-      if (input_num >= dev->mem.num_data) { /* Use throw instead of assert for more useful error message. */
-        ERR_THROW(LSIM_ERR_COMMAND, "mem %s input %s plus offset %d larger than last bit %d",
-                  dev->name, in_id, bit_offset, dev->mem.num_data-1);
-      }
-      *in_terminal = dev->mem.i_terminals[input_num];
-      break;
+  if (in_id[0] == 'i') {
+    long input_num;
+    ERR(err_atol(in_id + 1, &input_num));
+    input_num += bit_offset;
+    if (input_num >= dev->mem.num_data) { /* Use throw instead of assert for more useful error message. */
+      ERR_THROW(LSIM_ERR_COMMAND, "mem %s input %s plus offset %d larger than last bit %d",
+                dev->name, in_id, bit_offset, dev->mem.num_data - 1);
     }
-    case 'a': {
-      long input_num;
-      ERR(err_atol(in_id + 1, &input_num));
-      input_num += bit_offset;
-      if (input_num >= dev->mem.num_addr) { /* Use throw instead of assert for more useful error message. */
-        ERR_THROW(LSIM_ERR_COMMAND, "mem %s input %s plus offset %d larger than last bit %d",
-                  dev->name, in_id, bit_offset, dev->mem.num_addr-1);
-      }
-      *in_terminal = dev->mem.a_terminals[input_num];
-      break;
-    }
-    case 'w': {
-      long input_num;
-      ERR(err_atol(in_id + 1, &input_num));
-      input_num += bit_offset;
-      if (input_num >= 1) { /* Use throw instead of assert for more useful error message. */
-        ERR_THROW(LSIM_ERR_COMMAND, "mem %s input %s plus offset %d larger than last bit %d",
-                  dev->name, in_id, bit_offset, 1-1);
-      }
-      *in_terminal = dev->mem.w_terminal;
-      break;
-    }
+    *in_terminal = dev->mem.i_terminals[input_num];
   }
-
+  else if (in_id[0] == 'a') {
+    long input_num;
+    ERR(err_atol(in_id + 1, &input_num));
+    input_num += bit_offset;
+    if (input_num >= dev->mem.num_addr) { /* Use throw instead of assert for more useful error message. */
+      ERR_THROW(LSIM_ERR_COMMAND, "mem %s input %s plus offset %d larger than last bit %d",
+                dev->name, in_id, bit_offset, dev->mem.num_addr - 1);
+    }
+    *in_terminal = dev->mem.a_terminals[input_num];
+  }
+  else if (strcmp(in_id, "w0") == 0) {
+    ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND); /* No input array. */
+    *in_terminal = dev->mem.w_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized in_id '%s'", in_id);
 
   return ERR_OK;
 }  /* lsim_dev_mem_get_in_terminal */

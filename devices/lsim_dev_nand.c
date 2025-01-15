@@ -1,4 +1,4 @@
-/* lsim_nand.c */
+/* lsim_dev_nand.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,9 +25,11 @@ ERR_F lsim_dev_nand_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->nand.o_terminal;
+  if (strcmp(out_id, "o0") == 0) {
+    ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND); /* No output array. */
+    *out_terminal = dev->nand.o_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
 }  /* lsim_dev_nand_get_out_terminal */
@@ -37,16 +39,17 @@ ERR_F lsim_dev_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *i
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_NAND, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(in_id[0] == 'i', LSIM_ERR_COMMAND);
-  long input_num;
-  ERR(err_atol(in_id+1, &input_num));
-  input_num += bit_offset;
-  if (input_num >= dev->nand.num_inputs) {  /* Use throw instead of assert for more useful error message. */
-    ERR_THROW(LSIM_ERR_COMMAND, "nand %s input %s plus offset %d larger than last bit %d",
-              dev->name, in_id, bit_offset, dev->nand.num_inputs-1);
+  if (in_id[0] == 'i') {
+    long input_num;
+    ERR(err_atol(in_id + 1, &input_num));
+    input_num += bit_offset;
+    if (input_num >= dev->nand.num_inputs) { /* Use throw instead of assert for more useful error message. */
+      ERR_THROW(LSIM_ERR_COMMAND, "nand %s input %s plus offset %d larger than last bit %d",
+                dev->name, in_id, bit_offset, dev->nand.num_inputs - 1);
+    }
+    *in_terminal = dev->nand.i_terminals[input_num];
   }
-
-  *in_terminal = dev->nand.i_terminals[input_num];
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized in_id '%s'", in_id);
 
   return ERR_OK;
 }  /* lsim_dev_nand_get_in_terminal */

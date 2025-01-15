@@ -1,4 +1,4 @@
-/* lsim_gnd.c */
+/* lsim_dev_gnd.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,9 +25,11 @@ ERR_F lsim_dev_gnd_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->gnd.o_terminal;
+  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* No output array. */
+  if (strcmp(out_id, "o0") == 0) {
+    *out_terminal = dev->gnd.o_terminal;
+  }
+  else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
 }  /* lsim_dev_gnd_get_out_terminal */
@@ -37,7 +39,7 @@ ERR_F lsim_dev_gnd_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
   (void)lsim;  (void)in_id;  (void)in_terminal;  (void)bit_offset;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_GND, LSIM_ERR_INTERNAL);
 
-  ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input state for gnd, which has no inputs");
+  ERR_THROW(LSIM_ERR_COMMAND, "Attempt to get input for gnd, which has no inputs");
 
   return ERR_OK;
 }  /* lsim_dev_gnd_get_in_terminal */

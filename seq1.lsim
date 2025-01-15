@@ -1,10 +1,60 @@
 # seq1.lsim
 v;1;
 
-d;mem;mem1;1;1;
+d;vcc;vcc;
+d;gnd;gnd;
+
+d;swtch;rst;0;
 d;swtch;w_sw;0;
-d;swtch;asw;0;
+d;swtch;a_sw;0;
 d;swtch;d_sw;0;
-d;dflipflop;sr1;0;
-d;dflipflop;sr2a;0;
-d;dflipflop;sr3a;0;
+
+d;dflipflop;sr1;
+d;dflipflop;sr2a;
+d;dflipflop;sr3a;
+d;dflipflop;sr2b;
+
+d;led;led1;
+d;led;led2a;
+d;led;led3a;
+d;led;led2b;
+
+d;nand;n1;2;
+d;nand;n2a;2;
+d;nand;n2b;2;
+d;nand;nopt1;2;
+d;nand;nopt2;1;
+
+d;mem;mem1;1;1;
+l;mem1;0;0;1;  # load memory with 0, 1
+
+c;w_sw;o0;mem1;w0;
+c;a_sw;o0;mem1;a0;
+c;d_sw;o0;mem1;d0;  # used for writing
+
+c;rst;o0;sr1;S0;  # reset sets sr1
+c;vcc;o0;sr1;R0;
+c;sr1;q0;led1;i0;
+
+c;rst;o0;sr2a;R0;  # reset clears sr2a
+c;vcc;o0;sr2a;S0;
+c;sr2a;q0;led2a;i0;
+
+c;rst;o0;sr3a;R0;  # reset clears sr3a
+c;vcc;o0;sr3a;S0;
+c;sr3a;q0;led3a;i0;
+
+c;rst;o0;sr2b;R0;  # reset clears sr2b
+c;vcc;o0;sr2b;S0;
+c;sr2b;q0;led2b;i0;
+
+d;dflipflop;opcode;
+c;rst;o0;opcode;R0;  # reset clears opcode
+c;vcc;o0;opcode;S0;
+
+c;n1;o0;sr1;d;
+c;sr1;q0;led1;i0;
+c;sr1;Q0;n2a;i1;
+c;n2a;o0;sr2a;d0;
+c;sr1;Q0;n2b;i1;
+c;sr2a

@@ -1,4 +1,4 @@
-/* lsim_swtch.c */
+/* lsim_dev_swtch.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -25,9 +25,10 @@ ERR_F lsim_dev_swtch_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char 
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_SWTCH, LSIM_ERR_INTERNAL);
 
-  ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  ERR_ASSRT(strcmp(out_id, "o0") == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  *out_terminal = dev->swtch.o_terminal;
+  if (strcmp(out_id, "o0") == 0) {
+    ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND); /* No output array. */
+    *out_terminal = dev->swtch.o_terminal;
+  }
 
   return ERR_OK;
 }  /* lsim_dev_swtch_get_out_terminal */

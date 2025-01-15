@@ -57,7 +57,7 @@ ERR_F lsim_dev_move(lsim_t *lsim, const char *name, long new_state);
 ERR_F lsim_dev_run_logic(lsim_t *lsim);
 ERR_F lsim_dev_propagate_outputs(lsim_t *lsim);
 ERR_F lsim_dev_watch(lsim_t *lsim, const char *dev_name, int watch_level);
-ERR_F lsim_dev_tick(lsim_t *lsim);
+ERR_F lsim_dev_ticklet(lsim_t *lsim);
 ERR_F lsim_dev_delete_all(lsim_t *lsim);
 
 #ifdef __cplusplus

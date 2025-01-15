@@ -46,6 +46,35 @@ ERR_F lsim_valid_name(const char *name) {
 /*******************************************************************************/
 
 
+/* Define device "probe":
+ * d;probe;dev_name;flags;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_define_probe(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  char *flags_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(flags_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at the end of the line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long flags;
+  ERR(err_atol(flags_s, &flags));
+  ERR_ASSRT(flags >= 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_dev_probe_create(lsim, dev_name, flags));
+
+  return ERR_OK;
+}  /* lsim_cmd_define_probe */
+
+
 /* Define device "gnd":
  * d;gnd;dev_name;
  * cmd_line points at dev_name. */
@@ -337,7 +366,10 @@ ERR_F lsim_cmd_define(lsim_t *lsim, char *cmd_line) {
 
   char *next_field = semi_colon + 1;
 
-  if (strcmp(dev_type, "gnd") == 0) {
+  if (strcmp(dev_type, "probe") == 0) {
+    ERR(lsim_cmd_define_probe(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "gnd") == 0) {
     ERR(lsim_cmd_define_gnd(lsim, next_field));
   }
   else if (strcmp(dev_type, "vcc") == 0) {
@@ -545,35 +577,35 @@ ERR_F lsim_cmd_movesw(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_movesw */
 
 
-/* tick:
- * t;num_ticks;
+/* ticklet:
+ * t;num_ticklets;
  * cmd_line points past first semi-colon. */
-ERR_F lsim_cmd_tick(lsim_t *lsim, char *cmd_line) {
+ERR_F lsim_cmd_ticklet(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
-  char *num_ticks_s = cmd_line;
-  ERR_ASSRT(semi_colon = strchr(num_ticks_s, ';'), LSIM_ERR_COMMAND);
+  char *num_ticklets_s = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(num_ticklets_s, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';  /* Overwrite semicolon. */
 
   /* Make sure we're at end of line. */
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  long num_ticks;
-  ERR(err_atol(num_ticks_s, &num_ticks));
-  ERR_ASSRT(num_ticks > 0, LSIM_ERR_COMMAND);
+  long num_ticklets;
+  ERR(err_atol(num_ticklets_s, &num_ticklets));
+  ERR_ASSRT(num_ticklets > 0, LSIM_ERR_COMMAND);
 
   err_t *err;
-  long tick_num;
-  for (tick_num = 0; tick_num < num_ticks; tick_num++) {
-    err = lsim_dev_tick(lsim);
+  long ticklet_num;
+  for (ticklet_num = 0; ticklet_num < num_ticklets; ticklet_num++) {
+    err = lsim_dev_ticklet(lsim);
     if (err) {
-      ERR_RETHROW(err, "Step command '%s' had error %s in tick %ld", cmd_line, err->code, tick_num);
+      ERR_RETHROW(err, "Step command '%s' had error %s in ticklet %ld", cmd_line, err->code, ticklet_num);
     }
   }
 
   return ERR_OK;
-}  /* lsim_cmd_tick */
+}  /* lsim_cmd_ticklet */
 
 
 /* verbosity:
@@ -709,7 +741,7 @@ ERR_F lsim_cmd_line(lsim_t *lsim, const char *cmd_line) {
     err = lsim_cmd_quit(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "t;") == local_cmd_line) {
-    err = lsim_cmd_tick(lsim, &local_cmd_line[2]);
+    err = lsim_cmd_ticklet(lsim, &local_cmd_line[2]);
   }
   else if (strstr(local_cmd_line, "v;") == local_cmd_line) {
     err = lsim_cmd_verbosity(lsim, &local_cmd_line[2]);

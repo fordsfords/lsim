@@ -90,7 +90,7 @@ by stringing them together in a ring to make an oscillator.
 But that wouldn't serve my purpose in the simulator given my design
 (no infinite loops allowed).
 So I made the clock a fundamental device with an external input to
-run it in the form of the "tick" command.
+run it in the form of the "ticklet" command.
 
 ## Configuration
 
@@ -142,11 +142,11 @@ conflict with any user-chosen names (which can't have a period).
 * A single "run" of the logic engine consists of a loop containing two phases
   * Have each device with an input change re-calculate its output,
   * Propagate those outputs to the connected inputs.
-  A single event (switch move, clock tick) can trigger the loop to run
+  A single event (switch move, clock ticklet) can trigger the loop to run
 until the circuit stabilizes.
 One stabilized, the "run" is complete.
 I call one execution of the logic engine a "step".
-(In contrast, a "tick" is a half-cycle of the clock device.)
+(In contrast, a "ticklet" is a half-cycle of the clock device.)
 * A poorly-designed circuit can cause the logic engine to enter an
 infinite loop.
 For example, just make an inverter (single-input nand) and connect its
@@ -196,7 +196,7 @@ m;dev_name;new_state;
 w;dev_name;watch_level;
 
 # Tick
-t;num_ticks;
+t;num_ticklets;
 # Verbosity. (verbosity_level: 0=none, 1=output change, 2=always print)
 v;verbosity_level;
 

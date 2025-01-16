@@ -17,7 +17,8 @@
         "nands",
         "qled",
         "srlatch",
-        "swtch"
+        "swtch",
+        "ticklet"
     ],
     "vim.scrolloff": 0,
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [

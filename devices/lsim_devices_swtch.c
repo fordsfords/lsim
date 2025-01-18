@@ -1,4 +1,4 @@
-/* lsim_dev_swtch.c */
+/* lsim_devices_swtch.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/

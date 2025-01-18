@@ -168,7 +168,7 @@ ERR_F hmap_lookup(hmap_t *hmap, const void *key, size_t key_size, void **rtn_val
   if (rtn_val) {
     *rtn_val = NULL;
   }
-  ERR_THROW(HMAP_ERR_NOTFOUND, "key not found");
+  ERR_THROW(HMAP_ERR_NOTFOUND, "key '%.*s' not found", (int)key_size, key);
 }  /* hmap_lookup */
 
 

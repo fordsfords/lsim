@@ -31,28 +31,55 @@
 #define MY_SLEEP_MS(msleep_msecs) usleep((msleep_msecs)/1000)
 #endif
 
-#define E(e__test) do { \
-  err_t *e__err = (e__test); \
-  if (e__err != ERR_OK) { \
-    printf("ERROR [%s:%d]: '%s' returned error\n", __FILE__, __LINE__, #e__test); \
-    ERR_ABRT_ON_ERR(e__err, stdout); \
-    exit(1); \
-  } \
-} while (0)
+#define E(e__test)                                                                  \
+  do {                                                                              \
+    err_t *e__err = (e__test);                                                      \
+    if (e__err != ERR_OK) {                                                         \
+      printf("ERROR [%s:%d]: '%s' returned error\n", __FILE__, __LINE__, #e__test); \
+      fflush(stdout);                                                               \
+      switch (global_error_reaction) {                                                 \
+        case 1:                                                                     \
+          exit(1);                                                                  \
+          break;                                                                    \
+        case 2:                                                                     \
+          /* Warn - keep running. */                                                \
+          break;                                                                    \
+        default:                                                                    \
+          abort();                                             \
+          break;                                                                    \
+      }                                                                             \
+    }                                                                               \
+  } while (0)
 
-#define ASSRT(assrt__cond) do { \
-  if (! (assrt__cond)) { \
-    printf("ERROR [%s:%d]: assert '%s' failed\n", __FILE__, __LINE__, #assrt__cond); \
-    exit(1); \
-  } \
-} while (0)
+#define ASSRT(assrt__cond)                                                             \
+  do {                                                                                 \
+    if (!(assrt__cond)) {                                                              \
+      printf("ERROR [%s:%d]: assert '%s' failed\n", __FILE__, __LINE__, #assrt__cond); \
+      fflush(stdout);                                                                  \
+      switch (global_error_reaction) {                                                    \
+        case 1:                                                                        \
+          exit(1);                                                                     \
+          break;                                                                       \
+        case 2:                                                                        \
+          /* Warn - keep running. */                                                   \
+          break;                                                                       \
+        default:                                                                       \
+          abort();                                                                     \
+          break;                                                                       \
+      }                                                                                \
+    }                                                                                  \
+  } while (0)
 
 
-/* Options */
+/* Options. */
+char *o_config_file = NULL;
 int o_testnum;
 
+/* Globals. */
+long global_error_reaction = 1;
 
-char usage_str[] = "Usage: err_test [-h] [-t testnum]";
+
+char usage_str[] = "Usage: err_test [-h] [-c config_file] [-t testnum]";
 void usage(char *msg) {
   if (msg) fprintf(stderr, "\n%s\n\n", msg);
   fprintf(stderr, "%s\n", usage_str);
@@ -63,6 +90,7 @@ void help() {
   printf("%s\n"
     "where:\n"
     "  -h - print help\n"
+    "  -c config_file - configuration file.\n"
     "  -t testnum - Specify which test to run [1].\n"
     "For details, see https://github.com/fordsfords/lsim\n",
     usage_str);
@@ -71,21 +99,35 @@ void help() {
 
 
 void parse_cmdline(int argc, char **argv) {
-  int i;
+  int opt;
 
   /* Since this is Unix and Windows, don't use getopts(). */
-  for (i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "-h") == 0) {
+  for (opt = 1; opt < argc; opt++) {
+    if (strcmp(argv[opt], "-h") == 0) {
       help();  exit(0);
 
-    } else if (strcmp(argv[i], "-t") == 0) {
-      if ((i + 1) < argc) {
-        i++;
-        o_testnum = atoi(argv[i]);
+    } else if (strcmp(argv[opt], "-c") == 0) {
+      opt++;  /* Step past -c to get to the config_file. */
+      if (opt >= argc) { fprintf(stderr, "ERROR, -c option requires config file\n"); exit(1); }
+      if (o_config_file) { free(o_config_file); }  /* Free a previous setting. */
+      E(err_strdup(&o_config_file, argv[opt]));
+
+    } else if (strcmp(argv[opt], "-t") == 0) {
+      if ((opt + 1) < argc) {
+        opt++;
+        o_testnum = atoi(argv[opt]);
       } else { fprintf(stderr, "Error, -t requires test number\n");  exit(1); }
 
-    } else { fprintf(stderr, "Error, unknown option '%s'\n", argv[i]);  exit(1); }
-  }  /* for i */
+    } else if (strcmp(argv[opt], "--") == 0) {
+      opt++;  /* Step past "--". */
+      break;  /* End of options. */
+
+    } else { fprintf(stderr, "Error, unknown option '%s'\n", argv[opt]);  exit(1); }
+  }  /* for opt */
+
+  if (opt < argc) {
+    fprintf(stderr, "Unexpected command-line parameter '%s'\n", argv[opt]); exit(1);
+  }
 }  /* parse_cmdline */
 
 
@@ -206,7 +248,7 @@ void test1() {
   E(lsim_cmd_line(lsim, "t;1;"));
 
   ASSRT(qled_dev->led.illuminated == 0);
-  ASSRT(Qled_dev->led.illuminated == 0);
+  ASSRT(Qled_dev->led.illuminated == 1);
 
   E(lsim_cmd_line(lsim, "m;Reset_sw;1;"));
   ASSRT(qled_dev->led.illuminated == 0);

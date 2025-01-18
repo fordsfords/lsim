@@ -246,6 +246,9 @@ ERR_F lsim_dev_ticklet(lsim_t *lsim) {
   ERR_ASSRT(lsim->active_clk_dev, LSIM_ERR_COMMAND);
 
   lsim->cur_ticklet++;
+  if (lsim->verbosity_level > 0) {
+    printf(" Ticklet %ld\n", lsim->cur_ticklet);
+  }
 
   ERR(lsim_dev_in_changed(lsim, lsim->active_clk_dev));
 

@@ -78,11 +78,11 @@ ERR_F lsim_dev_clk_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 
   /* Process reset. */
   if (dev->clk.R_terminal->state == 0) {
-    if (dev->clk.q_terminal->state != 0) {
+    if (dev->clk.q_terminal->state != 0 || dev->clk.Q_terminal->state != 1) {
       out_changed = 1;
     }
     dev->clk.q_terminal->state = 0;
-    dev->clk.Q_terminal->state = 0;
+    dev->clk.Q_terminal->state = 1;
     lsim->cur_ticklet = -1;
   }
   else {  /* Not reset. */

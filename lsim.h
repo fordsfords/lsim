@@ -61,6 +61,9 @@ struct lsim_s {
   int quit;
 };
 
+/* Globals. */
+extern long global_error_reaction;
+
 ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name);
 ERR_F lsim_delete(lsim_t *lsim);
 

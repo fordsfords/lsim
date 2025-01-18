@@ -783,10 +783,6 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
   }
   ERR_ASSRT(cmd_file_fp, LSIM_ERR_BADFILE);
 
-  long error_level;
-  ERR(cfg_get_long_val(lsim->cfg, "error_level", &error_level));
-  ERR_ASSRT(error_level >= 0 && error_level <= 2, LSIM_ERR_CONFIG);
-
   int line_num = 0;
   err_t *err = ERR_OK;
   while (fgets(iline, sizeof(iline), cmd_file_fp)) {
@@ -805,7 +801,7 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
       err = lsim_cmd_line(lsim, iline);
       if (err) {
         fprintf(stderr, "Error %s:%d '%s':\n", filename, line_num, iline);
-        switch (error_level) {
+        switch (global_error_reaction) {
         case 0: ERR_ABRT_ON_ERR(err, stderr); break;
         case 1: ERR_EXIT_ON_ERR(err, stderr); break;
         case 2:

@@ -98,12 +98,12 @@ There are a few configurable parameters for lsim (defaults shown in [square brac
   * **device_hash_buckets** - set to a prime number somewhat larger than the
   total number of logic devices in your circuit [10007]
   * **max_propagate_cycles** - prevent logic engine from infinite looping [50]
-  * **error_level** - how to react if an error is detected: 0=abort, 1=exit(1),
+  * **error_reaction** - how to react if an error is detected: 0=abort, 1=exit(1),
   2=warn and continue [0].
 
 To set one or more configs, create a file. For example:
 ```
-error_level = 2
+error_reaction = 2
 ```
 
 Then specify the file on the lsim command line using the "-c" option. For example:

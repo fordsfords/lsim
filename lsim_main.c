@@ -35,6 +35,9 @@ char *o_config_file = NULL;
 /* Positional parameters. */
 char *p_cmd_file = NULL;
 
+/* Globals. */
+long global_error_reaction = 1;
+
 
 char usage_str[] = "Usage: lsim_main [-h] [-c config_file] command_file";
 void usage(char *msg) {
@@ -64,7 +67,7 @@ ERR_F parse_cmdline(int argc, char **argv) {
       help();  exit(0);
 
     } else if (strcmp(argv[opt], "-c") == 0) {
-      opt++;  /* Step past -c to get to teh config_file. */
+      opt++;  /* Step past -c to get to the config_file. */
       ERR_ASSRT(opt < argc, LSIM_ERR_PARAM);  /* Make there is a config_file. */
       if (o_config_file) { free(o_config_file); }  /* Free a previous setting. */
       ERR(err_strdup(&o_config_file, argv[opt]));
@@ -76,9 +79,8 @@ ERR_F parse_cmdline(int argc, char **argv) {
     } else if (*argv[opt] != '-') {
       /* argv[opt] has first positional parameter; leave "opt" alone. */
       break;  /* End of options */
-    } else {
-      ERR_THROW(LSIM_ERR_PARAM, "Unknown option");
-    }
+
+    } else { ERR_THROW(LSIM_ERR_PARAM, "Unknown option"); }
   }  /* for opt */
 
   if (opt < argc) {  /* if have positional parameters. */
@@ -113,7 +115,22 @@ ERR_F lsim_main(int argc, char **argv) {
 
 
 int main(int argc, char **argv) {
-  ERR_ABRT_ON_ERR(lsim_main(argc, argv), stderr);
+  err_t *err;
+
+  err = lsim_main(argc, argv);
+  if (err) {
+    switch (global_error_reaction) {
+      case 0:
+        ERR_ABRT_ON_ERR(err, stderr);
+        break;
+      case 1:
+        ERR_EXIT_ON_ERR(err, stderr);
+        break;
+      case 2:
+        ERR_WARN_ON_ERR(err, stderr);
+        break;
+    }
+  }
 
   return 0;
 }  /* main */

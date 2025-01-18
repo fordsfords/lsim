@@ -25,7 +25,7 @@
 char *lsim_cfg_defaults[] = {
   "device_hash_buckets=10007",
   "max_propagate_cycles=50",  /* For loop detection. */
-  "error_level=0",  /* 0=abort, 1=exit(1), 2=warn and continue. */
+  "error_reaction=1",  /* 0=abort, 1=exit(1), 2=warn and continue. */
   NULL
 };
 
@@ -39,6 +39,11 @@ ERR_F lsim_create(lsim_t **rtn_lsim, char *config_file_name) {
   if (config_file_name) {
     ERR(cfg_parse_file(lsim->cfg, CFG_MODE_UPDATE, config_file_name));
   }
+
+  long error_reaction;
+  ERR(cfg_get_long_val(lsim->cfg, "error_reaction", &error_reaction));
+  ERR_ASSRT(error_reaction >= 0 && error_reaction <= 2, LSIM_ERR_CONFIG);
+  global_error_reaction = error_reaction;
 
   long device_hash_buckets;
   ERR(cfg_get_long_val(lsim->cfg, "device_hash_buckets", &device_hash_buckets));

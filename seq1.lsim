@@ -13,48 +13,85 @@ d;dflipflop;sr1;
 d;dflipflop;sr2a;
 d;dflipflop;sr3a;
 d;dflipflop;sr2b;
+d;dflipflop;opcode;
 
 d;led;led1;
 d;led;led2a;
 d;led;led3a;
 d;led;led2b;
+d;led;led_opcode_q;
+d;led;led_opcode_Q;
 
 d;nand;n1;2;
 d;nand;n2a;2;
+d;nand;n2a_i;1;
 d;nand;n2b;2;
-d;nand;nopt1;2;
-d;nand;nopt2;1;
+d;nand;n2b_i;1;
+d;nand;n_op;2;
+d;nand;n_op_i;1;
+
+d;clk;clk;
 
 d;mem;mem1;1;1;
-l;mem1;0;0;1;  # load memory with 0, 1
+
+c;vcc;o0;sr1;R0;
+c;vcc;o0;sr2a;S0;
+c;vcc;o0;sr3a;S0;
+c;vcc;o0;sr2b;S0;
+c;vcc;o0;opcode;S0;
+
+# reset sets sr1
+c;rst;o0;sr1;S0;
+c;rst;o0;sr2a;R0;
+c;rst;o0;sr3a;R0;
+c;rst;o0;sr2b;R0;
+c;rst;o0;opcode;R0;
+c;rst;o0;clk;R0;
 
 c;w_sw;o0;mem1;w0;
 c;a_sw;o0;mem1;a0;
-c;d_sw;o0;mem1;d0;  # used for writing
+c;d_sw;o0;mem1;i0;
 
-c;rst;o0;sr1;S0;  # reset sets sr1
-c;vcc;o0;sr1;R0;
 c;sr1;q0;led1;i0;
+c;sr1;q0;n_op;i0;
+c;sr1;q0;n2a;i1;
+c;sr1;q0;n2b;i0;
 
-c;rst;o0;sr2a;R0;  # reset clears sr2a
-c;vcc;o0;sr2a;S0;
 c;sr2a;q0;led2a;i0;
-
-c;rst;o0;sr3a;R0;  # reset clears sr3a
-c;vcc;o0;sr3a;S0;
+c;sr2a;q0;sr3a;d0;
 c;sr3a;q0;led3a;i0;
-
-c;rst;o0;sr2b;R0;  # reset clears sr2b
-c;vcc;o0;sr2b;S0;
+c;sr3a;Q0;n1;i0;
 c;sr2b;q0;led2b;i0;
+c;sr2b;Q0;n1;i1;
 
-d;dflipflop;opcode;
-c;rst;o0;opcode;R0;  # reset clears opcode
-c;vcc;o0;opcode;S0;
+c;opcode;q0;n2b;i1;
+c;opcode;q0;led_opcode_q;i0;
+c;opcode;Q0;n2a;i0;
+c;opcode;Q0;led_opcode_Q;i0;
 
-c;n1;o0;sr1;d;
-c;sr1;q0;led1;i0;
-c;sr1;Q0;n2a;i1;
-c;n2a;o0;sr2a;d0;
-c;sr1;Q0;n2b;i1;
-c;sr2a
+c;n1;o0;sr1;d0;
+c;n2a;o0;n2a_i;i0;
+c;n2a_i;o0;sr2a;d0;
+c;n2b;o0;n2b_i;i0;
+c;n2b_i;o0;sr2b;d0;
+c;n_op;o0;n_op_i;i0;
+c;n_op_i;o0;opcode;c0;
+
+c;clk;q0;sr1;c0;
+c;clk;q0;sr2a;c0;
+c;clk;q0;sr3a;c0;
+c;clk;q0;sr2b;c0;
+c;clk;q0;n_op;i1;
+
+c;mem1;o0;opcode;d0;
+
+p;
+# load memory with 0, 1.
+l;mem1;0;0;1;
+# release reset.
+m;rst;1;
+
+t;12;
+
+m;a_sw;1;
+t;12;

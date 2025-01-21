@@ -18,7 +18,7 @@
 #include "cfg.h"
 #include "lsim.h"
 #include "lsim_dev.h"
-#include "lsim_devices.h"
+#include "lsim_devs.h"
 
 
 ERR_F lsim_dev_in_chain_add(lsim_dev_in_terminal_t **head, lsim_dev_in_terminal_t *in_terminal, lsim_dev_out_terminal_t *driving_out_terminal) {

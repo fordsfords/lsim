@@ -1,4 +1,4 @@
-/* lsim_devices_panel.c */
+/* lsim_devs_panel.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -13,15 +13,15 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
-#include "../err.h"
-#include "../hmap.h"
-#include "../cfg.h"
-#include "../lsim.h"
-#include "../lsim_dev.h"
-#include "../lsim_devices.h"
+#include "err.h"
+#include "hmap.h"
+#include "cfg.h"
+#include "lsim.h"
+#include "lsim_dev.h"
+#include "lsim_devs.h"
 
 
-ERR_F lsim_dev_panel_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
+ERR_F lsim_devs_panel_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_PANEL, LSIM_ERR_INTERNAL);
 
@@ -38,10 +38,10 @@ ERR_F lsim_dev_panel_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char 
   else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
-}  /* lsim_dev_panel_get_out_terminal */
+}  /* lsim_devs_panel_get_out_terminal */
 
 
-ERR_F lsim_dev_panel_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
+ERR_F lsim_devs_panel_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_PANEL, LSIM_ERR_INTERNAL);
 
@@ -59,10 +59,10 @@ ERR_F lsim_dev_panel_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
   }
 
   return ERR_OK;
-}  /* lsim_dev_panel_get_in_terminal */
+}  /* lsim_devs_panel_get_in_terminal */
 
 
-ERR_F lsim_dev_panel_power(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_panel_power(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_PANEL, LSIM_ERR_INTERNAL);
 
@@ -70,30 +70,30 @@ ERR_F lsim_dev_panel_power(lsim_t *lsim, lsim_dev_t *dev) {
    * processed on their own. Nothing to be done here. */
 
   return ERR_OK;
-}  /* lsim_dev_panel_power */
+}  /* lsim_devs_panel_power */
 
 
-ERR_F lsim_dev_panel_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_panel_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_PANEL, LSIM_ERR_INTERNAL);
 
   ERR_THROW(LSIM_ERR_INTERNAL, "run logic should not be called for panel");
 
   return ERR_OK;
-}  /* lsim_dev_panel_run_logic */
+}  /* lsim_devs_panel_run_logic */
 
 
-ERR_F lsim_dev_panel_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_panel_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_PANEL, LSIM_ERR_INTERNAL);
 
   ERR_THROW(LSIM_ERR_INTERNAL, "propagate outputs should not be called for panel");
 
   return ERR_OK;
-}  /* lsim_dev_panel_propagate_outputs */
+}  /* lsim_devs_panel_propagate_outputs */
 
 
-ERR_F lsim_dev_panel_delete(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_panel_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_PANEL, LSIM_ERR_INTERNAL);
 
@@ -101,10 +101,10 @@ ERR_F lsim_dev_panel_delete(lsim_t *lsim, lsim_dev_t *dev) {
   free(dev);
 
   return ERR_OK;
-}  /* lsim_dev_panel_delete */
+}  /* lsim_devs_panel_delete */
 
 
-ERR_F lsim_dev_panel_create(lsim_t *lsim, char *dev_name, long num_bits) {
+ERR_F lsim_devs_panel_create(lsim_t *lsim, char *dev_name, long num_bits) {
   ERR_ASSRT(num_bits >= 1, LSIM_ERR_PARAM);
 
   /* Make sure name doesn't already exist. */
@@ -126,13 +126,13 @@ ERR_F lsim_dev_panel_create(lsim_t *lsim, char *dev_name, long num_bits) {
   for (i = 0; i < num_bits; i++) {
     char *swtch_name;
     ERR(err_asprintf(&swtch_name, "%s.swtch.%d", dev_name, i));
-    ERR(lsim_dev_swtch_create(lsim, swtch_name, 0));
+    ERR(lsim_devs_swtch_create(lsim, swtch_name, 0));
     lsim_dev_t *swtch_dev;
     ERR(hmap_slookup(lsim->devs, swtch_name, (void **)&swtch_dev));
 
     char *led_name;
     ERR(err_asprintf(&led_name, "%s.led.%d", dev_name, i));
-    ERR(lsim_dev_led_create(lsim, led_name));
+    ERR(lsim_devs_led_create(lsim, led_name));
     lsim_dev_t *led_dev;
     ERR(hmap_slookup(lsim->devs, led_name, (void **)&led_dev));
 
@@ -145,15 +145,15 @@ ERR_F lsim_dev_panel_create(lsim_t *lsim, char *dev_name, long num_bits) {
   }
 
   /* Type-specific methods (inheritance). */
-  dev->get_out_terminal = lsim_dev_panel_get_out_terminal;
-  dev->get_in_terminal = lsim_dev_panel_get_in_terminal;
-  dev->power = lsim_dev_panel_power;
-  dev->run_logic = lsim_dev_panel_run_logic;
-  dev->propagate_outputs = lsim_dev_panel_propagate_outputs;
-  dev->delete = lsim_dev_panel_delete;
+  dev->get_out_terminal = lsim_devs_panel_get_out_terminal;
+  dev->get_in_terminal = lsim_devs_panel_get_in_terminal;
+  dev->power = lsim_devs_panel_power;
+  dev->run_logic = lsim_devs_panel_run_logic;
+  dev->propagate_outputs = lsim_devs_panel_propagate_outputs;
+  dev->delete = lsim_devs_panel_delete;
 
   /* Write the panel dev. */
   ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   return ERR_OK;
-}  /* lsim_dev_panel_create */
+}  /* lsim_devs_panel_create */

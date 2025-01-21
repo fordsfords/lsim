@@ -121,6 +121,26 @@ Supported device types:
   * Outputs:
     * `o0`-`on` (switch outputs, with 0 <= `n` < num_bits)
 
+* `addbit` - Single-bit full adder
+  * Format: `d;addbit;name;`
+  * Inputs:
+    * `a0` (First addend)
+    * `b0` (Second addend)
+    * `i0` (Carry in)
+  * Outputs:
+    * `s0` (Sum)
+    * `o0` (Carry out)
+
+* `addword` - Multi-bit full adder
+  * Format: `d;addword;name;num_bits;`
+  * Inputs:
+    * `a0`-`an` (First addend)
+    * `b0`-`an` (Second addend)
+    * `i0` (Carry in)
+  * Outputs:
+    * `s0`-`sn` (Sum)
+    * `o0` (Carry out)
+
 ### c - Connect
 Connects an output from one device to an input of another device.
 
@@ -159,7 +179,7 @@ l;mem1;0x4;5;6;7;8;9;10;11;
 ```
 
 ### m - Move (Set) Switch
-Changes the state of a switch.  Also runs the logic engine to propogate the state change through the circuit (does not represent a clock ticklet).
+Changes the state of a switch.  Also runs the logic engine to propagate the state change through the circuit (does not represent a clock ticklet).
 
 Format: `m;switch_name;new_state;`
 

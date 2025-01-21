@@ -18,7 +18,7 @@
 #include "cfg.h"
 #include "lsim.h"
 #include "lsim_dev.h"
-#include "lsim_devices.h"
+#include "lsim_devs.h"
 #include "lsim_cmd.h"
 
 
@@ -69,7 +69,7 @@ ERR_F lsim_cmd_define_probe(lsim_t *lsim, char *cmd_line) {
   ERR(err_atol(flags_s, &flags));
   ERR_ASSRT(flags >= 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_probe_create(lsim, dev_name, flags));
+  ERR(lsim_devs_probe_create(lsim, dev_name, flags));
 
   return ERR_OK;
 }  /* lsim_cmd_define_probe */
@@ -90,7 +90,7 @@ ERR_F lsim_cmd_define_gnd(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_gnd_create(lsim, dev_name));
+  ERR(lsim_devs_gnd_create(lsim, dev_name));
 
   return ERR_OK;
 }  /* lsim_cmd_define_gnd */
@@ -111,7 +111,7 @@ ERR_F lsim_cmd_define_vcc(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_vcc_create(lsim, dev_name));
+  ERR(lsim_devs_vcc_create(lsim, dev_name));
 
   return ERR_OK;
 }  /* lsim_cmd_define_vcc */
@@ -140,7 +140,7 @@ ERR_F lsim_cmd_define_swtch(lsim_t *lsim, char *cmd_line) {
   ERR(err_atol(init_state_s, &init_state));
   ERR_ASSRT(init_state == 0 || init_state == 1, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_swtch_create(lsim, dev_name, (int)init_state));
+  ERR(lsim_devs_swtch_create(lsim, dev_name, (int)init_state));
 
   return ERR_OK;
 }  /* lsim_cmd_define_swtch */
@@ -161,7 +161,7 @@ ERR_F lsim_cmd_define_clk(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_clk_create(lsim, dev_name));
+  ERR(lsim_devs_clk_create(lsim, dev_name));
 
   return ERR_OK;
 }  /* lsim_cmd_define_clk */
@@ -182,7 +182,7 @@ ERR_F lsim_cmd_define_led(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_led_create(lsim, dev_name));
+  ERR(lsim_devs_led_create(lsim, dev_name));
 
   return ERR_OK;
 }  /* lsim_cmd_define_led */
@@ -211,7 +211,7 @@ ERR_F lsim_cmd_define_nand(lsim_t *lsim, char *cmd_line) {
   ERR(err_atol(num_inputs_s, &num_inputs));
   ERR_ASSRT(num_inputs > 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_nand_create(lsim, dev_name, num_inputs));
+  ERR(lsim_devs_nand_create(lsim, dev_name, num_inputs));
 
   return ERR_OK;
 }  /* lsim_cmd_define_nand */
@@ -248,7 +248,7 @@ ERR_F lsim_cmd_define_mem(lsim_t *lsim, char *cmd_line) {
   ERR(err_atol(num_data_s, &num_data));
   ERR_ASSRT(num_data > 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_mem_create(lsim, dev_name, num_addr, num_data));
+  ERR(lsim_devs_mem_create(lsim, dev_name, num_addr, num_data));
 
   return ERR_OK;
 }  /* lsim_cmd_define_mem */
@@ -269,7 +269,7 @@ ERR_F lsim_cmd_define_srlatch(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_srlatch_create(lsim, dev_name));
+  ERR(lsim_devs_srlatch_create(lsim, dev_name));
 
   return ERR_OK;
 }  /* lsim_cmd_define_srlatch */
@@ -290,7 +290,7 @@ ERR_F lsim_cmd_define_dflipflop(lsim_t *lsim, char *cmd_line) {
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_dflipflop_create(lsim, dev_name));
+  ERR(lsim_devs_dflipflop_create(lsim, dev_name));
 
   return ERR_OK;
 }  /* lsim_cmd_define_dflipflop */
@@ -319,7 +319,7 @@ ERR_F lsim_cmd_define_reg(lsim_t *lsim, char *cmd_line) {
   ERR(err_atol(num_bits_s, &num_bits));
   ERR_ASSRT(num_bits > 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_reg_create(lsim, dev_name, num_bits));
+  ERR(lsim_devs_reg_create(lsim, dev_name, num_bits));
 
   return ERR_OK;
 }  /* lsim_cmd_define_reg */
@@ -348,7 +348,7 @@ ERR_F lsim_cmd_define_panel(lsim_t *lsim, char *cmd_line) {
   ERR(err_atol(num_bits_s, &num_bits));
   ERR_ASSRT(num_bits > 0, LSIM_ERR_COMMAND);
 
-  ERR(lsim_dev_panel_create(lsim, dev_name, num_bits));
+  ERR(lsim_devs_panel_create(lsim, dev_name, num_bits));
 
   return ERR_OK;
 }  /* lsim_cmd_define_panel */

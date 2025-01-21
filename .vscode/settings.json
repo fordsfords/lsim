@@ -4,6 +4,8 @@
     },
     "cSpell.words": [
         "ABRT",
+        "addbit",
+        "addword",
         "dflipflop",
         "dflipflops",
         "hmap",
@@ -18,7 +20,8 @@
         "qled",
         "srlatch",
         "swtch",
-        "ticklet"
+        "ticklet",
+        "ticklets"
     ],
     "vim.scrolloff": 0,
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [

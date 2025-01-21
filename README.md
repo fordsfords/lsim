@@ -9,6 +9,7 @@ Logic simulator.
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Composite Devices](#composite-devices)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Configuration](#configuration)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Design Notes](#design-notes)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&bull; [Glossary](#glossary)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [Circuit Entry Language](#circuit-entry-language)  
 &nbsp;&nbsp;&nbsp;&nbsp;&bull; [License](#license)  
 <!-- TOC created by '../mdtoc/mdtoc.pl README.md' (see https://github.com/fordsfords/mdtoc) -->
@@ -113,6 +114,7 @@ Then specify the file on the lsim command line using the "-c" option. For exampl
 
 ## Design Notes
 
+* See the [glossary](#glossary) for abbreviations.
 * The lsim project leverages three other much smaller projects:
   * https://github.com/fordsfords/err - error handling framework that
     implements a very primitive form of try/throw/catch.
@@ -120,25 +122,19 @@ Then specify the file on the lsim command line using the "-c" option. For exampl
     used it on, but I'm rather fond of it.
   * https://github.com/fordsfords/hmap - hash map.
   * https://github.com/fordsfords/cfg - simple configuration loader.
-* The "devices" subdirectory contains C files for the hardware devices available
-  for simulation. E.g. the file "devices/nand.c" implements the nand gate.
-* OO-style "inheritance" is implemented with function pointers.
-* A "terminal" is an input or an output to a device.
-(I thought of naming it a "pin", but many logic gates are not exposed
-to the package pins. I thought of "wire", but a wire is something that connects
-to a terminal. I thought of "connection" but that is when you connect two
-terminals together (maybe with a wire). Terminal was the best I could think of.)
-* I use upper-case in some naming conventions to indicate "not".
-For example, a latch has "q" and "Q" outputs.
-An sr-latch with active-low set and reset labels its inputs S and R.
-(I thought about underscore for not, "_q" for not-Q, but it would have
-complicated the code more.)
-* I wanted a absolute minimum of different logic devices.
+* I wanted a absolute minimum of primitive logic devices.
 So some devices, like srlatch and dflipflop, are composite devices;
 defining a dflipflop actually generates 6 nand gates wired as a
 [classical d flip-flop](https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop).
 Note that it names the internal gates with a period (.) so that the name won't
 conflict with any user-chosen names (which can't have a period).
+* I use upper-case in some naming conventions to indicate "not".
+For example, a latch has "q" and "Q" outputs.
+An sr-latch with active-low set and reset labels its inputs S and R.
+* A "terminal" is an input or an output to a device.
+* All files matching "lsim_devs_*.c" implement the corresponding device type.
+  I.e. "lsim_devs_nand.c" implements the "nand" device.
+* OO-style "inheritance" is implemented with function pointers.
 * A single "run" of the logic engine consists of a loop containing two phases
   * Have each device with an input change re-calculate its output,
   * Propagate those outputs to the connected inputs.
@@ -154,6 +150,33 @@ output to its input.
 The circuit will never stabilize.
 There is a configurable limit to this looping ("max_propagate_cycles")
 that defaults to 50.
+
+### Glossary
+
+To control code lines, I use a set of abbreviations.
+
+* dev - "device"
+* devs - "devices". "devs" is most often used to indicate a specific
+simulated device.
+E.g. "devs_nand" indicates a "nand" device.
+
+Device types:
+* addbit - primitive device: a single-bit full adder.
+* addword - composite device: collection of single-bit full adders connected
+to implement a multi-bit word adder.
+* clk - primitive device: clock device.
+* dflipflop - composite device: d-type flipflop, edge triggered,
+with set and reset.
+* gnd - primitive device: "ground", logical 0.
+* led - primitive device: light emitting diode.
+* mem - primitive device: memory.
+* nand - primitive device: not-and gate.
+* panel - composite device: collection of swtch and led devices.
+* probe - primitive device: debugging aid.
+* reg - composite device: "register", collection of dflipflops.
+* srlatch - composite device: set/reset latch.
+* swtch - primitive device: "switch", either logical 0 or 1, switchable.
+* vcc - primitive device: "Voltage at the Common Collector", logical 1.
 
 ## Circuit Entry Language
 
@@ -173,11 +196,13 @@ d;swtch;dev_name;init_state;
 d;led;dev_name;
 d;clk;dev_name;
 d;nand;dev_name;num_inputs;
-d;srlatch;dev_name;                # composite of nands
-d;dflipflop;dev_name;              # composite of nands
-d;reg;dev_name;num_bits;           # composite of dflipflops.
-d;panel;dev_name;num_bits;         # composite of switches and LEDs
-d;mem;dev_name;num_addr;num_data;  # not yet implemented.
+d;srlatch;dev_name;
+d;dflipflop;dev_name;
+d;reg;dev_name;num_bits;
+d;panel;dev_name;num_bits;
+d;mem;dev_name;num_addr;num_data;
+d;addbit;name;
+d;addword;name;num_bits;
 
 # Connect devices.
 c;src_dev_name;src_output_id;dst_dev_name;dst_input_id;
@@ -186,14 +211,14 @@ b;src_dev_name;src_output_id;dst_dev_name;dst_input_id;num_bits;  # bus (multipl
 # Include.
 i;filename;
 
+# Watch a device for debugging (watch_level: 0=none, 1=output change, 2=always print)
+w;dev_name;watch_level;
+
 # Power on.
 p;
 
 # Move a switch
 m;dev_name;new_state;
-
-# Watch a device for debugging (watch_level: 0=none, 1=output change, 2=always print)
-w;dev_name;watch_level;
 
 # Tick
 t;num_ticklets;

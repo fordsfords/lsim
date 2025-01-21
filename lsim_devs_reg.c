@@ -1,4 +1,4 @@
-/* lsim_devices_reg.c */
+/* lsim_devs_reg.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -13,15 +13,15 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
-#include "../err.h"
-#include "../hmap.h"
-#include "../cfg.h"
-#include "../lsim.h"
-#include "../lsim_dev.h"
-#include "../lsim_devices.h"
+#include "err.h"
+#include "hmap.h"
+#include "cfg.h"
+#include "lsim.h"
+#include "lsim_dev.h"
+#include "lsim_devs.h"
 
 
-ERR_F lsim_dev_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
+ERR_F lsim_devs_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
@@ -48,10 +48,10 @@ ERR_F lsim_dev_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
-}  /* lsim_dev_reg_get_out_terminal */
+}  /* lsim_devs_reg_get_out_terminal */
 
 
-ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
+ERR_F lsim_devs_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
@@ -78,10 +78,10 @@ ERR_F lsim_dev_reg_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
   }
 
   return ERR_OK;
-}  /* lsim_dev_reg_get_in_terminal */
+}  /* lsim_devs_reg_get_in_terminal */
 
 
-ERR_F lsim_dev_reg_power(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_reg_power(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
@@ -89,30 +89,30 @@ ERR_F lsim_dev_reg_power(lsim_t *lsim, lsim_dev_t *dev) {
    * processed on their own. Nothing to be done here. */
 
   return ERR_OK;
-}  /* lsim_dev_reg_power */
+}  /* lsim_devs_reg_power */
 
 
-ERR_F lsim_dev_reg_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_reg_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
   ERR_THROW(LSIM_ERR_INTERNAL, "run logic should not be called for reg");
 
   return ERR_OK;
-}  /* lsim_dev_reg_run_logic */
+}  /* lsim_devs_reg_run_logic */
 
 
-ERR_F lsim_dev_reg_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_reg_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
   ERR_THROW(LSIM_ERR_INTERNAL, "propagate outputs should not be called for reg");
 
   return ERR_OK;
-}  /* lsim_dev_reg_propagate_outputs */
+}  /* lsim_devs_reg_propagate_outputs */
 
 
-ERR_F lsim_dev_reg_delete(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_reg_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_REG, LSIM_ERR_INTERNAL);
 
@@ -120,10 +120,10 @@ ERR_F lsim_dev_reg_delete(lsim_t *lsim, lsim_dev_t *dev) {
   free(dev);
 
   return ERR_OK;
-}  /* lsim_dev_reg_delete */
+}  /* lsim_devs_reg_delete */
 
 
-ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
+ERR_F lsim_devs_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
   ERR_ASSRT(num_bits >= 1, LSIM_ERR_PARAM);
 
   /* Make sure name doesn't already exist. */
@@ -143,7 +143,7 @@ ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
 
   char *vcc_name;
   ERR(err_asprintf(&vcc_name, "%s.vcc", dev_name));
-  ERR(lsim_dev_vcc_create(lsim, vcc_name));
+  ERR(lsim_devs_vcc_create(lsim, vcc_name));
   lsim_dev_t *vcc_dev;
   ERR(hmap_slookup(lsim->devs, vcc_name, (void **)&vcc_dev));
 
@@ -152,7 +152,7 @@ ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
   for (i = 0; i < num_bits; i++) {
     char *dflipflop_name;
     ERR(err_asprintf(&dflipflop_name, "%s.dflipflop.%d", dev_name, i));
-    ERR(lsim_dev_dflipflop_create(lsim, dflipflop_name));
+    ERR(lsim_devs_dflipflop_create(lsim, dflipflop_name));
     lsim_dev_t *dflipflop_dev;
     ERR(hmap_slookup(lsim->devs, dflipflop_name, (void **)&dflipflop_dev));
 
@@ -172,16 +172,16 @@ ERR_F lsim_dev_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
   }
 
   /* Type-specific methods (inheritance). */
-  dev->get_out_terminal = lsim_dev_reg_get_out_terminal;
-  dev->get_in_terminal = lsim_dev_reg_get_in_terminal;
-  dev->power = lsim_dev_reg_power;
-  dev->run_logic = lsim_dev_reg_run_logic;
-  dev->propagate_outputs = lsim_dev_reg_propagate_outputs;
-  dev->delete = lsim_dev_reg_delete;
+  dev->get_out_terminal = lsim_devs_reg_get_out_terminal;
+  dev->get_in_terminal = lsim_devs_reg_get_in_terminal;
+  dev->power = lsim_devs_reg_power;
+  dev->run_logic = lsim_devs_reg_run_logic;
+  dev->propagate_outputs = lsim_devs_reg_propagate_outputs;
+  dev->delete = lsim_devs_reg_delete;
 
   ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   free(vcc_name);
 
   return ERR_OK;
-}  /* lsim_dev_reg_create */
+}  /* lsim_devs_reg_create */

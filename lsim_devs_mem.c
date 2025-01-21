@@ -1,4 +1,4 @@
-/* lsim_devices_mem.c */
+/* lsim_devs_mem.c */
 /*
 # This code and its documentation is Copyright 2024-2024 Steven Ford, http://geeky-boy.com
 # and licensed "public domain" style under Creative Commons "CC0": http://creativecommons.org/publicdomain/zero/1.0/
@@ -13,15 +13,15 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
-#include "../err.h"
-#include "../hmap.h"
-#include "../cfg.h"
-#include "../lsim.h"
-#include "../lsim_dev.h"
-#include "../lsim_devices.h"
+#include "err.h"
+#include "hmap.h"
+#include "cfg.h"
+#include "lsim.h"
+#include "lsim_dev.h"
+#include "lsim_devs.h"
 
 
-ERR_F lsim_dev_mem_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
+ERR_F lsim_devs_mem_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *out_id, lsim_dev_out_terminal_t **out_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
@@ -38,10 +38,10 @@ ERR_F lsim_dev_mem_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *o
   else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
-}  /* lsim_dev_mem_get_out_terminal */
+}  /* lsim_devs_mem_get_out_terminal */
 
 
-ERR_F lsim_dev_mem_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
+ERR_F lsim_devs_mem_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in_id, lsim_dev_in_terminal_t **in_terminal, int bit_offset) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
@@ -72,10 +72,10 @@ ERR_F lsim_dev_mem_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *in
   else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized in_id '%s'", in_id);
 
   return ERR_OK;
-}  /* lsim_dev_mem_get_in_terminal */
+}  /* lsim_devs_mem_get_in_terminal */
 
 
-ERR_F lsim_dev_mem_power(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_mem_power(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
   int out_index;
@@ -100,10 +100,10 @@ ERR_F lsim_dev_mem_power(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_mem_power */
+}  /* lsim_devs_mem_power */
 
 
-ERR_F lsim_dev_mem_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_mem_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
   /* Get an integer value representing the address bits. */
@@ -165,10 +165,10 @@ ERR_F lsim_dev_mem_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_mem_run_logic */
+}  /* lsim_devs_mem_run_logic */
 
 
-ERR_F lsim_dev_mem_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_mem_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
   /* Propagate each output bit. */
@@ -190,10 +190,10 @@ ERR_F lsim_dev_mem_propagate_outputs(lsim_t *lsim, lsim_dev_t *dev) {
   }
 
   return ERR_OK;
-}  /* lsim_dev_mem_propagate_outputs */
+}  /* lsim_devs_mem_propagate_outputs */
 
 
-ERR_F lsim_dev_mem_delete(lsim_t *lsim, lsim_dev_t *dev) {
+ERR_F lsim_devs_mem_delete(lsim_t *lsim, lsim_dev_t *dev) {
   (void)lsim;
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_MEM, LSIM_ERR_INTERNAL);
 
@@ -218,10 +218,10 @@ ERR_F lsim_dev_mem_delete(lsim_t *lsim, lsim_dev_t *dev) {
   free(dev);
 
   return ERR_OK;
-}  /* lsim_dev_mem_delete */
+}  /* lsim_devs_mem_delete */
 
 
-ERR_F lsim_dev_mem_create(lsim_t *lsim, char *dev_name, long num_addr, long num_data) {
+ERR_F lsim_devs_mem_create(lsim_t *lsim, char *dev_name, long num_addr, long num_data) {
   ERR_ASSRT((num_data >= 1) && (num_data <= 64), LSIM_ERR_PARAM);
   ERR_ASSRT((num_addr >= 1) && (num_addr <= 18), LSIM_ERR_PARAM);
 
@@ -269,14 +269,14 @@ ERR_F lsim_dev_mem_create(lsim_t *lsim, char *dev_name, long num_addr, long num_
   dev->mem.w_terminal->dev = dev;
 
   /* Type-specific methods (inheritance). */
-  dev->get_out_terminal = lsim_dev_mem_get_out_terminal;
-  dev->get_in_terminal = lsim_dev_mem_get_in_terminal;
-  dev->power = lsim_dev_mem_power;
-  dev->run_logic = lsim_dev_mem_run_logic;
-  dev->propagate_outputs = lsim_dev_mem_propagate_outputs;
-  dev->delete = lsim_dev_mem_delete;
+  dev->get_out_terminal = lsim_devs_mem_get_out_terminal;
+  dev->get_in_terminal = lsim_devs_mem_get_in_terminal;
+  dev->power = lsim_devs_mem_power;
+  dev->run_logic = lsim_devs_mem_run_logic;
+  dev->propagate_outputs = lsim_devs_mem_propagate_outputs;
+  dev->delete = lsim_devs_mem_delete;
 
   ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
   return ERR_OK;
-}  /* lsim_dev_mem_create */
+}  /* lsim_devs_mem_create */

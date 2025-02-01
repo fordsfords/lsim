@@ -36,8 +36,13 @@
     err_t *e__err = (e__test);                                                      \
     if (e__err != ERR_OK) {                                                         \
       printf("ERROR [%s:%d]: '%s' returned error\n", __FILE__, __LINE__, #e__test); \
+      /* include ERR_ABRT() caller in stack trace. */                               \
+      e__err = err_rethrow_v(__FILE__, __LINE__, __func__, e__err, #e__test);       \
+      fprintf(stdout, "Stack trace:\n----------------\n");                          \
+      err_print(e__err, stdout);                                                    \
+      err_dispose(e__err);                                                          \
       fflush(stdout);                                                               \
-      switch (global_error_reaction) {                                                 \
+      switch (global_error_reaction) {                                              \
         case 1:                                                                     \
           exit(1);                                                                  \
           break;                                                                    \
@@ -45,7 +50,7 @@
           /* Warn - keep running. */                                                \
           break;                                                                    \
         default:                                                                    \
-          abort();                                             \
+          abort();                                                                  \
           break;                                                                    \
       }                                                                             \
     }                                                                               \
@@ -645,6 +650,134 @@ void test8() {
 }  /* test8 */
 
 
+void test9() {
+  lsim_t *lsim;
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "d;addbit;adder;"));
+
+  E(lsim_cmd_line(lsim, "d;swtch;sw_a;0;"));
+  E(lsim_cmd_line(lsim, "w;sw_a;1;"));
+  E(lsim_cmd_line(lsim, "d;swtch;sw_b;0;"));
+  E(lsim_cmd_line(lsim, "w;sw_b;1;"));
+  E(lsim_cmd_line(lsim, "d;swtch;sw_i;0;"));
+  E(lsim_cmd_line(lsim, "w;sw_i;1;"));
+
+  E(lsim_cmd_line(lsim, "d;led;led_s;"));
+  lsim_dev_t *led_s;
+  E(hmap_slookup(lsim->devs, "led_s", (void **)&led_s));
+  ASSRT(led_s);
+  ASSRT(led_s->type == LSIM_DEV_TYPE_LED);
+  ASSRT(led_s->led.illuminated == 0);
+  ASSRT(led_s->led.i_terminal->state == 0);
+
+  E(lsim_cmd_line(lsim, "d;led;led_o;"));
+  lsim_dev_t *led_o;
+  E(hmap_slookup(lsim->devs, "led_o", (void **)&led_o));
+  ASSRT(led_o);
+  ASSRT(led_o->type == LSIM_DEV_TYPE_LED);
+  ASSRT(led_o->led.illuminated == 0);
+  ASSRT(led_o->led.i_terminal->state == 0);
+
+  E(lsim_cmd_line(lsim, "c;sw_a;o0;adder;a0;"));
+  E(lsim_cmd_line(lsim, "c;sw_b;o0;adder;b0;"));
+  E(lsim_cmd_line(lsim, "c;sw_i;o0;adder;i0;"));
+  E(lsim_cmd_line(lsim, "c;adder;s0;led_s;i0;"));
+  E(lsim_cmd_line(lsim, "c;adder;o0;led_o;i0;"));
+
+  E(lsim_cmd_line(lsim, "p;"));  /* Power up. */
+  ASSRT(led_s->led.illuminated == 0);
+  ASSRT(led_o->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;sw_a;1;"));
+  ASSRT(led_s->led.illuminated == 1);
+  ASSRT(led_o->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;sw_b;1;"));
+  ASSRT(led_s->led.illuminated == 0);
+  ASSRT(led_o->led.illuminated == 1);
+
+  E(lsim_cmd_line(lsim, "m;sw_a;0;"));
+  ASSRT(led_s->led.illuminated == 1);
+  ASSRT(led_o->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;sw_i;1;"));
+  ASSRT(led_s->led.illuminated == 0);
+  ASSRT(led_o->led.illuminated == 1);
+
+  E(lsim_cmd_line(lsim, "m;sw_a;1;"));
+  ASSRT(led_o->led.illuminated == 1);
+  ASSRT(led_o->led.illuminated == 1);
+
+  E(lsim_delete(lsim));
+}  /* test9 */
+
+
+void test10() {
+  lsim_t *lsim;
+
+  E(lsim_create(&lsim, NULL));
+
+  E(lsim_cmd_line(lsim, "d;addword;adder;3;"));
+  E(lsim_cmd_line(lsim, "d;panel;panela;3;"));
+  E(lsim_cmd_line(lsim, "d;panel;panelb;3;"));
+  E(lsim_cmd_line(lsim, "d;swtch;carry_in_sw;0;"));
+  E(lsim_cmd_line(lsim, "d;gnd;gnd;"));
+
+  E(lsim_cmd_line(lsim, "b;panela;o0;adder;a0;3;"));
+  E(lsim_cmd_line(lsim, "b;panelb;o0;adder;b0;3;"));
+  E(lsim_cmd_line(lsim, "b;adder;s0;panela;i0;3;"));
+  E(lsim_cmd_line(lsim, "c;carry_in_sw;o0;adder;i0;"));
+  E(lsim_cmd_line(lsim, "c;adder;o0;panelb;i0;"));
+  E(lsim_cmd_line(lsim, "c;gnd;o0;panelb;i1;"));
+  E(lsim_cmd_line(lsim, "c;gnd;o0;panelb;i2;"));
+
+  lsim_dev_t *led0_dev;
+  E(hmap_slookup(lsim->devs, "panela.led.0", (void **)&led0_dev));
+  lsim_dev_t *led1_dev;
+  E(hmap_slookup(lsim->devs, "panela.led.1", (void **)&led1_dev));
+  lsim_dev_t *led2_dev;
+  E(hmap_slookup(lsim->devs, "panela.led.2", (void **)&led2_dev));
+
+  E(lsim_cmd_line(lsim, "w;panela.swtch.0;1;"));
+  E(lsim_cmd_line(lsim, "w;panela.swtch.1;1;"));
+  E(lsim_cmd_line(lsim, "w;panela.swtch.2;1;"));
+  E(lsim_cmd_line(lsim, "w;panelb.swtch.0;1;"));
+  E(lsim_cmd_line(lsim, "w;panelb.swtch.1;1;"));
+  E(lsim_cmd_line(lsim, "w;panelb.swtch.2;1;"));
+  E(lsim_cmd_line(lsim, "w;carry_in_sw;1;"));
+  E(lsim_cmd_line(lsim, "v;3;"));
+  E(lsim_cmd_line(lsim, "p;"));  /* Power up. */
+  ASSRT(led0_dev->led.illuminated == 0);
+  ASSRT(led1_dev->led.illuminated == 0);
+  ASSRT(led2_dev->led.illuminated == 0);
+
+  E(lsim_cmd_line(lsim, "m;panela.swtch.0;1;"));
+  ASSRT(led0_dev->led.illuminated == 1);
+  ASSRT(led1_dev->led.illuminated == 0);
+  ASSRT(led2_dev->led.illuminated == 0);
+  E(lsim_cmd_line(lsim, "m;panelb.swtch.0;1;"));
+  ASSRT(led0_dev->led.illuminated == 0);
+  ASSRT(led1_dev->led.illuminated == 1);
+  ASSRT(led2_dev->led.illuminated == 0);
+  E(lsim_cmd_line(lsim, "m;carry_in_sw;1;"));
+  ASSRT(led0_dev->led.illuminated == 1);
+  ASSRT(led1_dev->led.illuminated == 1);
+  ASSRT(led2_dev->led.illuminated == 0);
+  E(lsim_cmd_line(lsim, "m;panelb.swtch.1;1;"));
+  ASSRT(led0_dev->led.illuminated == 1);
+  ASSRT(led1_dev->led.illuminated == 0);
+  ASSRT(led2_dev->led.illuminated == 1);
+  E(lsim_cmd_line(lsim, "m;panela.swtch.1;1;"));
+  ASSRT(led0_dev->led.illuminated == 1);
+  ASSRT(led1_dev->led.illuminated == 1);
+  ASSRT(led2_dev->led.illuminated == 1);
+
+  E(lsim_delete(lsim));
+}  /* test10 */
+
+
 int main(int argc, char **argv) {
   parse_cmdline(argc, argv);
 
@@ -686,6 +819,16 @@ int main(int argc, char **argv) {
   if (o_testnum == 0 || o_testnum == 8) {
     test8();
     printf("test8: success\n");
+  }
+
+  if (o_testnum == 0 || o_testnum == 9) {
+    test9();
+    printf("test9: success\n");
+  }
+
+  if (o_testnum == 0 || o_testnum == 10) {
+    test10();
+    printf("test10: success\n");
   }
 
   return 0;

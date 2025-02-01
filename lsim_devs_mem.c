@@ -156,11 +156,7 @@ ERR_F lsim_devs_mem_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     ERR(lsim_dev_out_changed(lsim, dev));
   }
 
-  int this_verbosity_level = dev->watch_level;
-  if (lsim->verbosity_level > this_verbosity_level) {  /* Global verbosity level. */
-    this_verbosity_level = lsim->verbosity_level;
-  }
-  if (this_verbosity_level == 2 || (this_verbosity_level == 1 && out_changed)) {
+  if (dev->watch_level >= 2 || (dev->watch_level == 1 && out_changed) || ((lsim->verbosity_map & LSIM_VERBOSITY_MAP_OUT_CHG) && out_changed)) {
     printf("  mem %s: o=%ld (0x%lx)\n", dev->name, data_val, data_val);
   }
 

@@ -145,9 +145,9 @@ struct lsim_dev_panel_s {
 struct lsim_dev_addbit_s {
   lsim_dev_out_terminal_t *s_terminal;
   lsim_dev_out_terminal_t *o_terminal;  /* Carry out */
-  lsim_dev_in_terminal_t *a_terminals;
-  lsim_dev_in_terminal_t *b_terminals;
-  lsim_dev_in_terminal_t *i_terminals;  /* Carry in */
+  lsim_dev_in_terminal_t *a_terminal;
+  lsim_dev_in_terminal_t *b_terminal;
+  lsim_dev_in_terminal_t *i_terminal;  /* Carry in */
 };
 
 struct lsim_dev_addword_s {
@@ -206,7 +206,7 @@ ERR_F lsim_devs_srlatch_create(lsim_t *lsim, char *name);
 ERR_F lsim_devs_dflipflop_create(lsim_t *lsim, char *name);
 ERR_F lsim_devs_reg_create(lsim_t *lsim, char *name, long num_bits);
 ERR_F lsim_devs_panel_create(lsim_t *lsim, char *name, long num_bits);
-ERR_F lsim_devs_addbit_create(lsim_t *lsim, char *name, long num_bits);
+ERR_F lsim_devs_addbit_create(lsim_t *lsim, char *name);
 ERR_F lsim_devs_addword_create(lsim_t *lsim, char *name, long num_bits);
 
 #ifdef __cplusplus

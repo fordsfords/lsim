@@ -22,6 +22,13 @@
 extern "C" {
 #endif
 
+
+#define LSIM_VERBOSITY_MAP_NONE 0x00
+#define LSIM_VERBOSITY_MAP_TICKLET 0x01
+#define LSIM_VERBOSITY_MAP_STEP 0x02
+#define LSIM_VERBOSITY_MAP_OUT_CHG 0x04
+#define LSIM_VERBOSITY_MAP_TRACE 0x08
+
 #ifdef LSIM_C
 #  define ERR_CODE(err__code) ERR_API char *err__code = #err__code
 #else
@@ -57,7 +64,7 @@ struct lsim_s {
   long total_warnings;
   long cur_cycle;
   int power_on;
-  int verbosity_level;
+  int verbosity_map;
   int quit;
 };
 

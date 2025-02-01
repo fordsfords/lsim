@@ -26,11 +26,11 @@ ERR_F lsim_devs_addbit_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const cha
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_ADDBIT, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  if (strcmp(out_id, "q0") == 0) {
-    *out_terminal = dev->addbit.q_terminal;
+  if (strcmp(out_id, "s0") == 0) {
+    *out_terminal = dev->addbit.s_terminal;
   }
-  else if (strcmp(out_id, "Q0") == 0) {
-    *out_terminal = dev->addbit.Q_terminal;
+  else if (strcmp(out_id, "o0") == 0) {
+    *out_terminal = dev->addbit.o_terminal;
   }
   else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized out_id '%s'", out_id);
 
@@ -43,17 +43,14 @@ ERR_F lsim_devs_addbit_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char
   ERR_ASSRT(dev->type == LSIM_DEV_TYPE_ADDBIT, LSIM_ERR_INTERNAL);
 
   ERR_ASSRT(bit_offset == 0, LSIM_ERR_COMMAND);  /* Only one output. */
-  if (strcmp(in_id, "S0") == 0) {
-    *in_terminal = dev->addbit.S_terminal;
+  if (strcmp(in_id, "a0") == 0) {
+    *in_terminal = dev->addbit.a_terminal;
   }
-  else if (strcmp(in_id, "R0") == 0) {
-    *in_terminal = dev->addbit.R_terminal;
+  else if (strcmp(in_id, "b0") == 0) {
+    *in_terminal = dev->addbit.b_terminal;
   }
-  else if (strcmp(in_id, "d0") == 0) {
-    *in_terminal = dev->addbit.d_terminal;
-  }
-  else if (strcmp(in_id, "c0") == 0) {
-    *in_terminal = dev->addbit.c_terminal;
+  else if (strcmp(in_id, "i0") == 0) {
+    *in_terminal = dev->addbit.i_terminal;
   }
   else ERR_THROW(LSIM_ERR_INTERNAL, "unrecognized in_id '%s'", in_id);
 
@@ -116,68 +113,89 @@ ERR_F lsim_devs_addbit_create(lsim_t *lsim, char *dev_name) {
   ERR(err_strdup(&(dev->name), dev_name));
   dev->type = LSIM_DEV_TYPE_ADDBIT;
 
-  char *nand_q_name;
-  ERR(err_asprintf(&nand_q_name, "%s.nand_q", dev_name));
-  ERR(lsim_devs_nand_create(lsim, nand_q_name, 3));
-  lsim_dev_t *nand_q_dev;
-  ERR(hmap_slookup(lsim->devs, nand_q_name, (void**)&nand_q_dev));
+  char *nand_1_name;
+  ERR(err_asprintf(&nand_1_name, "%s.nand_1", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_1_name, 2));
+  lsim_dev_t *nand_1_dev;
+  ERR(hmap_slookup(lsim->devs, nand_1_name, (void**)&nand_1_dev));
 
-  char *nand_Q_name;
-  ERR(err_asprintf(&nand_Q_name, "%s.nand_Q", dev_name));
-  ERR(lsim_devs_nand_create(lsim, nand_Q_name, 3));
-  lsim_dev_t *nand_Q_dev;
-  ERR(hmap_slookup(lsim->devs, nand_Q_name, (void**)&nand_Q_dev));
+  char *nand_2_name;
+  ERR(err_asprintf(&nand_2_name, "%s.nand_2", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_2_name, 2));
+  lsim_dev_t *nand_2_dev;
+  ERR(hmap_slookup(lsim->devs, nand_2_name, (void**)&nand_2_dev));
 
-  char *nand_a_name;
-  ERR(err_asprintf(&nand_a_name, "%s.nand_a", dev_name));
-  ERR(lsim_devs_nand_create(lsim, nand_a_name, 3));
-  lsim_dev_t *nand_a_dev;
-  ERR(hmap_slookup(lsim->devs, nand_a_name, (void**)&nand_a_dev));
+  char *nand_3_name;
+  ERR(err_asprintf(&nand_3_name, "%s.nand_3", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_3_name, 2));
+  lsim_dev_t *nand_3_dev;
+  ERR(hmap_slookup(lsim->devs, nand_3_name, (void**)&nand_3_dev));
 
-  char *nand_b_name;
-  ERR(err_asprintf(&nand_b_name, "%s.nand_b", dev_name));
-  ERR(lsim_devs_nand_create(lsim, nand_b_name, 3));
-  lsim_dev_t *nand_b_dev;
-  ERR(hmap_slookup(lsim->devs, nand_b_name, (void**)&nand_b_dev));
+  char *nand_4_name;
+  ERR(err_asprintf(&nand_4_name, "%s.nand_4", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_4_name, 2));
+  lsim_dev_t *nand_4_dev;
+  ERR(hmap_slookup(lsim->devs, nand_4_name, (void**)&nand_4_dev));
 
-  char *nand_c_name;
-  ERR(err_asprintf(&nand_c_name, "%s.nand_c", dev_name));
-  ERR(lsim_devs_nand_create(lsim, nand_c_name, 3));
-  lsim_dev_t *nand_c_dev;
-  ERR(hmap_slookup(lsim->devs, nand_c_name, (void**)&nand_c_dev));
+  char *nand_5_name;
+  ERR(err_asprintf(&nand_5_name, "%s.nand_5", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_5_name, 2));
+  lsim_dev_t *nand_5_dev;
+  ERR(hmap_slookup(lsim->devs, nand_5_name, (void**)&nand_5_dev));
 
-  char *nand_d_name;
-  ERR(err_asprintf(&nand_d_name, "%s.nand_d", dev_name));
-  ERR(lsim_devs_nand_create(lsim, nand_d_name, 3));
-  lsim_dev_t *nand_d_dev;
-  ERR(hmap_slookup(lsim->devs, nand_d_name, (void**)&nand_d_dev));
+  char *nand_6_name;
+  ERR(err_asprintf(&nand_6_name, "%s.nand_6", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_6_name, 2));
+  lsim_dev_t *nand_6_dev;
+  ERR(hmap_slookup(lsim->devs, nand_6_name, (void**)&nand_6_dev));
+
+  char *nand_7_name;
+  ERR(err_asprintf(&nand_7_name, "%s.nand_7", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_7_name, 2));
+  lsim_dev_t *nand_7_dev;
+  ERR(hmap_slookup(lsim->devs, nand_7_name, (void**)&nand_7_dev));
+
+  char *nand_s_name;
+  ERR(err_asprintf(&nand_s_name, "%s.nand_s", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_s_name, 2));
+  lsim_dev_t *nand_s_dev;
+  ERR(hmap_slookup(lsim->devs, nand_s_name, (void**)&nand_s_dev));
+
+  char *nand_o_name;
+  ERR(err_asprintf(&nand_o_name, "%s.nand_o", dev_name));
+  ERR(lsim_devs_nand_create(lsim, nand_o_name, 2));
+  lsim_dev_t *nand_o_dev;
+  ERR(hmap_slookup(lsim->devs, nand_o_name, (void**)&nand_o_dev));
 
   /* Make connections. */
-  ERR(lsim_dev_connect(lsim, nand_q_name, "o0", nand_Q_name, "i0", 0));
-  ERR(lsim_dev_connect(lsim, nand_Q_name, "o0", nand_q_name, "i2", 0));
+  ERR(lsim_dev_connect(lsim, nand_1_name, "o0", nand_2_name, "i1", 0));
+  ERR(lsim_dev_connect(lsim, nand_1_name, "o0", nand_3_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_1_name, "o0", nand_o_name, "i1", 0));
 
-  ERR(lsim_dev_connect(lsim, nand_a_name, "o0", nand_b_name, "i0", 0));
-  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_a_name, "i2", 0));
-  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_c_name, "i0", 0));
-  ERR(lsim_dev_connect(lsim, nand_b_name, "o0", nand_q_name, "i1", 0));
+  ERR(lsim_dev_connect(lsim, nand_2_name, "o0", nand_4_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_3_name, "o0", nand_4_name, "i1", 0));
 
-  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_d_name, "i0", 0));
-  ERR(lsim_dev_connect(lsim, nand_c_name, "o0", nand_Q_name, "i1", 0));
-  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_c_name, "i2", 0));
-  ERR(lsim_dev_connect(lsim, nand_d_name, "o0", nand_a_name, "i1", 0));
+  ERR(lsim_dev_connect(lsim, nand_4_name, "o0", nand_5_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_4_name, "o0", nand_6_name, "i0", 0));
+
+  ERR(lsim_dev_connect(lsim, nand_5_name, "o0", nand_6_name, "i1", 0));
+  ERR(lsim_dev_connect(lsim, nand_5_name, "o0", nand_7_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_5_name, "o0", nand_o_name, "i0", 0));
+
+  ERR(lsim_dev_connect(lsim, nand_6_name, "o0", nand_s_name, "i0", 0));
+  ERR(lsim_dev_connect(lsim, nand_7_name, "o0", nand_s_name, "i1", 0));
 
   /* Save references to the "external" output terminals. */
-  dev->addbit.q_terminal = nand_q_dev->nand.o_terminal;
-  dev->addbit.Q_terminal = nand_Q_dev->nand.o_terminal;
+  dev->addbit.s_terminal = nand_s_dev->nand.o_terminal;
+  dev->addbit.o_terminal = nand_o_dev->nand.o_terminal;
+
   /* Save references to the "external" input terminals. */
-  ERR(lsim_dev_in_chain_add(&dev->addbit.S_terminal, nand_a_dev->nand.i_terminals[0], NULL));
-  ERR(lsim_dev_in_chain_add(&dev->addbit.S_terminal, nand_q_dev->nand.i_terminals[0], NULL));
-  ERR(lsim_dev_in_chain_add(&dev->addbit.c_terminal, nand_b_dev->nand.i_terminals[1], NULL));
-  ERR(lsim_dev_in_chain_add(&dev->addbit.c_terminal, nand_c_dev->nand.i_terminals[1], NULL));
-  ERR(lsim_dev_in_chain_add(&dev->addbit.d_terminal, nand_d_dev->nand.i_terminals[1], NULL));
-  ERR(lsim_dev_in_chain_add(&dev->addbit.R_terminal, nand_b_dev->nand.i_terminals[2], NULL));
-  ERR(lsim_dev_in_chain_add(&dev->addbit.R_terminal, nand_d_dev->nand.i_terminals[2], NULL));
-  ERR(lsim_dev_in_chain_add(&dev->addbit.R_terminal, nand_Q_dev->nand.i_terminals[2], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->addbit.a_terminal, nand_1_dev->nand.i_terminals[0], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->addbit.a_terminal, nand_2_dev->nand.i_terminals[0], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->addbit.b_terminal, nand_1_dev->nand.i_terminals[1], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->addbit.b_terminal, nand_3_dev->nand.i_terminals[1], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->addbit.i_terminal, nand_5_dev->nand.i_terminals[1], NULL));
+  ERR(lsim_dev_in_chain_add(&dev->addbit.i_terminal, nand_7_dev->nand.i_terminals[1], NULL));
 
   /* Type-specific methods (inheritance). */
   dev->get_out_terminal = lsim_devs_addbit_get_out_terminal;
@@ -190,9 +208,11 @@ ERR_F lsim_devs_addbit_create(lsim_t *lsim, char *dev_name) {
   /* Write the addbit dev. */
   ERR(hmap_swrite(lsim->devs, dev_name, dev));
 
-  free(nand_q_name);  free(nand_Q_name);
-  free(nand_a_name);  free(nand_b_name);
-  free(nand_c_name);  free(nand_d_name);
+  free(nand_1_name);  free(nand_2_name);
+  free(nand_3_name);  free(nand_4_name);
+  free(nand_5_name);  free(nand_6_name);
+  free(nand_7_name);  free(nand_s_name);
+  free(nand_o_name);
 
   return ERR_OK;
 }  /* lsim_devs_addbit_create */

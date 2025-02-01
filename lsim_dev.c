@@ -163,7 +163,7 @@ ERR_F lsim_dev_engine_run(lsim_t *lsim) {
   ERR_ASSRT(max_propagate_cycles > 0, LSIM_ERR_CONFIG);
 
   lsim->cur_step++;
-  if (lsim->verbosity_level > 0) {
+  if (lsim->verbosity_map & LSIM_VERBOSITY_MAP_STEP) {
     printf(" Step %ld:\n", lsim->cur_step);
   }
 
@@ -246,7 +246,7 @@ ERR_F lsim_dev_ticklet(lsim_t *lsim) {
   ERR_ASSRT(lsim->active_clk_dev, LSIM_ERR_COMMAND);
 
   lsim->cur_ticklet++;
-  if (lsim->verbosity_level > 0) {
+  if (lsim->verbosity_map & LSIM_VERBOSITY_MAP_TICKLET) {
     printf(" Ticklet %ld\n", lsim->cur_ticklet);
   }
 

@@ -31,63 +31,7 @@ OK() {
 
 rm -f *.log core.*
 
-T=1
-if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
-  TEST
-  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
-  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
-  OK
-fi
-
-T=2
-if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
-  TEST
-  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
-  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
-  OK
-fi
-
-T=3
-if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
-  TEST
-  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
-  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
-  OK
-fi
-
-T=4
-if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
-  TEST
-  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
-  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
-  OK
-fi
-
-T=5
-if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
-  TEST
-  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
-  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
-  OK
-fi
-
-T=6
-if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
-  TEST
-  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
-  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
-  OK
-fi
-
-T=7
-if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
-  TEST
-  $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"
-  egrep "^test[0-9 ]*: success" $B.$T.log >/dev/null; ST=$?; ASSRT "$ST -eq 0"
-  OK
-fi
-
-T=8
+T=0
 if [ "$SINGLE_T" -eq 0 -o "$SINGLE_T" -eq "$T" ]; then :
   TEST
   $B -t $T 2>&1 | tee -a $B.$T.log;  ST=${PIPESTATUS[0]}; ASSRT "$ST -eq 0"

@@ -354,6 +354,56 @@ ERR_F lsim_cmd_define_panel(lsim_t *lsim, char *cmd_line) {
 }  /* lsim_cmd_define_panel */
 
 
+/* Define device "addbit":
+ * d;addbit;dev_name;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_define_addbit(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_devs_addbit_create(lsim, dev_name));
+
+  return ERR_OK;
+}  /* lsim_cmd_define_addbit */
+
+
+/* Define device "addword":
+ * d;addword;dev_name;num_bits;
+ * cmd_line points at dev_name. */
+ERR_F lsim_cmd_define_addword(lsim_t *lsim, char *cmd_line) {
+  char *semi_colon;
+
+  char *dev_name = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';
+  ERR(lsim_valid_name(dev_name));
+
+  char *num_bits_s = semi_colon + 1;
+  ERR_ASSRT(semi_colon = strchr(num_bits_s, ';'), LSIM_ERR_COMMAND);
+  *semi_colon = '\0';  /* Overwrite semicolon. */
+
+  /* Make sure we're at end of line. */
+  char *end_field = semi_colon + 1;
+  ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
+
+  long num_bits;
+  ERR(err_atol(num_bits_s, &num_bits));
+  ERR_ASSRT(num_bits > 0, LSIM_ERR_COMMAND);
+
+  ERR(lsim_devs_addword_create(lsim, dev_name, num_bits));
+
+  return ERR_OK;
+}  /* lsim_cmd_define_addword */
+
+
 /* Define device:
  * d;dev_type;...
  * cmd_line points at dev_type. */
@@ -401,6 +451,12 @@ ERR_F lsim_cmd_define(lsim_t *lsim, char *cmd_line) {
   }
   else if (strcmp(dev_type, "panel") == 0) {
     ERR(lsim_cmd_define_panel(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "addbit") == 0) {
+    ERR(lsim_cmd_define_addbit(lsim, next_field));
+  }
+  else if (strcmp(dev_type, "addword") == 0) {
+    ERR(lsim_cmd_define_addword(lsim, next_field));
   }
   else {
     ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized device type '%s'", dev_type);
@@ -609,23 +665,23 @@ ERR_F lsim_cmd_ticklet(lsim_t *lsim, char *cmd_line) {
 
 
 /* verbosity:
- * v;verbosity_level;
+ * v;verbosity_map;
  * cmd_line points past first semi-colon. */
 ERR_F lsim_cmd_verbosity(lsim_t *lsim, char *cmd_line) {
   char *semi_colon;
 
-  char *verbosity_level_s = cmd_line;
-  ERR_ASSRT(semi_colon = strchr(verbosity_level_s, ';'), LSIM_ERR_COMMAND);
+  char *verbosity_map_s = cmd_line;
+  ERR_ASSRT(semi_colon = strchr(verbosity_map_s, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';  /* Overwrite semicolon. */
 
   /* Make sure we're at end of line. */
   char *end_field = semi_colon + 1;
   ERR_ASSRT(strlen(end_field) == 0, LSIM_ERR_COMMAND);
 
-  long verbosity_level;
-  ERR(err_atol(verbosity_level_s, &verbosity_level));
-  ERR_ASSRT(verbosity_level >= 0 && verbosity_level <= 2, LSIM_ERR_COMMAND);
-  lsim->verbosity_level = (int)verbosity_level;
+  long verbosity_map;
+  ERR(err_atol(verbosity_map_s, &verbosity_map));
+  ERR_ASSRT(verbosity_map >= 0, LSIM_ERR_COMMAND);
+  lsim->verbosity_map = (int)verbosity_map;
 
   return ERR_OK;
 }  /* lsim_cmd_verbosity */
@@ -660,7 +716,6 @@ ERR_F lsim_cmd_watchdev(lsim_t *lsim, char *cmd_line) {
   char *dev_name = cmd_line;
   ERR_ASSRT(semi_colon = strchr(dev_name, ';'), LSIM_ERR_COMMAND);
   *semi_colon = '\0';
-  ERR(lsim_valid_name(dev_name));
 
   char *watch_level_s = semi_colon + 1;
   ERR_ASSRT(semi_colon = strchr(watch_level_s, ';'), LSIM_ERR_COMMAND);
@@ -795,7 +850,7 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
       iline[len] = '\0';
     }
     if (len > 0) {
-      if (lsim->verbosity_level > 0) {
+      if (lsim->verbosity_map & LSIM_VERBOSITY_MAP_TRACE) {
         printf("Trace: %s:%d, '%s'\n", filename, line_num, iline);
       }
       err = lsim_cmd_line(lsim, iline);

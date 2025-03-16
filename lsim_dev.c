@@ -173,6 +173,9 @@ ERR_F lsim_dev_engine_run(lsim_t *lsim) {
    * configuration parameter limits the loop count. */
   while (lsim->in_changed_list) {
     lsim->cur_cycle++;
+    if (lsim->verbosity_map & LSIM_VERBOSITY_MAP_CYCLE) {
+      printf("  Cycle %ld:\n", lsim->cur_cycle);
+    }
     /* Prevent infinite loops. */
     ERR_ASSRT(lsim->cur_cycle <= max_propagate_cycles, LSIM_ERR_MAXLOOPS);
 

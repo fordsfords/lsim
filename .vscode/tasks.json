@@ -8,6 +8,11 @@
             "type": "shell",
             "command": "./bld.sh",
             "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true

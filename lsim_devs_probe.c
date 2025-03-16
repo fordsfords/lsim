@@ -86,37 +86,38 @@ ERR_F lsim_devs_probe_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
 
   if (dev->probe.d_terminal->state != dev->probe.prev_d_state) {
     dev->probe.d_changes_in_step++;
-    if (dev->probe.c_triggers_in_step > 0) {
-      printf("Warning: probe %s: data changed during control trigger, step %ld\n", dev->name, lsim->cur_step);
+  }
+
+  if (dev->probe.c_terminal->state != dev->probe.prev_c_state) {
+    dev->probe.c_changes_in_step++;
+    if (dev->probe.c_changes_in_step > 1) {
+      printf("Warning: probe %s: control trigger glitch, step %ld\n", dev->name, lsim->cur_step);
       lsim->total_warnings++;
     }
   }
-  if (dev->probe.c_terminal->state != dev->probe.prev_c_state) {
-    dev->probe.c_changes_in_step++;
-  }
+
   if (dev->probe.flags & LSIM_DEV_PROBE_FLAGS_RISING_EDGE) {
-    if (dev->probe.c_terminal->state && ! dev->probe.prev_d_state) {
+    if (dev->probe.c_terminal->state && ! dev->probe.prev_c_state) {
       /* Control edge rising trigger. */
       dev->probe.c_triggers_in_step++;
       if (dev->probe.d_changes_in_step > 0) {
-        printf("Warning: probe %s: data changed during control trigger, step %ld\n", dev->name, lsim->cur_step);
-        lsim->total_warnings++;
+        /* Data changes prior to */
+        if (dev->probe.c_triggers_in_step >= 1) { /* first trigger. */
+          printf("Warning: probe %s: data changed before rising control trigger, step %ld\n", dev->name, lsim->cur_step);
+          lsim->total_warnings++;
+        }
       }
     }
   }
-  else {  /* Not LSIM_DEV_PROBE_FLAGS_RISING_EDGE. */
+  else {  /* Triggers on falling edge. */
     if (! dev->probe.c_terminal->state && dev->probe.prev_d_state) {
       /* Control edge falling trigger. */
       dev->probe.c_triggers_in_step++;
       if (dev->probe.d_changes_in_step > 0) {
-        printf("Warning: probe %s: data changed during control trigger, step %ld\n", dev->name, lsim->cur_step);
+        printf("Warning: probe %s: data changed before falling control trigger, step %ld\n", dev->name, lsim->cur_step);
         lsim->total_warnings++;
       }
     }
-  }
-  if (dev->probe.c_changes_in_step > 1) {
-    printf("Warning: probe %s: control trigger glitch, step %ld\n", dev->name, lsim->cur_step);
-    lsim->total_warnings++;
   }
 
   dev->probe.prev_d_state = dev->probe.d_terminal->state;

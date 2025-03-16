@@ -197,7 +197,12 @@ Sets the debug output level.
 Format: `v;level;`
 
 Parameters:
-- level: 0 (quiet), 1 (changes only), or 2 (all states)
+- verbosity map:
+  * Bit 0 (0x01): Ticklet (clock output)
+  * Bit 1 (0x02): Step (within simulation run)
+  * Bit 2 (0x04): Cycle (within step)
+  * Bit 3 (0x08): Out change
+  * Bit 4 (0x10): Trace
 
 ### w - Watch
 Sets watch level for a specific device.

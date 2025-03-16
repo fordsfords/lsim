@@ -8,6 +8,7 @@ d;swtch;w_sw;0;
 d;swtch;a_sw;0;
 d;swtch;d_sw;0;
 
+d;dflipflop;srr;
 d;dflipflop;sr1;
 d;dflipflop;sr2a;
 d;dflipflop;sr3a;
@@ -19,7 +20,7 @@ d;led;led2a;
 d;led;led3a;
 d;led;led2b;
 
-d;nand;n1;2;
+d;nand;n1;3;
 d;nand;n2a;2;
 d;nand;n2a_i;1;
 d;nand;n2b;2;
@@ -31,14 +32,18 @@ d;clk;clk;
 
 d;mem;mem1;1;1;
 
-c;vcc;o0;sr1;R0;
+c;gnd;o0;srr;d0;
+
+c;vcc;o0;srr;R0;
+c;vcc;o0;sr1;S0;
 c;vcc;o0;sr2a;S0;
 c;vcc;o0;sr3a;S0;
 c;vcc;o0;sr2b;S0;
 c;vcc;o0;opcode;S0;
 
 # reset sets sr1
-c;rst;o0;sr1;S0;
+c;rst;o0;srr;S0;
+c;rst;o0;sr1;R0;
 c;rst;o0;sr2a;R0;
 c;rst;o0;sr3a;R0;
 c;rst;o0;sr2b;R0;
@@ -48,6 +53,8 @@ c;rst;o0;clk;R0;
 c;w_sw;o0;mem1;w0;
 c;a_sw;o0;mem1;a0;
 c;d_sw;o0;mem1;i0;
+
+c;srr;q0;n1;i2;
 
 c;sr1;q0;led1;i0;
 c;sr1;q0;n_op;i1;
@@ -72,6 +79,7 @@ c;n2b_i;o0;sr2b;d0;
 c;n_op;o0;n_op_i;i0;
 c;n_op_i;o0;opcode;c0;
 
+c;clk;q0;srr;c0;
 c;clk;q0;sr1;c0;
 c;clk;q0;sr2a;c0;
 c;clk;q0;sr3a;c0;
@@ -80,7 +88,29 @@ c;clk;q0;n_op;i0;
 
 c;mem1;o0;opcode;d0;
 
-w;a_sw;1;
+w;rst;1;
+w;srr;1;
+w;n1;1;
+
+d;probe;probe_op;1;
+c;n_op_i;o0;probe_op;c0;
+w;n_op_i;1;
+c;mem1;o0;probe_op;d0;
+w;mem1;1;
+
+d;probe;probe_sr2a;1;
+c;clk;q0;probe_sr2a;c0;
+w;clk;1;
+c;n2a_i;o0;probe_sr2a;d0;
+w;n2a_i;1;
+
+d;probe;probe_sr2b;1;
+c;clk;q0;probe_sr2b;c0;
+#already done w;clk;1;
+c;n2b_i;o0;probe_sr2b;d0;
+w;n2b_i;1;
+
+v;7;
 
 p;
 # load memory with 0, 1.

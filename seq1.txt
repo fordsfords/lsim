@@ -1,0 +1,48 @@
+seq1.txt
+
+I asked claude code to infer the purpose of seq1.lsim. Here's what it came up with:
+
+This is a minimal fetch-execute CPU sequencer demonstrating two opcodes.
+
+State machine
+
+The flip-flops form a pipeline of active-high state signals, not a ring counter. Once each stage fires it stays on (the D input remains
+1). The stages fire in sequence:
+
+┌───────────┬─────────────────────────────────────────────────────────────────────────┬───────┐
+│ Flip-flop │                                 Meaning                                 │  LED  │
+├───────────┼─────────────────────────────────────────────────────────────────────────┼───────┤
+│ srr       │ Reset-release one-shot — preset during reset, clocks to 0 on first tick │ —     │
+├───────────┼─────────────────────────────────────────────────────────────────────────┼───────┤
+│ sr1       │ Fetch — enabled by n1 one cycle after srr clears                        │ led1  │
+├───────────┼─────────────────────────────────────────────────────────────────────────┼───────┤
+│ sr2a      │ Execute path A, cycle 1 — when opcode=0                                 │ led2a │
+├───────────┼─────────────────────────────────────────────────────────────────────────┼───────┤
+│ sr3a      │ Execute path A, cycle 2 — follows sr2a                                  │ led3a │
+├───────────┼─────────────────────────────────────────────────────────────────────────┼───────┤
+│ sr2b      │ Execute path B — when opcode=1                                          │ led2b │
+├───────────┼─────────────────────────────────────────────────────────────────────────┼───────┤
+│ opcode    │ Opcode register — loaded from memory during fetch                       │ —     │
+└───────────┴─────────────────────────────────────────────────────────────────────────┴───────┘
+
+How it works
+
+- srr starts preset (via S0=rst while rst=0). Its sole purpose is to hold n1 output low for one cycle, delaying sr1 from firing until
+one clock after reset is released.
+- Once sr1 (fetch) fires, a gated clock (n_op_i = clk AND sr1) latches the opcode from mem1.
+- The decode logic is:
+  - sr2a.d0 = sr1 AND NOT(opcode) → path A
+  - sr2b.d0 = sr1 AND opcode → path B
+- Path A has two cycles (sr2a → sr3a); path B has one cycle (sr2b only).
+
+What the simulation demonstrates
+
+Memory is preloaded: address 0 → opcode=0, address 1 → opcode=1.
+- First 12 ticklets with a_sw=0: fetch from addr 0, opcode=0 → led1, led2a, led3a light up in sequence.
+- Then a_sw=1: fetch from addr 1, opcode=1 → led2b lights up instead.
+
+Larger context
+
+This is almost certainly an early building block toward a simple CPU. "seq1" establishes the fundamental fetch → decode → execute
+sequencing with a 1-bit opcode and two execution paths of different lengths — the same structure would extend to multi-bit opcodes and
+real ALU operations. The probes verify setup-time correctness on the opcode latch and the sr2a/sr2b data inputs.

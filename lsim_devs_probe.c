@@ -111,7 +111,7 @@ ERR_F lsim_devs_probe_run_logic(lsim_t *lsim, lsim_dev_t *dev) {
     }
   }
   else {  /* Triggers on falling edge. */
-    if (! dev->probe.c_terminal->state && dev->probe.prev_d_state) {
+    if (! dev->probe.c_terminal->state && dev->probe.prev_c_state) {
       /* Control edge falling trigger. */
       dev->probe.c_triggers_in_step++;
       if (dev->probe.d_changes_in_step > 0) {

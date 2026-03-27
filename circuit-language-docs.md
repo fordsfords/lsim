@@ -135,7 +135,7 @@ Supported device types:
   * Format: `d;addword;name;num_bits;`
   * Inputs:
     * `a0`-`an` (First addend)
-    * `b0`-`an` (Second addend)
+    * `b0`-`bn` (Second addend)
     * `i0` (Carry in)
   * Outputs:
     * `s0`-`sn` (Sum)

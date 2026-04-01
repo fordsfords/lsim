@@ -112,7 +112,6 @@ Supported device types:
     * `R0` (Reset)
   * Outputs:
     * `q0`-`qn` (normal data outputs, with 0 <= `n` < num_bits)
-    * `Q0`-`Qn` (inverted data outputs, with 0 <= `n` < num_bits)
 
 * `panel` - collection of switches and LEDs.
   * Format: `d;panel;name;num_bits;`

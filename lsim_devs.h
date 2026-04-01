@@ -131,7 +131,6 @@ struct lsim_dev_dflipflop_s {
 struct lsim_dev_reg_s {
   long num_bits;
   lsim_dev_out_terminal_t **q_terminals;  /* Allocated array of output terminals. */
-  lsim_dev_out_terminal_t **Q_terminals;  /* Allocated array of inverted output terminals. */
   lsim_dev_in_terminal_t **d_terminals;  /* Allocated array of input terminals. */
   lsim_dev_in_terminal_t *R_terminal;
   lsim_dev_in_terminal_t *c_terminal;

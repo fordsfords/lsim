@@ -36,16 +36,6 @@ ERR_F lsim_devs_reg_get_out_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
     }
     *out_terminal = dev->reg.q_terminals[bit_num];
   }
-  else if (out_id[0] == 'Q') {
-    long bit_num;
-    ERR(err_atol(out_id + 1, &bit_num));
-    bit_num += bit_offset;
-    if (bit_num >= dev->reg.num_bits) { /* Use throw instead of assert for more useful error message. */
-      ERR_THROW(LSIM_ERR_COMMAND, "reg %s output %s plus offset %d larger than last bit %d",
-                dev->name, out_id, bit_offset, dev->reg.num_bits - 1);
-    }
-    *out_terminal = dev->reg.Q_terminals[bit_num];
-  }
   else ERR_THROW(LSIM_ERR_COMMAND, "Unrecognized out_id '%s'", out_id);
 
   return ERR_OK;
@@ -139,7 +129,6 @@ ERR_F lsim_devs_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
   dev->reg.num_bits = num_bits;
 
   ERR(err_calloc((void **)&dev->reg.q_terminals, num_bits, sizeof(lsim_dev_out_terminal_t *)));
-  ERR(err_calloc((void **)&dev->reg.Q_terminals, num_bits, sizeof(lsim_dev_out_terminal_t *)));
   ERR(err_calloc((void **)&dev->reg.d_terminals, num_bits, sizeof(lsim_dev_in_terminal_t *)));
 
   char *vcc_name;
@@ -162,7 +151,6 @@ ERR_F lsim_devs_reg_create(lsim_t *lsim, char *dev_name, long num_bits) {
 
     /* Save the "external" terminals. */
     dev->reg.q_terminals[i] = dflipflop_dev->dflipflop.q_terminal;
-    dev->reg.Q_terminals[i] = dflipflop_dev->dflipflop.Q_terminal;
     dev->reg.d_terminals[i] = dflipflop_dev->dflipflop.d_terminal;
 
     /* Chain "External" inputs for clock and reset. */

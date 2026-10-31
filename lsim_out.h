@@ -42,6 +42,10 @@ typedef enum {
  * call back into lsim, and must not keep the `name` pointers (they belong to
  * lsim and are valid only for the duration of the call). */
 typedef struct lsim_out_s lsim_out_t;
+
+/* One lsim_out_t per lsim_t (a pointer field in lsim_t), not a process-wide
+ * global, so several simulators can coexist, e.g. ldraw run mode creating a
+ * fresh lsim_t each time the user flips from prog to run. */
 struct lsim_out_s {
   void *ctx;  /* Owned by the front-end; lsim never touches it. */
 
@@ -66,7 +70,11 @@ struct lsim_out_s {
   /* An LED's input changed. Today: "Led NAME: on|off (ticklet N)[ glitch]".
    * Always reported, regardless of verbosity. `glitch` is nonzero if the LED
    * changed more than once in the same step. Panel LEDs arrive with their
-   * full internal name, "<panel>.led.<i>". Today: lsim_devs_led.c. */
+   * full internal name, "<panel>.led.<i>". Today: lsim_devs_led.c.
+   *
+   * The library front-end also reuses this callback for the initial
+   * snapshot (every LED's current state, glitch = 0), so the ldraw side
+   * needs no separate "LED list" event. */
   void (*led)(lsim_out_t *out, lsim_t *lsim,
       const char *name, int state, long ticklet, int glitch);
 

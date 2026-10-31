@@ -19,8 +19,7 @@ Logic simulator.
 
 This project is undergoing rapid evolution.
 If you are interested in making use of it,
-I recommend waiting until it has stabilized somewhat.
-Or contact me and we can collaborate.
+contact me and we can collaborate.
 
 FYI - I can't imagine anybody being that interested in this project.
 There are much better hardware simulators out there;

@@ -181,8 +181,8 @@ with set and reset.
 ## Circuit Entry Language
 
 I'm going for ease of parsing, not human friendliness.
-Eventually it should have a circuit editor that is more human
-friendly (presumably a GUI) that produces this primitive language as output.
+That circuit editor is now [ldraw](https://github.com/fordsfords/ldraw),
+a browser-based schematic editor that exports this language.
 
 For a full detailed description,
 see [Logic Simulator Circuit Definition Language Documentation](circuit-language-docs.md) (Thanks Claude.ai!).

@@ -120,8 +120,21 @@ ldraw.html  <--WebSocket-->  bridge.py  --ctypes-->  liblsim.so
 * Because a long-lived Python process repeatedly creates and deletes
   simulators, `lsim_delete` must free everything. Check with a
   create/delete loop under valgrind when the front-end is written.
-* A throwaway shim loaded with `ctypes` created a simulator, ran commands and
-  returned error status to Python without ending the process.
+* A throwaway shim loaded with `ctypes` created a simulator and returned
+  command error status to Python without ending the process. Most of the
+  test commands errored because the command syntax was guessed wrong, so a
+  fully successful circuit run through ctypes is still unverified (it is
+  plain C calls, so low risk).
+
+## Notes for implementers
+
+* Only about 15 real `printf` event sites exist (`lsim_dev.c`, `led`, `clk`,
+  `mem`, `swtch`, `nand`, `vcc`, `gnd`, `probe`). A grep for `printf` over-counts
+  because it also matches `err_asprintf` in the composite devices. The `w;`
+  watch output site was not located when `lsim_out.h` was drafted, so the
+  API may be missing an event for it; check while converting.
+* `lsim_out.h` is a draft written from a read of the existing `printf`
+  calls, not from compiling against lsim. Expect adjustments.
 
 ## ldraw side (to do)
 

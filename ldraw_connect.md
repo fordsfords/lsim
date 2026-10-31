@@ -113,7 +113,13 @@ ldraw.html  <--WebSocket-->  bridge.py  --ctypes-->  liblsim.so
   Python process, so the library never calls it.
 * The only other global data is read-only: the error-code constants and
   `lsim_cfg_defaults`. No mutable per-process state, so several `lsim_t`
-  instances can coexist (except `global_error_reaction`, shared by all).
+  instances could coexist (except `global_error_reaction`, shared by all).
+  ldraw needs only one at a time: flipping to run creates it, flipping back
+  to prog calls `lsim_delete`. The bridge holds one optional handle and
+  rejects a second run request (e.g. from another browser tab).
+* Because a long-lived Python process repeatedly creates and deletes
+  simulators, `lsim_delete` must free everything. Check with a
+  create/delete loop under valgrind when the front-end is written.
 * A throwaway shim loaded with `ctypes` created a simulator, ran commands and
   returned error status to Python without ending the process.
 

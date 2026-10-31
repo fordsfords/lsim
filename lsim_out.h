@@ -44,8 +44,9 @@ typedef enum {
 typedef struct lsim_out_s lsim_out_t;
 
 /* One lsim_out_t per lsim_t (a pointer field in lsim_t), not a process-wide
- * global, so several simulators can coexist, e.g. ldraw run mode creating a
- * fresh lsim_t each time the user flips from prog to run. */
+ * global. ldraw creates a fresh lsim_t each time the user flips from prog to
+ * run and deletes it on the flip back, so a long-lived process creates and
+ * deletes many simulators in sequence. lsim_delete() must release everything. */
 struct lsim_out_s {
   void *ctx;  /* Owned by the front-end; lsim never touches it. */
 

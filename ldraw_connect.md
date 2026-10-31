@@ -57,11 +57,17 @@ Whatever the transport, these requirements apply:
    already detects it). The display should apply changes atomically at the end
    of each step so it shows settled values, not transient ones. That needs a
    `STEP <n>` (end-of-step) line in the stream.
+
+***Comment***: Disagree. The ldraw connection will be used mostly for low-level visual debugging and demos. I see it as more of a single-step operation, either at the ticklet or the step basis. This will reduce choices since a two-way communication has to happen so that ldraw can control operation of lsim. I see a new "main" program that has an output API. All the places that currently printf will call that API. For today's main programs, that new API will just call printf. In this new one, it will do whatever so that the event is delivered to ldraw. It might make sense to design the API to accept structured data so that the API isn't just pushing the printf string to ldraw but is instead pushing something easier to interpret. The API might have different functions for the different output forms, like one specifically for LED state changes, another for clock state changes, etc. The API is designed to know what to do (just printf for today's mains). However, I don't know how to do the communication to ldraw.
+
 3. **Initial snapshot.** At power-on (and on request) emit every LED's current
    state, so a viewer can start mid-run. Emitting the *list* of LEDs also
    lets ldraw detect "the drawing no longer matches the `.lsim` that is
    running" (stale export) by comparing names.
 4. **Flush.** Line-buffer (or `fflush`) after each step marker.
+
+***Comment***: Flush, if needed, only for the ldraw main. Current mains should lean on buffering so that it can run faster.
+
 5. **Pacing.** Choose who sets the speed (see "Who drives time" below).
 6. **Optional, later:** the same stream could carry `w;`-watched terminals or
    net states so ldraw can color *wires* by value, not just LEDs. Design the
@@ -86,6 +92,8 @@ Every option needs changes on both sides; the options differ in how much.
   (C), plus stale-drawing detection by comparing LED names.
 * For C only: send commands (`m;`, `t;`) back, with switch clicks, run/pause/
   step and a speed control in the UI.
+
+***Comment***: C.
 
 **New, for C only:** the bridge script.
 
@@ -170,6 +178,8 @@ Two sub-variants:
     commands into a process that can read files (`i;`), don't expose it to the
     network.
 * **Verdict:** best end state if interactive simulation is wanted.
+
+***Comment***: Hmm ... what about the third "main" not being a main at all? But instead a callable interface to Python or Node. This mode basically leverages Python's or Node's extensive library for websockets, etc and calls into lsim's C interface (presented by the third "main") to step the simulator. Outputs could either be an upcall to Python, or just a return value as an array of output events, or concatonated strings of output events, or whatever. Be skeptical of this design idea since I don't have a firm grasp of how Python/C or Node/C interface works. I don't know enough about Node to have a preference in terms of the technology.
 
 ## Option D - Build the server into lsim
 
@@ -288,11 +298,22 @@ A circuit with a free-running clock is just `t;1;` over and over, so the
 
 * Is interactive simulation (clicking ldraw switches) a goal, or is
   watching a scripted run enough? That decides between A/B and C.
+
+***Comment***: Yes, interactive.
+
 * Is "ldraw must open from `file://`" a hard requirement, or acceptable to
   relax when connected to a live simulation (C1)?
+
+***Comment***: 'file://' is not a hard requirement.
+
 * Where should a bridge script live (lsim or ldraw repo), and what language
   (Python is probably already on the machine; Node would need installing)?
+
+***Comment***: I don't have an opinion. If Node would help you, I'm OK with it.
+
 * Ownership: lsim is yours to author, ldraw is maintained by Claude Code
   going forward. Event-stream changes in lsim would be small, and I'd
   suggest you write those yourself and let Claude handle the ldraw and
   bridge sides.
+
+***Comment***: I would want to modify the existing lsim modules. You would write and maintain the third "main". When we get to low-level design, you'll create a .h file for the APIs that lsim needs to call instead of calling printf. I'll do the implementation of those APIs in the existing mains and you'll do it for the new main. Regarding Python/Node choice, since you'll be maintaining it, the choice comes down to which helps you meet the requirements better?

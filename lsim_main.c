@@ -62,7 +62,7 @@ ERR_F parse_cmdline(int argc, char **argv) {
 
   /* To be both Unix and Windows friendly, don't use getopt. */
   for (opt = 1; opt < argc; opt++) {
-    if (strcmp(argv[opt], "-h") == 0) {
+    if (strcmp(argv[opt], "-h") == 0 || strcmp(argv[opt], "-?") == 0) {
       help();  exit(0);
 
     } else if (strcmp(argv[opt], "-c") == 0) {

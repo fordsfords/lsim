@@ -186,7 +186,7 @@ Parameters:
 - new_state: 0 or 1
 
 ### t - Ticklet
-Advances the simulation by the specified number of clock cycles.
+Advances the simulation by the specified number of ticklets. A ticklet is a half-cycle of the clock device.
 
 Format: `t;num_ticklets;`
 

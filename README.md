@@ -19,8 +19,7 @@ Logic simulator.
 
 This project is undergoing rapid evolution.
 If you are interested in making use of it,
-I recommend waiting until March or April 2025,
-by which time it should have stabilized somewhat.
+I recommend waiting until it has stabilized somewhat.
 Or contact me and we can collaborate.
 
 FYI - I can't imagine anybody being that interested in this project.
@@ -70,6 +69,14 @@ So Linux it is:
 
 This will define and run a very simple shift register.
 
+Command line:
+```
+lsim_main [-h] [-c config_file] [command_file]
+```
+  * **-h**, **-?** - print help and exit.
+  * **-c config_file** - configuration file (see [Configuration](#configuration)).
+  * **command_file** - circuit/command file to run; `-` (the default) reads stdin.
+
 ## Composite Devices
 
 "Wait a minute!" I can hear you saying, "Your simulator has SR latches and D flipflops!
@@ -100,7 +107,7 @@ There are a few configurable parameters for lsim (defaults shown in [square brac
   total number of logic devices in your circuit [10007]
   * **max_propagate_cycles** - prevent logic engine from infinite looping [50]
   * **error_reaction** - how to react if an error is detected: 0=abort, 1=exit(1),
-  2=warn and continue [0].
+  2=warn and continue [1].
 
 To set one or more configs, create a file. For example:
 ```
@@ -201,6 +208,7 @@ d;dflipflop;dev_name;
 d;reg;dev_name;num_bits;
 d;panel;dev_name;num_bits;
 d;mem;dev_name;num_addr;num_data;
+d;probe;dev_name;flags;  # flags: bit map, 0x1=rising edge control
 d;addbit;name;
 d;addword;name;num_bits;
 
@@ -210,6 +218,9 @@ b;src_dev_name;src_output_id;dst_dev_name;dst_input_id;num_bits;  # bus (multipl
 
 # Include.
 i;filename;
+
+# Load memory (up to 64 values starting at addr).
+l;mem_dev_name;addr;val;val;...;
 
 # Watch a device for debugging (watch_level: 0=none, 1=output change, 2=always print)
 w;dev_name;watch_level;
@@ -222,8 +233,9 @@ m;dev_name;new_state;
 
 # Tick
 t;num_ticklets;
-# Verbosity. (verbosity_level: 0=none, 1=output change, 2=always print)
-v;verbosity_level;
+# Verbosity. (verbosity_map is a bit map: 0x01=ticklet, 0x02=step,
+# 0x04=cycle, 0x08=output change, 0x10=trace)
+v;verbosity_map;
 
 # quit
 q;

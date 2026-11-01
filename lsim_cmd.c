@@ -862,6 +862,7 @@ ERR_F lsim_cmd_file(lsim_t *lsim, const char *filename) {
         case 1: ERR_EXIT_ON_ERR(err, stderr); break;
         case 2:
           ERR_WARN_ON_ERR(err, stderr);
+          err = NULL;  /* The macro disposes the actual err_t. */
           break;
         }
       }

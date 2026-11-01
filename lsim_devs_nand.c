@@ -43,6 +43,9 @@ ERR_F lsim_devs_nand_get_in_terminal(lsim_t *lsim, lsim_dev_t *dev, const char *
   if (in_id[0] == 'i') {
     long input_num;
     ERR(err_atol(in_id + 1, &input_num));
+    if (input_num < 0) {
+      ERR_THROW(LSIM_ERR_COMMAND, "nand %s input %s bit number is negative", dev->name, in_id);
+    }
     input_num += bit_offset;
     if (input_num >= dev->nand.num_inputs) { /* Use throw instead of assert for more useful error message. */
       ERR_THROW(LSIM_ERR_COMMAND, "nand %s input %s plus offset %d larger than last bit %d",
